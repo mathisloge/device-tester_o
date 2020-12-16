@@ -1,10 +1,16 @@
 #pragma once
 #include "protocol.hpp"
+#include "ublox_detail.hpp"
 
 class ProtocolUblox : public Protocol
 {
+
 public:
+    explicit ProtocolUblox(detail::proto::UbloxHandler &ubx_handler);
     const char *name() const override;
-    bool containsMessage(Data::const_iterator begin, Data::const_iterator end) const override;
-    std::pair<Data::const_iterator, Data::const_iterator> consumeOneMessage(Data::const_iterator begin, Data::const_iterator end) override;
+    std::pair<ProtoCIter, ProtoCIter> consumeOneMessage(ProtoCIter begin, ProtoCIter end) override;
+
+private:
+    detail::proto::UbloxInstance ubx_instance_;
+    detail::proto::UbloxHandler &ubx_handler_;
 };

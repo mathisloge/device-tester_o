@@ -1,19 +1,20 @@
 #include "protocol_ublox.hpp"
 
+ProtocolUblox::ProtocolUblox(detail::proto::UbloxHandler &ubx_handler)
+    : ubx_handler_{ubx_handler}
+{
+}
 const char *ProtocolUblox::name() const
 {
     return "ublox";
 }
 
-bool ProtocolUblox::containsMessage(Data::const_iterator begin, Data::const_iterator end) const
+std::pair<ProtoCIter, ProtoCIter> ProtocolUblox::consumeOneMessage(ProtoCIter begin, ProtoCIter end)
 {
     if (!isActive())
-        return false;
+        return std::make_pair(begin, begin);
 
-    return true;
-}
-
-std::pair<Protocol::Data::const_iterator, Protocol::Data::const_iterator> ProtocolUblox::consumeOneMessage(Data::const_iterator begin, Data::const_iterator end)
-{
-    return std::make_pair(begin + 1, end - 1);
+    std::pair<ProtoCIter, ProtoCIter> read_range;
+    ubx_instance_.processSingle(begin, end, read_range, ubx_handler_);
+    return read_range;
 }

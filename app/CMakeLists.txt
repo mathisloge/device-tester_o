@@ -8,6 +8,7 @@ set(CONNECTION_SRC
 set(PROTOCOL_SRC 
     src/protocols/protocol.cpp
     src/protocols/protocol_ublox.cpp
+    src/protocols/ublox_detail.cpp
 )
 
 set(GNSS_SRC 
@@ -27,6 +28,7 @@ add_library(gps-tester STATIC
     ${GUI_SRC}
 )
 set_property(TARGET gps-tester PROPERTY CXX_STANDARD 20)
+set_property(TARGET gps-tester APPEND PROPERTY COMPILE_OPTIONS "/bigobj")
 
 
 set(COMPILE_DEFS BOOST_ASIO_USE_TS_EXECUTOR_AS_DEFAULT SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)

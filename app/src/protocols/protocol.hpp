@@ -1,9 +1,9 @@
 #pragma once
 #include <vector>
+#include "protocol_types.hpp"
 class Protocol
 {
 public:
-    using Data = std::vector<uint8_t>;
     enum class State
     {
         activated,
@@ -17,14 +17,12 @@ public:
     virtual const char *name() const = 0;
     /**
      * @brief 
-     * @attention have to return false if isActive is false.
+     * 
      * @param begin 
-     * @param end 
-     * @return true 
-     * @return false no message is present or isActive return false
+     * @param end
+     * @return std::pair<Data::const_iterator, Data::const_iterator>  return pair<param begin, param begin> if isActive is false
      */
-    virtual bool containsMessage(Data::const_iterator begin, Data::const_iterator end) const = 0;
-    virtual std::pair<Data::const_iterator, Data::const_iterator> consumeOneMessage(Data::const_iterator begin, Data::const_iterator end) = 0;
+    virtual std::pair<ProtoCIter, ProtoCIter> consumeOneMessage(ProtoCIter begin, ProtoCIter end) = 0;
 
 protected:
     State state_;

@@ -5,6 +5,7 @@
 #include <tuple>
 #include <algorithm>
 #include <spdlog/spdlog.h>
+#include "protocol_types.hpp"
 #include "protocol.hpp"
 
 template <typename T>
@@ -24,7 +25,7 @@ public:
     }
 
     const std::tuple<Ts...> &protocols() const { return protocols_; }
-    const std::vector<uint8_t> &data() const { return data_; }
+    const ProtoData &data() const { return data_; }
 
 private:
     void processAllData()
@@ -36,10 +37,8 @@ private:
     template <IsProtocol T>
     void processProtocol(T &protocol)
     {
-        if (protocol.containsMessage(data_.begin(), data_.end()))
+        if (auto consumed = protocol.consumeOneMessage(data_.begin(), data_.end()); consumed.second != data_.begin())
         {
-            auto consumed = protocol.consumeOneMessage(data_.begin(), data_.end());
-
             SPDLOG_TRACE("{}: consumed {}", protocol.name(), std::distance(consumed.first, consumed.second));
             if (data_.begin() != consumed.first)
             {
@@ -52,5 +51,5 @@ private:
 
 private:
     std::tuple<Ts...> protocols_;
-    std::vector<uint8_t> data_;
+    ProtoData data_;
 };

@@ -1,5 +1,6 @@
 #include <catch.hpp>
 #include <iostream>
+#include "protocols/protocol_types.hpp"
 #include "protocols/protocol_dispatcher.hpp"
 #include "protocols/protocol.hpp"
 
@@ -15,11 +16,8 @@ public:
     {
         return "MockProtocolCorrect";
     }
-    bool containsMessage(Data::const_iterator begin, Data::const_iterator end) const override
-    {
-        return true;
-    }
-    std::pair<Data::const_iterator, Data::const_iterator> consumeOneMessage(Data::const_iterator begin, Data::const_iterator end) override
+    
+    std::pair<ProtoCIter, ProtoCIter> consumeOneMessage(ProtoCIter begin, ProtoCIter end) override
     {
         message_.insert(message_.end(), begin + offset_begin_, end - neg_offset_end_);
         return std::make_pair(begin + offset_begin_, end - neg_offset_end_);
