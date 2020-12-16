@@ -25,10 +25,19 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: true
-      - name: "bootstrap vcpkg"
+
+      - name: bootstrap vcpkg (windows-only)
         shell: "bash"
         working-directory: ${{runner.workspace}}
-        run: ./vcpkg/bootstrap-vcpkg
+        run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+               ./vcpkg/bootstrap-vcpkg.sh
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+               .\vcpkg\bootstrap-vcpkg.bat
+          else
+               echo "$RUNNER_OS not supported"
+               exit 1
+          fi
 
       - name: "Setup NuGet Credentials"
         shell: "bash"
