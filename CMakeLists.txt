@@ -5,8 +5,10 @@ project(gps-tester
         HOMEPAGE_URL https://github.com/mathisloge/gps-tester
         LANGUAGES CXX)
 
+find_package(spdlog CONFIG REQUIRED)
 find_package(ublox CONFIG REQUIRED)
 find_package(LibComms CONFIG REQUIRED)
+find_package(Boost REQUIRED)
 add_subdirectory(app)
 
 

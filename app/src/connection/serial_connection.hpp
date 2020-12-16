@@ -6,14 +6,32 @@
 
 class SerialConnection : public std::enable_shared_from_this<SerialConnection>, public Connection
 {
+    static constexpr auto kDefaultPar = boost::asio::serial_port_base::parity::none;
+    static constexpr auto kDefaultCharSize = 8;
+    static constexpr auto kDefaultFlow = boost::asio::serial_port_base::flow_control::none;
+    static constexpr auto kDefaultStopBits = boost::asio::serial_port_base::stop_bits::one;
+
 public:
-    explicit SerialConnection(boost::asio::executor &io_executor);
-    void open() override;
-    void close() override;
+    explicit SerialConnection(ConnectionHandle &handle,
+                              boost::asio::executor &io_executor,
+                              const std::string &devname,
+                              unsigned int baud_rate,
+                              boost::asio::serial_port_base::parity parity = boost::asio::serial_port_base::parity(kDefaultPar),
+                              boost::asio::serial_port_base::character_size char_size = boost::asio::serial_port_base::character_size(kDefaultCharSize),
+                              boost::asio::serial_port_base::flow_control flow_ctrl = boost::asio::serial_port_base::flow_control(kDefaultFlow),
+                              boost::asio::serial_port_base::stop_bits stop_bits = boost::asio::serial_port_base::stop_bits(kDefaultStopBits));
+
+    void open(const std::string &devname,
+              unsigned int baud_rate,
+              boost::asio::serial_port_base::parity parity = boost::asio::serial_port_base::parity(kDefaultPar),
+              boost::asio::serial_port_base::character_size char_size = boost::asio::serial_port_base::character_size(kDefaultCharSize),
+              boost::asio::serial_port_base::flow_control flow_ctrl = boost::asio::serial_port_base::flow_control(kDefaultFlow),
+              boost::asio::serial_port_base::stop_bits stop_bits = boost::asio::serial_port_base::stop_bits(kDefaultStopBits)) noexcept;
+    ~SerialConnection();
 
 private:
-    void receiveAndDispatch();
     void handleRead(const boost::system::error_code &e, std::size_t bytes_transferred);
+    void processData();
 
 private:
     /// Strand to ensure the connection's handlers are not called concurrently.

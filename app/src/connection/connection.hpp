@@ -1,8 +1,11 @@
 #pragma once
-
-class Connection
+#include "connection_handle.hpp"
+#include <boost/noncopyable.hpp>
+class Connection : public boost::noncopyable
 {
 public:
-    virtual void open() = 0;
-    virtual void close() = 0;
+    explicit Connection(ConnectionHandle &handle);
+    virtual ~Connection();
+protected:
+    ConnectionHandle &handle_;
 };
