@@ -3,6 +3,7 @@
     "version-string": "0.1.0",
     "dependencies": [
         "spdlog",
+        "catch2",
         "comms-ublox",
         "boost-asio",
         "boost-signals2"

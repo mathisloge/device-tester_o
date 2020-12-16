@@ -12,10 +12,9 @@ public:
 
 public:
     Protocol();
-    virtual const char *name() const = 0;
     void setState(State state);
     bool isActive() const;
-
+    virtual const char *name() const = 0;
     /**
      * @brief 
      * @attention have to return false if isActive is false.

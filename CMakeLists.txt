@@ -9,8 +9,17 @@ find_package(spdlog CONFIG REQUIRED)
 find_package(ublox CONFIG REQUIRED)
 find_package(LibComms CONFIG REQUIRED)
 find_package(Boost REQUIRED)
-add_subdirectory(app)
 
+option(ENABLE_TESTS ON)
+set(ENABLE_TESTS ON)
+if(ENABLE_TESTS)
+    include(CTest)
+endif()
+
+if(BUILD_TESTING)
+    find_package(Catch2 REQUIRED)
+endif()
+add_subdirectory(app)
 
 # Package Generator  #######################################################
 set(CPACK_PACKAGE_DESCRIPTION ${CMAKE_PROJECT_DESCRIPTION})

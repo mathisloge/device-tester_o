@@ -23,6 +23,9 @@ public:
         processAllData();
     }
 
+    const std::tuple<Ts...> &protocols() const { return protocols_; }
+    const std::vector<uint8_t> &data() const { return data_; }
+
 private:
     void processAllData()
     {

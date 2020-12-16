@@ -1,7 +1,7 @@
 #pragma once
 #include "protocol.hpp"
 
-class UbloxProtocol : public Protocol
+class ProtocolUblox : public Protocol
 {
 public:
     const char *name() const override;
