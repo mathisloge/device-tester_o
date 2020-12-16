@@ -22,6 +22,13 @@ add_executable(gps-tester-app
     ${GUI_SRC}
 )
 
+set(COMPILE_DEFS BOOST_ASIO_USE_TS_EXECUTOR_AS_DEFAULT)
+if(WIN32)
+    # fix to win 10 yet
+    list(APPEND COMPILE_DEFS _WIN32_WINNT=0x0A00)
+endif()
+
+target_compile_definitions(gps-tester-app PRIVATE ${COMPILE_DEFS})
 
 target_link_libraries(gps-tester-app PRIVATE 
     cc::comms
