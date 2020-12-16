@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
 find_package(Boost REQUIRED
-    COMPONENTS headers
 )
 set(CONNECTION_SRC 
     src/gnss/gnss_device.cpp
