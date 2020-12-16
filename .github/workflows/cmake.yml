@@ -28,12 +28,11 @@ jobs:
 
       - name: bootstrap vcpkg (windows-only)
         shell: "bash"
-        working-directory: ${{runner.workspace}}
         run: |
           if [ "$RUNNER_OS" == "Linux" ]; then
-               ./vcpkg/bootstrap-vcpkg.sh
+               ${{runner.workspace}}/vcpkg/bootstrap-vcpkg.sh
           elif [ "$RUNNER_OS" == "Windows" ]; then
-               ./vcpkg/bootstrap-vcpkg.bat
+               ${{runner.workspace}}/vcpkg/bootstrap-vcpkg.bat
           else
                echo "$RUNNER_OS not supported"
                exit 1
