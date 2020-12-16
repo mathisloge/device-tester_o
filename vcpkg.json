@@ -1,0 +1,10 @@
+{
+    "name": "gps-tester",
+    "version-string": "0.1.0",
+    "dependencies": [
+        "spdlog",
+        "comms-ublox",
+        "boost-asio",
+        "boost-signals2"
+    ]
+}
