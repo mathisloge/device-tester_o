@@ -33,10 +33,10 @@ public:
 class Handle : public ConnectionHandle
 {
     MsgHandler msg_handler_;
-    ProtocolDispatcher<ProtocolNmea> dispatcher_;
+    ProtocolDispatcher<ProtocolUblox, ProtocolNmea> dispatcher_;
 
 public:
-    Handle() : dispatcher_{ProtocolNmea{msg_handler_}}
+    Handle() : dispatcher_{ProtocolUblox{msg_handler_}, ProtocolNmea{msg_handler_}}
     {
     }
 

@@ -1,7 +1,8 @@
 #include <vector>
 #include <numeric>
 #include "nmea/nmea_parser.hpp"
-class Handler {
+class Handler
+{
 public:
     void handle(const NmeaMessage &msg)
     {

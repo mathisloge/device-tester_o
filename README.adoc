@@ -6,11 +6,23 @@ v0.1.0
 :homepage: https://github.com/mathisloge/gps-tester
 :toc: left
 :icons: font
+:source-highlighter: rouge
 
 == Introduction
 Some gnss device testing and exploring some language functions
 
 == Build
+
+
+[source,shell]
+----
+git clone --recursive https://github.com/mathisloge/gps-tester.git
+cd gps-tester
+./vcpkg/bootstrap-vcpkg.(sh on Linux, bat on Windows)
+mkdir build
+cd build
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake ..
+----
 
 
 [bibliography]

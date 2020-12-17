@@ -12,7 +12,6 @@ namespace qi = boost::spirit::qi;
 namespace ascii = boost::spirit::ascii;
 namespace phoenix = boost::phoenix;
 
-
 // clang-format off
 BOOST_FUSION_ADAPT_STRUCT(Time, (uint32_t, hours)(uint32_t, minutes)(uint32_t, seconds)(uint32_t, milliseconds))
 BOOST_FUSION_ADAPT_STRUCT(nmea::detail::NmeaLatLonRep,
@@ -58,7 +57,6 @@ namespace nmea::detail
     static const DatumRefSymbol kDatumRefSymbol;
     static const NSDirSymbol kNSSymbol;
     static const EWDirSymbol kEWSymbol;
-
 
     template <typename Iterator, typename DirSymbol, int DegreeLen>
     struct lat_lon_grammar : qi::grammar<Iterator, NmeaLatLonRep()>

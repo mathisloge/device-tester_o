@@ -12,7 +12,7 @@ namespace nmea
             begin++;
         if (begin == end)
             return false;
-            
+
         const bool success = nmea::detail::parse_nmea(begin, end, msg_var);
         if (success)
             boost::apply_visitor([&handler](const auto &msg) { handler.handle(msg); }, msg_var);

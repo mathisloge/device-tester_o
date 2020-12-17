@@ -19,4 +19,3 @@ std::pair<ProtoCIter, ProtoCIter> ProtocolNmea::consumeOneMessage(ProtoCIter beg
         return std::make_pair(begin, read_end);
     return std::make_pair(begin, begin);
 }
-
