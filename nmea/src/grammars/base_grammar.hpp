@@ -87,15 +87,11 @@ struct lat_lon_grammar : qi::grammar<Iterator, NmeaLatLonRep()>
 template <typename Iterator>
 struct time_grammar : qi::grammar<Iterator, Time()>
 {
-    time_grammar() : time_grammar::base_type(time)
+    time_grammar() : time_grammar::base_type(start_)
     {
-        using qi::uint_parser;
-        using digit2_parser = uint_parser<uint8_t, 10, 2, 2>;
-        static const digit2_parser time_parser{};
+        static const qi::uint_parser<uint32_t, 10, 2, 2> time_parser{};
 
-        time = time_parser >> time_parser >> time_parser >> '.' >> time_parser;
-
-        BOOST_SPIRIT_DEBUG_NODES((time));
+        start_ = time_parser >> time_parser >> time_parser >> '.' >> time_parser;
     };
-    qi::rule<Iterator, Time()> time;
+    qi::rule<Iterator, Time()> start_;
 };

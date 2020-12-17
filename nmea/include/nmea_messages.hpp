@@ -69,7 +69,7 @@ struct NmeaGLL : NmeaMessage
 {
     double latitude;
     double longitude;
-    double time;
+    Time time;
     bool data_valid;
     PositionFixStatus position_fix;
 };

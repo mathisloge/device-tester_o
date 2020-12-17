@@ -5,7 +5,7 @@ BOOST_FUSION_ADAPT_STRUCT(NmeaGLL,
                           (Talker, talker)
                           (double, latitude)
                           (double, longitude)
-                          (double, time)
+                          (Time, time)
                           (bool, data_valid)
                           (PositionFixStatus, position_fix))
 // clang-format on
@@ -44,10 +44,11 @@ struct sentence_gll_grammar : public qi::grammar<Iterator, NmeaGLL()>
         static const GLLPosisitionSymbol pos_sym;
         static const lat_lon_grammar<Iterator, NSDirSymbol, 2> lat_g_;
         static const lat_lon_grammar<Iterator, EWDirSymbol, 3> lon_g_;
+        static const time_grammar<Iterator> time_g_;
         sentence_ = kTalkerSymbol >> "GLL" >> ',' >>
                     lat_g_ >> ',' >>
                     lon_g_ >> ',' >>
-                    double_/*time_grammar<Iterator>()*/ >> ',' >>
+                    time_g_ >> ',' >>
                     data_valid_sym >> ',' >>
                     pos_sym;
     }
