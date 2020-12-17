@@ -73,3 +73,22 @@ struct NmeaGLL : NmeaMessage
     bool data_valid;
     PositionFixStatus position_fix;
 };
+
+namespace nmea::detail
+{
+  struct NmeaLatLonRep
+    {
+        uint32_t degrees;
+        double minutes;
+        DirectionIndicator indicator;
+        operator double() const
+        {
+            const double trans = degrees + (minutes / 60.);
+            if (indicator == DirectionIndicator::south ||
+                indicator == DirectionIndicator::west)
+                return -1. * trans;
+            else
+                return trans;
+        }
+    };
+}
