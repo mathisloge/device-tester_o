@@ -4,8 +4,8 @@
 #include "connection/serial_connection.hpp"
 #include "protocols/protocol_dispatcher.hpp"
 #include "protocols/protocol_ublox.hpp"
-
-class MsgHandler : public detail::proto::UbloxHandler
+#include "protocols/protocol_nmea.hpp"
+class MsgHandler : public detail::proto::UbloxHandler, public NmeaHandler
 {
 public:
     void handle(detail::proto::UbloxMessage &msg) override
@@ -13,14 +13,30 @@ public:
 
         std::cout << "received ublox message len:" << msg.length() << " " << (msg.hasName() ? msg.name() : "unknown") << std::endl;
     }
+    void handle(const NmeaMessage &msg) override
+    {
+        spdlog::critical("got completly unkown message. it is not unsupported.");
+    }
+    void handle(const NmeaDTM &msg) override
+    {
+        std::cout << "got dtm nmea message " << std::endl;
+    }
+    void handle(const NmeaGLL &msg) override
+    {
+        spdlog::info("my position: https://www.google.com/maps/dir/{},{}", msg.latitude, msg.longitude);
+    }
+    void handle(const NmeaUnsupported &msg) override
+    {
+        //std::cout << "got unkown nmea message " << std::endl;
+    }
 };
 class Handle : public ConnectionHandle
 {
-    MsgHandler ublox_handler_;
-    ProtocolDispatcher<ProtocolUblox> dispatcher_;
+    MsgHandler msg_handler_;
+    ProtocolDispatcher<ProtocolNmea> dispatcher_;
 
 public:
-    Handle() : dispatcher_{ProtocolUblox{ublox_handler_}}
+    Handle() : dispatcher_{ProtocolNmea{msg_handler_}}
     {
     }
 

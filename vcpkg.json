@@ -7,6 +7,7 @@
         "comms-ublox",
         "boost-asio",
         "boost-signals2",
+        "boost-circular-buffer",
         "boost-spirit"
     ]
 }

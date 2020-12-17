@@ -31,7 +31,16 @@ private:
     void processAllData()
     {
         //! \todo wrap in while. condition => at least one protocol detects a message
-        std::apply([this](auto &... protocol) { (processProtocol(protocol), ...); }, protocols_);
+        ProtoCIter prev_begin = data_.begin();
+        ProtoCIter prev_end = data_.end();
+        while (!data_.empty())
+        {
+            std::apply([this](auto &... protocol) { (processProtocol(protocol), ...); }, protocols_);
+            if (prev_begin == data_.begin() && prev_end == data_.end())
+                return;
+            prev_begin = data_.begin();
+            prev_end = data_.end();
+        }
     }
 
     template <IsProtocol T>

@@ -13,15 +13,14 @@ namespace ascii = boost::spirit::ascii;
 namespace phoenix = boost::phoenix;
 
 
-
-BOOST_FUSION_ADAPT_STRUCT(Time, (uint32_t, hours)(uint32_t, minutes)(uint32_t, seconds)(uint32_t, milliseconds))
 // clang-format off
+BOOST_FUSION_ADAPT_STRUCT(Time, (uint32_t, hours)(uint32_t, minutes)(uint32_t, seconds)(uint32_t, milliseconds))
 BOOST_FUSION_ADAPT_STRUCT(nmea::detail::NmeaLatLonRep,
                         (uint32_t, degrees)
                         (double, minutes)
                         (DirectionIndicator, indicator))
-// clang-format on
 
+// clang-format on
 namespace nmea::detail
 {
 

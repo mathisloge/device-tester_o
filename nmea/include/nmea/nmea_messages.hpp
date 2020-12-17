@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include <string>
 enum class Talker
 {
     GP, //! GPS, SBAS, QZSS
@@ -47,6 +48,11 @@ struct NmeaMessage
     Talker talker;
 };
 
+struct NmeaUnsupported : NmeaMessage
+{
+    std::string message;
+};
+
 /**
  * @brief This message gives the difference between the current datum and the reference datum.
  */
@@ -76,7 +82,7 @@ struct NmeaGLL : NmeaMessage
 
 namespace nmea::detail
 {
-  struct NmeaLatLonRep
+    struct NmeaLatLonRep
     {
         uint32_t degrees;
         double minutes;
@@ -91,4 +97,4 @@ namespace nmea::detail
                 return trans;
         }
     };
-}
+} // namespace nmea::detail

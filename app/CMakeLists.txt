@@ -9,6 +9,7 @@ set(PROTOCOL_SRC
     src/protocols/protocol.cpp
     src/protocols/protocol_ublox.cpp
     src/protocols/ublox_detail.cpp
+    src/protocols/protocol_nmea.cpp
 )
 
 set(GNSS_SRC 
@@ -42,7 +43,7 @@ target_link_libraries(gps-tester PUBLIC
     spdlog::spdlog
     cc::comms
     cc::ublox
-    NMEAParserLib
+    nmea-parser
 )
 
 add_executable(gps-tester-app 

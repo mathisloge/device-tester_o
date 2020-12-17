@@ -2,10 +2,11 @@
 #include "grammars/base_grammar.hpp"
 #include "grammars/sentence_dtm.hpp"
 #include "grammars/sentence_gll.hpp"
+#include "grammars/sentence_unsupported.hpp"
 
 namespace nmea::detail
 {
-    using AllNmeaMessages = boost::variant<NmeaDTM, NmeaGLL>;
+    using AllNmeaMessages = boost::variant<NmeaDTM, NmeaGLL, NmeaUnsupported>;
 
     template <typename Iterator>
     uint8_t nmea0183_checksum(Iterator first, Iterator last)
@@ -26,6 +27,7 @@ namespace nmea::detail
 
         sentence_dtm_grammar<Iterator> sentence_dtm;
         sentence_gll_grammar<Iterator> sentence_gll;
+        sentence_unsupported_grammar<Iterator> sentence_unsupported;
         using qi::parse;
         using qi::uint_parser;
         using qi::skip;
@@ -33,7 +35,7 @@ namespace nmea::detail
         uint8_t checksum = 0;
         bool r = parse(first, last,
                               //  Begin grammar
-                              ('$' >> (sentence_dtm | sentence_gll) >> '*' >> uint_parser<uint8_t, 16, 1, 2>() >> "\r\n"),
+                              ('$' >> (sentence_dtm | sentence_gll | sentence_unsupported) >> '*' >> uint_parser<uint8_t, 16, 1, 2>() >> "\r\n"),
                               //  End grammar
                               msg_instance, checksum);
 
