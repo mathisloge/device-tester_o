@@ -38,10 +38,11 @@ if(WIN32)
 endif()
 target_compile_definitions(gps-tester PUBLIC ${COMPILE_DEFS})
 target_link_libraries(gps-tester PUBLIC 
-    cc::comms
-    cc::ublox
     Boost::headers
     spdlog::spdlog
+    cc::comms
+    cc::ublox
+    NMEAParserLib
 )
 
 add_executable(gps-tester-app 

@@ -19,6 +19,7 @@ endif()
 if(BUILD_TESTING)
     find_package(Catch2 REQUIRED)
 endif()
+add_subdirectory(nmea)
 add_subdirectory(app)
 
 # Package Generator  #######################################################

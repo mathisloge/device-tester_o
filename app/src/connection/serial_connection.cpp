@@ -3,19 +3,11 @@
 
 namespace asio = boost::asio;
 
-SerialConnection::SerialConnection(ConnectionHandle &handle,
-                                   boost::asio::executor &io_executor,
-                                   const std::string &devname,
-                                   unsigned int baud_rate,
-                                   boost::asio::serial_port_base::parity parity,
-                                   boost::asio::serial_port_base::character_size char_size,
-                                   boost::asio::serial_port_base::flow_control flow_ctrl,
-                                   boost::asio::serial_port_base::stop_bits stop_bits)
+SerialConnection::SerialConnection(ConnectionHandle &handle, boost::asio::io_context &io_context)
     : Connection(handle),
-      strand_{asio::make_strand(io_executor)},
+      strand_{asio::make_strand(io_context)},
       serial_{strand_}
 {
-    open(devname, baud_rate, parity, char_size, flow_ctrl, stop_bits);
 }
 
 void SerialConnection::handleRead(const boost::system::error_code &e, std::size_t bytes_transferred)
@@ -42,6 +34,15 @@ void SerialConnection::open(const std::string &devname,
                             boost::asio::serial_port_base::flow_control flow_ctrl,
                             boost::asio::serial_port_base::stop_bits stop_bits) noexcept
 {
+    try
+    {
+        serial_.open(devname);
+    }
+    catch (const boost::system::system_error &e)
+    {
+        spdlog::error("error can't open serial connection to device [{}] with error: {}", devname, e.what());
+        return;
+    }
     try
     {
         serial_.set_option(parity);
@@ -74,14 +75,7 @@ void SerialConnection::open(const std::string &devname,
     {
         spdlog::error("Device: {}, error setting stop bits: {}", devname, e.what());
     }
-    try
-    {
-        serial_.open(devname);
-    }
-    catch (const boost::system::system_error &e)
-    {
-        spdlog::error("error can't open serial connection to device [{}] with error: {}", devname, e.what());
-    }
+
     try
     {
         serial_.async_read_some(boost::asio::buffer(rx_buffer_),

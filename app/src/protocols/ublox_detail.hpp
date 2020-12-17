@@ -33,7 +33,7 @@ namespace detail::proto
     class UbloxHandler
     {
     public:
-        void handle(UbloxMessage &msg);
+        virtual void handle(UbloxMessage &msg);
     };
 
     struct UbloxInstance

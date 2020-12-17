@@ -6,6 +6,7 @@
         "catch2",
         "comms-ublox",
         "boost-asio",
-        "boost-signals2"
+        "boost-signals2",
+        "boost-spirit"
     ]
 }
