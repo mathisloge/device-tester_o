@@ -31,7 +31,6 @@ public:
     }
 };
 
-
 int main(int argc, char const *argv[])
 {
     spdlog::set_level(spdlog::level::trace);
