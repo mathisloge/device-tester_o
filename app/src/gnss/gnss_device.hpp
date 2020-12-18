@@ -3,5 +3,4 @@
 class GnssDevice
 {
 public:
-    explicit GnssDevice(Connection &connection);
 };

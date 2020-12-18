@@ -4,9 +4,6 @@
 
 namespace detail::proto
 {
-    void UbloxHandler::handle(UbloxMessage &msg)
-    {
-    }
 
     comms::ErrorStatus UbloxInstance::processSingle(ProtoCIter begin, ProtoCIter end,
                                                     std::pair<ProtoCIter, ProtoCIter> &read_range,
@@ -23,3 +20,7 @@ namespace detail::proto
         return status;
     }
 } // namespace detail::proto
+
+void UbloxHandler::handle(detail::proto::UbloxMessage &msg)
+{
+}

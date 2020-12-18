@@ -7,9 +7,10 @@
 
 // we compile this in a seperate compile unit since the build time of the protocol itself can be very long.
 // as this header will not change this often, the build times will decrease a lot after the first build
+class UbloxHandler;
 namespace detail::proto
 {
-    class UbloxHandler;
+
     // Common interface class for all the messages
     using UbloxMessage =
         ublox::Message<
@@ -30,12 +31,6 @@ namespace detail::proto
             ublox::input::ClientInputMessages<UbloxMessage, UbloxClientProtocolOptions>,
             UbloxClientProtocolOptions>;
 
-    class UbloxHandler
-    {
-    public:
-        virtual void handle(UbloxMessage &msg);
-    };
-
     struct UbloxInstance
     {
         UbloxFrame frame;
@@ -44,3 +39,8 @@ namespace detail::proto
                                          UbloxHandler &handler);
     };
 } // namespace detail::proto
+class UbloxHandler
+{
+public:
+    virtual void handle(detail::proto::UbloxMessage &msg);
+};

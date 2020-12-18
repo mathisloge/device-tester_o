@@ -1,5 +1,16 @@
 #pragma once
 #include "gnss_device.hpp"
-class UbloxDevice : public GnssDevice
+#include "../connection/connection_handle.hpp"
+#include "../protocols/protocol_ublox.hpp"
+#include "../protocols/protocol_nmea.hpp"
+#include "../protocols/protocol_dispatcher.hpp"
+class UbloxDevice : public GnssDevice, public ConnectionHandle
 {
+public:
+    explicit UbloxDevice(UbloxHandler& ublox_handler, NmeaHandler& nmea_handler);
+    void processData(const uint8_t *data, const size_t len) override;
+
+private:
+    ProtocolDispatcher<ProtocolUblox, ProtocolNmea> dispatcher_;
+    
 };

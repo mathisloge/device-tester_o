@@ -1,7 +1,7 @@
 #include "protocol_ublox.hpp"
 #include <comms/util/detect.h>
 
-ProtocolUblox::ProtocolUblox(detail::proto::UbloxHandler &ubx_handler)
+ProtocolUblox::ProtocolUblox(UbloxHandler &ubx_handler)
     : ubx_handler_{ubx_handler}
 {
 }
