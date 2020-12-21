@@ -3,6 +3,7 @@
 #include <future>
 #include "base_modal.hpp"
 
+#include "../device_manager.hpp"
 #include "../../connection/serial_connection.hpp"
 namespace gui
 {
@@ -18,25 +19,29 @@ namespace gui
         };
 
     public:
-        DeviceCreate();
+        explicit DeviceCreate(DeviceManager &device_manager);
 
     private:
         void drawContent() override;
         void drawDeviceInterfaceSerial();
         void drawDeviceInterfaceTcp();
         void drawDeviceInterfaceUdp();
+        bool testConnectionInProg();
         void clearInputs();
         bool addDevice();
         void checkConnection();
 
     private:
+        DeviceManager &device_manager_;
+
         std::string input_name_;
+
         DeviceInterface device_interface_;
 
         struct SerialInput
         {
             static constexpr int kSizePort = 150;
-            char port[kSizePort];
+            std::string port;
             int baud_rate;
             boost::asio::serial_port_base::parity::type parity;
             int char_size;
@@ -44,8 +49,13 @@ namespace gui
             boost::asio::serial_port_base::stop_bits::type stop_bits;
         } serial_input_;
 
-        std::future<std::pair<bool, std::string>> connection_check_fut_;
-        bool has_valid_connection_;
+        struct
+        {
+            bool in_progress;
+            std::future<std::tuple<bool, std::string, std::string>> progress;
+            std::tuple<bool, std::string, std::string> result;
+        } connection_check_;
         std::string error_msg_;
+        std::string success_msg_;
     };
 } // namespace gui

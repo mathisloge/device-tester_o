@@ -13,6 +13,7 @@
 #include <Magnum/Platform/Sdl2Application.h>
 #endif
 
+#include "device_manager.hpp"
 #include "modals/device_create.hpp"
 
 namespace gui
@@ -42,6 +43,8 @@ namespace gui
     private:
         Magnum::ImGuiIntegration::Context imgui_{Magnum::NoCreate};
 
+        DeviceManager device_manager_;
+        
         DeviceCreate device_create_modal_;
     };
 } // namespace gui
