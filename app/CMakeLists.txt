@@ -30,7 +30,6 @@ add_library(gps-tester STATIC
 )
 set_property(TARGET gps-tester PROPERTY CXX_STANDARD 20)
 set_property(TARGET gps-tester APPEND PROPERTY COMPILE_OPTIONS "/bigobj")
-set_property(TARGET gps-tester APPEND PROPERTY COMPILE_OPTIONS "/Zm1000")
 
 
 set(COMPILE_DEFS BOOST_ASIO_USE_TS_EXECUTOR_AS_DEFAULT SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_DEBUG)
@@ -39,6 +38,7 @@ if(WIN32)
     list(APPEND COMPILE_DEFS _WIN32_WINNT=0x0A00)
 endif()
 target_compile_definitions(gps-tester PUBLIC ${COMPILE_DEFS})
+target_compile_options(gps-tester PRIVATE "/Zm100")
 target_link_libraries(gps-tester PUBLIC 
     Boost::headers
     spdlog::spdlog
