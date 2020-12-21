@@ -15,15 +15,25 @@ public:
 public:
     explicit SerialConnection(ConnectionHandle &handle, boost::asio::io_context &io_context);
 
-    void open(const std::string &devname,
-              unsigned int baud_rate,
-              boost::asio::serial_port_base::parity parity = boost::asio::serial_port_base::parity(kDefaultPar),
-              boost::asio::serial_port_base::character_size char_size = boost::asio::serial_port_base::character_size(kDefaultCharSize),
-              boost::asio::serial_port_base::flow_control flow_ctrl = boost::asio::serial_port_base::flow_control(kDefaultFlow),
-              boost::asio::serial_port_base::stop_bits stop_bits = boost::asio::serial_port_base::stop_bits(kDefaultStopBits)) noexcept;
+    void setOptions(const std::string &devname,
+                    unsigned int baud_rate,
+                    boost::asio::serial_port_base::parity parity = boost::asio::serial_port_base::parity(kDefaultPar),
+                    boost::asio::serial_port_base::character_size char_size = boost::asio::serial_port_base::character_size(kDefaultCharSize),
+                    boost::asio::serial_port_base::flow_control flow_ctrl = boost::asio::serial_port_base::flow_control(kDefaultFlow),
+                    boost::asio::serial_port_base::stop_bits stop_bits = boost::asio::serial_port_base::stop_bits(kDefaultStopBits));
+    void setOption(const std::string &devname);
+    void setOption(unsigned int baud_rate);
+    void setOption(const boost::asio::serial_port_base::parity& parity);
+    void setOption(const boost::asio::serial_port_base::character_size& char_size);
+    void setOption(const boost::asio::serial_port_base::flow_control& flow_control);
+    void setOption(const boost::asio::serial_port_base::stop_bits& stop_bits);
+    bool isConnected() const override;
+    void connect() override;
+    void disconnect() override;
     ~SerialConnection();
 
 private:
+    void open();
     void handleRead(const boost::system::error_code &e, std::size_t bytes_transferred);
     void processData();
 
@@ -31,6 +41,7 @@ private:
     /// Strand to ensure the connection's handlers are not called concurrently.
     boost::asio::strand<boost::asio::executor> strand_;
     boost::asio::serial_port serial_;
+    std::string dev_name_;
 
     std::array<uint8_t, 64> rx_buffer_;
 };

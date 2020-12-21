@@ -29,9 +29,9 @@ set(PROTOCOL_SRC
     src/protocols/protocol_nmea.cpp
 )
 
-set(GNSS_SRC 
-    src/gnss/gnss_device.cpp
-    src/gnss/ublox_device.cpp
+set(DEVICE_SRC 
+    src/devices/base_device.cpp
+    src/devices/ublox_device.cpp
 )
 
 
@@ -45,7 +45,7 @@ set(GUI_SRC
 add_library(gps-tester STATIC
     ${CONNECTION_SRC}
     ${PROTOCOL_SRC}
-    ${GNSS_SRC}
+    ${DEVICE_SRC}
     ${GUI_SRC}
 )
 set_property(TARGET gps-tester PROPERTY CXX_STANDARD 20)

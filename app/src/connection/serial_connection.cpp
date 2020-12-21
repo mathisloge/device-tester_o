@@ -26,84 +26,80 @@ void SerialConnection::handleRead(const boost::system::error_code &e, std::size_
         spdlog::error("error while reading from serial device: {}", e.message());
     }
 }
-//! \todo move the try and errors in one single function...
-void SerialConnection::open(const std::string &devname,
-                            unsigned int baud_rate,
-                            boost::asio::serial_port_base::parity parity,
-                            boost::asio::serial_port_base::character_size char_size,
-                            boost::asio::serial_port_base::flow_control flow_ctrl,
-                            boost::asio::serial_port_base::stop_bits stop_bits) noexcept
+
+bool SerialConnection::isConnected() const
 {
-    try
+    return serial_.is_open();
+}
+void SerialConnection::connect()
+{
+    open();
+    serial_.async_read_some(boost::asio::buffer(rx_buffer_),
+                            std::bind(&SerialConnection::handleRead, shared_from_this(),
+                                      std::placeholders::_1,
+                                      std::placeholders::_2));
+}
+void SerialConnection::open()
+{
+    if (!serial_.is_open())
+        serial_.open(dev_name_);
+}
+void SerialConnection::disconnect()
+{
+    if (serial_.is_open())
     {
-        serial_.open(devname);
+        spdlog::debug("closing serial connection {}", dev_name_);
+        serial_.close();
     }
-    catch (const boost::system::system_error &e)
-    {
-        spdlog::error("error can't open serial connection to device [{}] with error: {}", devname, e.what());
-        return;
-    }
+}
 
-    try
-    {
-        serial_.set_option(boost::asio::serial_port_base::baud_rate(baud_rate));
-    }
-    catch (const boost::system::system_error &e)
-    {
-        spdlog::error("Device: {}, error setting baudrate: {}", devname, e.what());
-    }
-
-    try
-    {
-        serial_.set_option(parity);
-    }
-    catch (const boost::system::system_error &e)
-    {
-        spdlog::error("Device: {}, error setting parity: {}", devname, e.what());
-    }
-    try
-    {
-        serial_.set_option(char_size);
-    }
-    catch (const boost::system::system_error &e)
-    {
-        spdlog::error("Device: {}, error setting char size: {}", devname, e.what());
-    }
-    try
-    {
-        serial_.set_option(flow_ctrl);
-    }
-    catch (const boost::system::system_error &e)
-    {
-        spdlog::error("Device: {}, error setting flow control: {}", devname, e.what());
-    }
-    try
-    {
-        serial_.set_option(stop_bits);
-    }
-    catch (const boost::system::system_error &e)
-    {
-        spdlog::error("Device: {}, error setting stop bits: {}", devname, e.what());
-    }
-
-    try
-    {
-        serial_.async_read_some(boost::asio::buffer(rx_buffer_),
-                                std::bind(&SerialConnection::handleRead, shared_from_this(),
-                                          std::placeholders::_1,
-                                          std::placeholders::_2));
-    }
-    catch (std::exception e)
-    {
-        spdlog::error("unknown error while starting async read. {}", e.what());
-    }
+//! \todo move the try and errors in one single function...
+void SerialConnection::setOptions(const std::string &devname,
+                                  unsigned int baud_rate,
+                                  boost::asio::serial_port_base::parity parity,
+                                  boost::asio::serial_port_base::character_size char_size,
+                                  boost::asio::serial_port_base::flow_control flow_ctrl,
+                                  boost::asio::serial_port_base::stop_bits stop_bits)
+{
+    setOption(devname);
+    setOption(baud_rate);
+    setOption(parity);
+    setOption(char_size);
+    setOption(flow_ctrl);
+    setOption(stop_bits);
+    serial_.async_read_some(boost::asio::buffer(rx_buffer_),
+                            std::bind(&SerialConnection::handleRead, shared_from_this(),
+                                      std::placeholders::_1,
+                                      std::placeholders::_2));
+}
+void SerialConnection::setOption(const std::string &devname)
+{
+    dev_name_ = devname;
+    disconnect();
+    open();
+}
+void SerialConnection::setOption(unsigned int baud_rate)
+{
+    serial_.set_option(boost::asio::serial_port_base::baud_rate(baud_rate));
+}
+void SerialConnection::setOption(const boost::asio::serial_port_base::parity &parity)
+{
+    serial_.set_option(parity);
+}
+void SerialConnection::setOption(const boost::asio::serial_port_base::character_size &char_size)
+{
+    serial_.set_option(char_size);
+}
+void SerialConnection::setOption(const boost::asio::serial_port_base::flow_control &flow_control)
+{
+    serial_.set_option(flow_control);
+}
+void SerialConnection::setOption(const boost::asio::serial_port_base::stop_bits &stop_bits)
+{
+    serial_.set_option(stop_bits);
 }
 
 SerialConnection::~SerialConnection()
 {
-    if (serial_.is_open())
-    {
-        spdlog::debug("closing serial connection on destruct");
-        serial_.close();
-    }
+    disconnect();
 }
