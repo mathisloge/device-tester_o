@@ -14,7 +14,7 @@ void SerialConnection::handleRead(const boost::system::error_code &e, std::size_
 {
     if (!e)
     {
-        handle_.processData(&rx_buffer_[0], bytes_transferred);
+        handle_.processData(std::span<uint8_t>{rx_buffer_.begin(), bytes_transferred});
         serial_.async_read_some(boost::asio::buffer(rx_buffer_),
                                 std::bind(&SerialConnection::handleRead, shared_from_this(),
                                           std::placeholders::_1,
@@ -43,6 +43,16 @@ void SerialConnection::open(const std::string &devname,
         spdlog::error("error can't open serial connection to device [{}] with error: {}", devname, e.what());
         return;
     }
+
+    try
+    {
+        serial_.set_option(boost::asio::serial_port_base::baud_rate(baud_rate));
+    }
+    catch (const boost::system::system_error &e)
+    {
+        spdlog::error("Device: {}, error setting baudrate: {}", devname, e.what());
+    }
+
     try
     {
         serial_.set_option(parity);

@@ -1,4 +1,21 @@
 cmake_minimum_required(VERSION 3.14)
+
+find_package(imgui CONFIG REQUIRED)
+add_library(ImGui::ImGui ALIAS imgui::imgui)
+find_package(Corrade REQUIRED Main)
+find_package(Magnum REQUIRED GL)
+find_package(MagnumIntegration REQUIRED ImGui)
+
+if(CORRADE_TARGET_ANDROID)
+    find_package(Magnum REQUIRED AndroidApplication)
+elseif(CORRADE_TARGET_EMSCRIPTEN)
+    find_package(Magnum REQUIRED EmscriptenApplication)
+else()
+    find_package(Magnum REQUIRED Sdl2Application)
+endif()
+
+set_directory_properties(PROPERTIES CORRADE_USE_PEDANTIC_FLAGS ON)
+
 set(CONNECTION_SRC 
     src/connection/connection_handle.cpp
     src/connection/connection.cpp
@@ -19,7 +36,10 @@ set(GNSS_SRC
 
 
 set(GUI_SRC 
-
+    src/gui/app.cpp
+    src/gui/modals/base_modal.cpp
+    src/gui/modals/device_create.cpp
+    src/gui/windows/base_window.cpp
 )
 
 add_library(gps-tester STATIC
@@ -31,7 +51,6 @@ add_library(gps-tester STATIC
 set_property(TARGET gps-tester PROPERTY CXX_STANDARD 20)
 if(MSVC)
     set_property(TARGET gps-tester APPEND PROPERTY COMPILE_OPTIONS "/bigobj")
-    set_property(TARGET gps-tester APPEND PROPERTY COMPILE_OPTIONS "/Zm10")
 endif()
 
 set(COMPILE_DEFS BOOST_ASIO_USE_TS_EXECUTOR_AS_DEFAULT SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_DEBUG)
@@ -46,13 +65,30 @@ target_link_libraries(gps-tester PUBLIC
     cc::comms
     cc::ublox
     nmea-parser
+    Corrade::Main
+    Magnum::Application
+    Magnum::GL
+    Magnum::Magnum
+    imgui::imgui
+    MagnumIntegration::ImGui
 )
 
 add_executable(gps-tester-app 
     src/main.cpp
 )
 set_property(TARGET gps-tester-app PROPERTY CXX_STANDARD 20)
-target_link_libraries(gps-tester-app PRIVATE gps-tester)
+target_link_libraries(gps-tester-app PRIVATE imgui::imgui gps-tester)
+
+# add hidpi instructions
+if(WIN32)
+    if(MSVC)
+        target_sources(gps-tester-app PRIVATE WindowsHiDPI.manifest)
+    elseif(MINGW)
+        target_sources(gps-tester-app PRIVATE WindowsHiDPI.rc)
+    endif()
+endif()
+
+add_custom_command(TARGET gps-tester-app PRE_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory fonts/ $<TARGET_FILE_DIR:gps-tester-app>/fonts)
 
 if(BUILD_TESTING)
     add_executable(gps-tester-tests 

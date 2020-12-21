@@ -17,10 +17,10 @@ class ProtocolDispatcher
 public:
     explicit ProtocolDispatcher(Ts... ts) : protocols_{ts...} {}
 
-    void appendData(const uint8_t *data, const size_t len)
+    void appendData(std::span<uint8_t> data)
     {
-        data_.reserve(data_.size() + len);
-        data_.insert(data_.end(), data, data + len);
+        data_.reserve(data.size());
+        data_.insert(data_.end(), data.begin(), data.end());
         processAllData();
     }
 

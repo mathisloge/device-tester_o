@@ -5,6 +5,7 @@
 #include "gnss/ublox_device.hpp"
 #include "protocols/protocol_ublox.hpp"
 #include "protocols/protocol_nmea.hpp"
+#include "gui/app.hpp"
 class MsgHandler : public UbloxHandler, public NmeaHandler
 {
 public:
@@ -31,9 +32,10 @@ public:
     }
 };
 
-int main(int argc, char const *argv[])
+int main(int argc, char **argv)
 {
     spdlog::set_level(spdlog::level::trace);
+    gui::App app{gui::App::Arguments(argc, argv)};
 
     MsgHandler msg_handler;
     UbloxDevice ublox_device{msg_handler, msg_handler};
@@ -41,6 +43,6 @@ int main(int argc, char const *argv[])
     std::shared_ptr<SerialConnection> con = std::make_shared<SerialConnection>(ublox_device, io);
     con->open("COM8", 115200);
 
-    io.run();
-    return 0;
+    //io.run();
+    return app.exec();
 }

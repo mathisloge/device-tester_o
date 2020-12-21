@@ -8,7 +8,7 @@ class UbloxDevice : public GnssDevice, public ConnectionHandle
 {
 public:
     explicit UbloxDevice(UbloxHandler& ublox_handler, NmeaHandler& nmea_handler);
-    void processData(const uint8_t *data, const size_t len) override;
+    void processData(std::span<uint8_t> data) override;
 
 private:
     ProtocolDispatcher<ProtocolUblox, ProtocolNmea> dispatcher_;

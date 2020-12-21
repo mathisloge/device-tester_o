@@ -1,7 +1,8 @@
 #pragma once
 #include <cstdint>
+#include <span>
 class ConnectionHandle
 {
 public:
-    virtual void processData(const uint8_t *data, const size_t len) = 0;
+    virtual void processData(std::span<uint8_t> data) = 0;
 };

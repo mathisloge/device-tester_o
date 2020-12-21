@@ -6,13 +6,14 @@
 
 class SerialConnection : public std::enable_shared_from_this<SerialConnection>, public Connection
 {
+public:
     static constexpr auto kDefaultPar = boost::asio::serial_port_base::parity::none;
     static constexpr auto kDefaultCharSize = 8;
     static constexpr auto kDefaultFlow = boost::asio::serial_port_base::flow_control::none;
     static constexpr auto kDefaultStopBits = boost::asio::serial_port_base::stop_bits::one;
 
 public:
-    explicit SerialConnection(ConnectionHandle &handle, boost::asio::io_context& io_context);
+    explicit SerialConnection(ConnectionHandle &handle, boost::asio::io_context &io_context);
 
     void open(const std::string &devname,
               unsigned int baud_rate,

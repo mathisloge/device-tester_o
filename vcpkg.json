@@ -8,6 +8,28 @@
         "boost-asio",
         "boost-signals2",
         "boost-circular-buffer",
-        "boost-spirit"
+        "boost-spirit",
+        "corrade",
+        {
+            "name": "imgui",
+            "features": [
+                "docking-experimental"
+            ]
+        },
+        "implot",
+        {
+            "name": "magnum",
+            "features": [
+                "sdl2application",
+                "scenegraph",
+                "primitives"
+            ]
+        },
+        {
+            "name": "magnum-integration",
+            "features": [
+                "imgui"
+            ]
+        }
     ]
 }

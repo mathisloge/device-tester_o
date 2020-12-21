@@ -4,7 +4,7 @@ UbloxDevice::UbloxDevice(UbloxHandler &ublox_handler, NmeaHandler &nmea_handler)
     : dispatcher_{ProtocolUblox{ublox_handler}, ProtocolNmea{nmea_handler}}
 {
 }
-void UbloxDevice::processData(const uint8_t *data, const size_t len)
+void UbloxDevice::processData(std::span<uint8_t> data)
 {
-    dispatcher_.appendData(data, len);
+    dispatcher_.appendData(std::forward<std::span<uint8_t>>(data));
 }

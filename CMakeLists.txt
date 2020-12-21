@@ -5,6 +5,7 @@ project(gps-tester
         HOMEPAGE_URL https://github.com/mathisloge/gps-tester
         LANGUAGES CXX)
 
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 find_package(spdlog CONFIG REQUIRED)
 find_package(ublox CONFIG REQUIRED)
 find_package(LibComms CONFIG REQUIRED)
