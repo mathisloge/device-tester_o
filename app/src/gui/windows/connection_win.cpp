@@ -2,11 +2,12 @@
 #include <imgui.h>
 namespace gui
 {
-    ConnectionWin::ConnectionWin(const std::string &name)
+    ConnectionWin::ConnectionWin(const std::string &name, DeviceConnection &device_connection)
         : BaseWindow(name)
     {
+        device_connection.connectData([this](std::span<uint8_t> data) { raw_text_.addData(data); });
     }
-    
+
     void ConnectionWin::drawContent()
     {
         ImGui::PushID(this);
@@ -15,6 +16,13 @@ namespace gui
             if (ImGui::BeginTabItem("Overview"))
             {
                 drawConnectionOverview();
+                ImGui::EndTabItem();
+            }
+            if (ImGui::BeginTabItem("Raw output"))
+            {
+                raw_text_.draw();
+                ImGui::Separator();
+                drawConnectionRawInput();
                 ImGui::EndTabItem();
             }
             if (ImGui::BeginTabItem("Details"))

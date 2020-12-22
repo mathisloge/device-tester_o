@@ -103,7 +103,7 @@ namespace gui
         }
         con->connect();
         dev_instance.second = std::move(con);
-        auto con_win = std::make_unique<SerialConnectionWin>(dev_instance.second);
+        auto con_win = std::make_unique<SerialConnectionWin>(dev_instance.second, *dev_instance.first);
         connection_windows_.push_back(std::move(con_win));
         return std::make_pair(true, "Connection established");
     }

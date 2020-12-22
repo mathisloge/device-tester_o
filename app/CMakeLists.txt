@@ -40,6 +40,7 @@ set(GUI_SRC
     src/gui/imgui_commons.cpp
     src/gui/device_manager.cpp
     src/gui/app.cpp
+    src/gui/widgets/raw_text_output.cpp
     src/gui/modals/base_modal.cpp
     src/gui/modals/device_create.cpp
     src/gui/windows/base_window.cpp

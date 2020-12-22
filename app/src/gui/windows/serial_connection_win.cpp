@@ -3,8 +3,8 @@
 #include <imgui.h>
 namespace gui
 {
-    SerialConnectionWin::SerialConnectionWin(const std::shared_ptr<SerialConnection> &serial_connection)
-        : ConnectionWin(serial_connection->identifier()), serial_connection_{serial_connection}
+    SerialConnectionWin::SerialConnectionWin(const std::shared_ptr<SerialConnection> &serial_connection, DeviceConnection &device_connection)
+        : ConnectionWin(serial_connection->identifier(), device_connection), serial_connection_{serial_connection}
     {
     }
 
@@ -23,6 +23,15 @@ namespace gui
                 serial_connection_->connect();
         }
     }
+
+    void SerialConnectionWin::drawConnectionRawInput()
+    {
+        const bool is_connected = serial_connection_->isConnected();
+        if (Button("Send", !is_connected))
+        {
+        }
+    }
+
     void SerialConnectionWin::drawConnectionDetails()
     {
     }
