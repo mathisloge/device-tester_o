@@ -3,6 +3,25 @@
 #include <string_view>
 #include <array>
 #include <fmt/format.h>
+#include <imgui_stdlib.h>
+
+static int InputTextCallback(ImGuiInputTextCallbackData *data)
+{
+    if (data->EventFlag == ImGuiInputTextFlags_CallbackResize)
+    {
+        // Resize string callback
+        std::string *str = (std::string *)data->UserData;
+        IM_ASSERT(data->Buf == str->c_str());
+        str->resize(data->BufTextLen);
+        data->Buf = (char *)str->c_str();
+    }
+    return 0;
+}
+bool SimpleInputText(const char *label, std::string *str, ImGuiInputTextFlags flags  = 0)
+{
+    flags |= ImGuiInputTextFlags_CallbackResize;
+    return ImGui::InputText(label, str, flags, InputTextCallback, (void *)str);
+}
 
 namespace gui
 {
@@ -19,9 +38,28 @@ namespace gui
         clearInputs();
     }
 
-    bool DeviceCreate::addDevice()
+    bool DeviceCreate::addConnection()
     {
-        return true;
+        success_msg_ = "";
+        switch (device_interface_)
+        {
+        case DeviceInterface::serial:
+        {
+            const auto add_ret = device_manager_.addSerialConnection(input_name_, serial_input_.port,
+                                                                     serial_input_.baud_rate,
+                                                                     serial_input_.parity,
+                                                                     serial_input_.char_size,
+                                                                     serial_input_.flow_control,
+                                                                     serial_input_.stop_bits);
+            if (add_ret.first)
+                return true;
+            error_msg_ = add_ret.second;
+            break;
+        }
+        default:
+            error_msg_ = "Connection not supported.";
+        }
+        return false;
     }
 
     void DeviceCreate::checkConnection()
@@ -38,13 +76,13 @@ namespace gui
                                                                               serial_input_.stop_bits);
             break;
         default:
-            error_msg_ = "Device not supported";
+            error_msg_ = "Connection not supported";
         }
     }
 
     void DeviceCreate::drawContent()
     {
-        ImGui::InputTextWithHint("Name", "personal identifier. no effect", input_name_.data(), input_name_.size());
+        SimpleInputText("Name", &input_name_);
 
         static constexpr std::array<std::string_view, static_cast<int>(DeviceInterface::count)> kPreviewValueDevNames{"Serial", "TCP", "UDP"};
 
@@ -98,7 +136,8 @@ namespace gui
         {
             checkConnection();
         }
-        if(std::get<bool>(connection_check_.result)) {
+        if (std::get<bool>(connection_check_.result))
+        {
             ImGui::Text("Data output: ");
             ImGui::TextWrapped(std::get<2>(connection_check_.result).c_str());
         }
@@ -112,9 +151,10 @@ namespace gui
         ImGui::SameLine();
         if (Button("Add connection", has_connection_check))
         {
-            if (addDevice())
+            if (addConnection())
             {
                 ImGui::CloseCurrentPopup();
+                clearInputs();
             }
         }
     }
@@ -156,7 +196,7 @@ namespace gui
         static constexpr std::array<std::string_view, 3> kNamesStopBits{"1", "1.5", "2"};
         static constexpr std::array<std::string_view, 3> kNamesFlowControl{"none", "software", "hardware"};
 
-        ImGui::InputTextWithHint("Port", "", serial_input_.port.data(), serial_input_.port.size());
+        SimpleInputText("Port", &serial_input_.port);
         ImGui::InputInt("Baud rate", &serial_input_.baud_rate, 100, 1000);
         ImGui::InputInt("Character size", &serial_input_.char_size, 1, 2);
 
@@ -196,12 +236,10 @@ namespace gui
     }
     void DeviceCreate::drawDeviceInterfaceTcp()
     {
-
         ImGui::Text("NOT IMPLEMENTED");
     }
     void DeviceCreate::drawDeviceInterfaceUdp()
     {
-
         ImGui::Text("NOT IMPLEMENTED");
     }
 
@@ -209,11 +247,8 @@ namespace gui
     {
         device_interface_ = DeviceInterface::serial;
         input_name_ = "";
-        input_name_.resize(150);
 
         serial_input_.port = "";
-        serial_input_.port.resize(SerialInput::kSizePort);
-
         serial_input_.baud_rate = 9600;
         serial_input_.char_size = SerialConnection::kDefaultCharSize;
         serial_input_.parity = SerialConnection::kDefaultPar;

@@ -5,7 +5,7 @@ namespace gui
     class BaseWindow
     {
     public:
-        explicit constexpr BaseWindow(const std::string &name);
+        explicit BaseWindow(const std::string &name);
         void draw();
         void setOpenState(bool is_open);
         bool isOpen() const;

@@ -9,7 +9,7 @@ class UbloxDevice : public BaseDevice
 public:
     explicit UbloxDevice(UbloxHandler &ublox_handler, NmeaHandler &nmea_handler);
     void processData(std::span<uint8_t> data) override;
-
+    
 private:
     ProtocolDispatcher<ProtocolUblox, ProtocolNmea> dispatcher_;
 };

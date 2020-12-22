@@ -28,7 +28,7 @@ namespace gui
         void drawDeviceInterfaceUdp();
         bool testConnectionInProg();
         void clearInputs();
-        bool addDevice();
+        bool addConnection();
         void checkConnection();
 
     private:

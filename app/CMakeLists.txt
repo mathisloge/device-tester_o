@@ -30,6 +30,7 @@ set(PROTOCOL_SRC
 )
 
 set(DEVICE_SRC 
+    src/devices/device_connection.cpp
     src/devices/base_device.cpp
     src/devices/ublox_device.cpp
 )
@@ -42,6 +43,8 @@ set(GUI_SRC
     src/gui/modals/base_modal.cpp
     src/gui/modals/device_create.cpp
     src/gui/windows/base_window.cpp
+    src/gui/windows/connection_win.cpp
+    src/gui/windows/serial_connection_win.cpp
 )
 
 add_library(gps-tester STATIC

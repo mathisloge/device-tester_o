@@ -13,7 +13,7 @@ public:
     static constexpr auto kDefaultStopBits = boost::asio::serial_port_base::stop_bits::one;
 
 public:
-    explicit SerialConnection(ConnectionHandle &handle, boost::asio::io_context &io_context);
+    explicit SerialConnection(ConnectionHandle &handle, const std::string &identifier, boost::asio::io_context &io_context);
 
     void setOptions(const std::string &devname,
                     unsigned int baud_rate,
@@ -23,10 +23,11 @@ public:
                     boost::asio::serial_port_base::stop_bits stop_bits = boost::asio::serial_port_base::stop_bits(kDefaultStopBits));
     void setOption(const std::string &devname);
     void setOption(unsigned int baud_rate);
-    void setOption(const boost::asio::serial_port_base::parity& parity);
-    void setOption(const boost::asio::serial_port_base::character_size& char_size);
-    void setOption(const boost::asio::serial_port_base::flow_control& flow_control);
-    void setOption(const boost::asio::serial_port_base::stop_bits& stop_bits);
+    void setOption(const boost::asio::serial_port_base::parity &parity);
+    void setOption(const boost::asio::serial_port_base::character_size &char_size);
+    void setOption(const boost::asio::serial_port_base::flow_control &flow_control);
+    void setOption(const boost::asio::serial_port_base::stop_bits &stop_bits);
+    const std::string& port();
     bool isConnected() const override;
     void connect() override;
     void disconnect() override;

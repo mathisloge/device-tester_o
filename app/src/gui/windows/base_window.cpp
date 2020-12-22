@@ -2,7 +2,7 @@
 #include <imgui.h>
 namespace gui
 {
-    constexpr BaseWindow::BaseWindow(const std::string &name)
+    BaseWindow::BaseWindow(const std::string &name)
         : name_{name}, is_open_{true}
     {
     }

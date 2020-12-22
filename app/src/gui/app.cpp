@@ -55,6 +55,7 @@ namespace gui
 
         showMainMenu();
         device_create_modal_.draw();
+        device_manager_.draw();
         ImGui::ShowDemoWindow();
 
         /* Update application cursor */

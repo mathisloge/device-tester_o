@@ -3,8 +3,8 @@
 
 namespace asio = boost::asio;
 
-SerialConnection::SerialConnection(ConnectionHandle &handle, boost::asio::io_context &io_context)
-    : Connection(handle),
+SerialConnection::SerialConnection(ConnectionHandle &handle, const std::string &identifier, boost::asio::io_context &io_context)
+    : Connection(handle, identifier),
       strand_{asio::make_strand(io_context)},
       serial_{strand_}
 {
@@ -98,6 +98,11 @@ void SerialConnection::setOption(const boost::asio::serial_port_base::stop_bits 
 {
     serial_.set_option(stop_bits);
 }
+
+const std::string& SerialConnection::port()
+{
+    return dev_name_;
+}  
 
 SerialConnection::~SerialConnection()
 {
