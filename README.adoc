@@ -1,4 +1,4 @@
-= GNSS Tester
+= Device tester
 Mathis Logemann <https://github.com/mathisloge>
 v0.1.0
 :toc:
@@ -8,13 +8,18 @@ v0.1.0
 :icons: font
 :source-highlighter: rouge
 :imagesdir: docs/images
+:experimental:
 
 == Introduction
-Some gnss device testing and exploring some language functions
+This program can be used to view the output of serial ports, display GNSS output or view protocol contents.
+
+== Plugins
+NOTE: Plugins are currently not implemented, but are on the roadmap.
+
+Load plugins with menu:Plugins[Load]. You should now be able to add the loaded devices to a established connection.
+
 
 == Build
-
-
 [source,shell]
 ----
 git clone --recursive https://github.com/mathisloge/gps-tester.git
@@ -24,7 +29,6 @@ mkdir build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake ..
 ----
-
 
 == Screenshots
 [#img-serial-raw] 
