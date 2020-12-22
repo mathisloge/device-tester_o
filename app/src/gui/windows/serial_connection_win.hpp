@@ -1,6 +1,7 @@
 #pragma once
 #include "connection_win.hpp"
 #include "../../connection/serial_connection.hpp"
+
 namespace gui
 {
     class SerialConnectionWin : public ConnectionWin

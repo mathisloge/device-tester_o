@@ -40,6 +40,11 @@ image::screen_add_connection.png[ConAdd]
 .Serial connection raw output
 image::screen_serial_raw.png[SerialRawOutput]  
 
+[#img-serial-raw-hex] 
+.Serial connection raw hex output
+image::screen_serial_raw_hex.png[SerialRawHexOutput]  
+
+
 [#img-serial-throughput] 
 .Serial conntection throughput
 image::screen_serial_throughput.png[SerialThroughput]  

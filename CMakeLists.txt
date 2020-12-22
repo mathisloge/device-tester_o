@@ -11,6 +11,10 @@ find_package(ublox CONFIG REQUIRED)
 find_package(LibComms CONFIG REQUIRED)
 find_package(Boost REQUIRED)
 
+add_library(imgui-club INTERFACE)
+target_include_directories(imgui-club INTERFACE imgui_club/imgui_memory_editor)
+add_library(imgui::club ALIAS imgui-club)
+
 option(ENABLE_TESTS ON)
 set(ENABLE_TESTS ON)
 if(ENABLE_TESTS)
