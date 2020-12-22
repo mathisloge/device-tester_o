@@ -18,7 +18,6 @@ NOTE: Plugins are currently not implemented, but are on the roadmap.
 
 Load plugins with menu:Plugins[Load]. You should now be able to add the loaded devices to a established connection.
 
-
 == Build
 [source,shell]
 ----
@@ -29,6 +28,17 @@ mkdir build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake ..
 ----
+
+
+== Acknowledgments
+
+Thanks to https://github.com/mosra[mosra] for creating such an easy to use graphics middleware https://github.com/mosra/magnum[Magnum @ Github] - https://magnum.graphics[Website].
+
+Thanks to https://github.com/ocornut[omar] for the awesome UI Library https://github.com/ocornut/imgui[Dear ImGui] and https://github.com/ocornut/imgui_club[ImGui Club].
+
+Thanks to https://github.com/epezent[epezent] for creating the great graph library https://github.com/epezent/implot[ImPlot]
+
+
 
 == Screenshots
 
