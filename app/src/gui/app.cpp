@@ -10,12 +10,14 @@ namespace gui
     {
 
         ImGui::CreateContext();
-
-        ImGui::GetIO().Fonts->Clear();
+        auto &imgui_io = ImGui::GetIO();
+        imgui_io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+        
+        imgui_io.Fonts->Clear();
 
         const Vector2 size = Vector2{windowSize()} / dpiScaling();
         const float supersamplingRatio = framebufferSize().x() / size.x();
-        ImGui::GetIO().Fonts->AddFontFromFileTTF("fonts/FiraCode/FiraCode-Regular.ttf", 18.0f * supersamplingRatio);
+        imgui_io.Fonts->AddFontFromFileTTF("fonts/FiraCode/FiraCode-Regular.ttf", 18.0f * supersamplingRatio);
 
         imgui_ = ImGuiIntegration::Context(*ImGui::GetCurrentContext(), size, windowSize(), framebufferSize());
 
@@ -53,6 +55,7 @@ namespace gui
         else if (!ImGui::GetIO().WantTextInput && isTextInputActive())
             stopTextInput();
 
+        ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
         showMainMenu();
         device_create_modal_.draw();
         device_manager_.draw();

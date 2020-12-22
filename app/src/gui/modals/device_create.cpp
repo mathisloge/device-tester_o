@@ -17,7 +17,7 @@ static int InputTextCallback(ImGuiInputTextCallbackData *data)
     }
     return 0;
 }
-bool SimpleInputText(const char *label, std::string *str, ImGuiInputTextFlags flags  = 0)
+bool SimpleInputText(const char *label, std::string *str, ImGuiInputTextFlags flags = 0)
 {
     flags |= ImGuiInputTextFlags_CallbackResize;
     return ImGui::InputText(label, str, flags, InputTextCallback, (void *)str);
@@ -120,12 +120,14 @@ namespace gui
         if (!error_msg_.empty())
         {
             static const ImVec4 err_col{1.f, 0.f, 0.f, 1.f};
-            ImGui::TextColored(err_col, error_msg_.c_str());
+            ImGui::TextColored(err_col, "Error:");
+            ImGui::TextWrapped(error_msg_.c_str());
         }
         if (!success_msg_.empty())
         {
             static const ImVec4 succs_col{0.1f, 0.8f, 0.1f, 1.f};
-            ImGui::TextColored(succs_col, success_msg_.c_str());
+            ImGui::TextColored(succs_col, "Success:");
+            ImGui::TextWrapped(success_msg_.c_str());
         }
         std::string loader_str{"Test connection"};
         if (has_connection_check)
@@ -139,7 +141,11 @@ namespace gui
         if (std::get<bool>(connection_check_.result))
         {
             ImGui::Text("Data output: ");
-            ImGui::TextWrapped(std::get<2>(connection_check_.result).c_str());
+            if (ImGui::BeginChild("##output_content", ImVec2{-1.f, 150.f}))
+            {
+                ImGui::TextUnformatted(std::get<2>(connection_check_.result).c_str());
+            }
+            ImGui::EndChild();
         }
         ImGui::Separator();
 

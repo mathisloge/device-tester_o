@@ -10,6 +10,7 @@
 #include "windows/connection_win.hpp"
 namespace gui
 {
+    class DumbConnectionHandle;
     class DeviceManager
     {
     public:
@@ -45,5 +46,8 @@ namespace gui
 
         SerialMap serial_connections_;
         std::vector<std::unique_ptr<ConnectionWin>> connection_windows_;
+
+        std::unique_ptr<DumbConnectionHandle> connection_test_handle_;
+        std::string connection_test_buffer_;
     };
 } // namespace gui

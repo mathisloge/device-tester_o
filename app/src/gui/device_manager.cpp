@@ -17,8 +17,11 @@ namespace gui
     };
 
     DeviceManager::DeviceManager()
-        : should_stop_{false}, io_thread_{std::bind(&DeviceManager::ioThread, this)}
+        : should_stop_{false},
+          io_thread_{std::bind(&DeviceManager::ioThread, this)},
+          connection_test_handle_{std::make_unique<DumbConnectionHandle>(connection_test_buffer_)}
     {
+        connection_test_buffer_.reserve(1000);
     }
 
     void DeviceManager::draw()
@@ -33,7 +36,15 @@ namespace gui
     {
         while (!should_stop_)
         {
-            io_context_.run();
+            try
+            {
+                io_context_.run();
+            }
+            catch (const std::exception &ex)
+            {
+                SPDLOG_ERROR("error in io context run {}", ex.what());
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
     }
 
@@ -45,10 +56,9 @@ namespace gui
                                                                                                 boost::asio::serial_port_base::stop_bits::type stop_bits)
     {
         return std::async([=]() {
-            std::string tmp_buffer;
-            tmp_buffer.reserve(1000);
-            DumbConnectionHandle con_handle{tmp_buffer};
-            auto con = std::make_shared<SerialConnection>(con_handle, "connection_test_serial", io_context_);
+            connection_test_buffer_.clear();
+            auto con = std::make_shared<SerialConnection>(*connection_test_handle_, "connection_test_serial", io_context_);
+
             try
             {
                 spdlog::debug("test connection for serial device at {}@{}", devname, baud_rate);
@@ -60,15 +70,15 @@ namespace gui
             catch (const std::exception &err)
             {
                 SPDLOG_ERROR("while connecting to serial device {}. with error: {}", devname, err.what());
-                return std::make_tuple(false, std::string(err.what()), tmp_buffer);
+                return std::make_tuple(false, std::string(err.what()), connection_test_buffer_);
             }
             if (!con->isConnected())
             {
-                return std::make_tuple(false, fmt::format("Could set options but couldn't connect to {}@{}", devname, baud_rate), tmp_buffer);
+                return std::make_tuple(false, fmt::format("Could set options but couldn't connect to {}@{}", devname, baud_rate), connection_test_buffer_);
             }
             std::this_thread::sleep_for(std::chrono::seconds(1));
             con->disconnect();
-            return std::make_tuple(true, fmt::format("Connected to {}@{}", devname, baud_rate), tmp_buffer);
+            return std::make_tuple(true, fmt::format("Connected to {}@{}", devname, baud_rate), connection_test_buffer_);
         });
     }
 

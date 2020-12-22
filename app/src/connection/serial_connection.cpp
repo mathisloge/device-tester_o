@@ -49,6 +49,7 @@ void SerialConnection::disconnect()
     if (serial_.is_open())
     {
         spdlog::debug("closing serial connection {}", dev_name_);
+        serial_.cancel();
         serial_.close();
     }
 }
@@ -99,10 +100,10 @@ void SerialConnection::setOption(const boost::asio::serial_port_base::stop_bits 
     serial_.set_option(stop_bits);
 }
 
-const std::string& SerialConnection::port()
+const std::string &SerialConnection::port()
 {
     return dev_name_;
-}  
+}
 
 SerialConnection::~SerialConnection()
 {
