@@ -1,5 +1,6 @@
 #include "raw_text_output.hpp"
 #include <imgui.h>
+
 namespace gui
 {
     RawTextOutput::RawTextOutput()
@@ -28,6 +29,12 @@ namespace gui
 
     void RawTextOutput::addData(std::span<uint8_t> data)
     {
-        raw_output_.append(data.begin(), data.end());
+        std::string str{data.begin(), data.end()};
+        // remove all control chars
+        str.erase(std::remove_if(str.begin(),
+                                 str.end(),
+                                 [](unsigned char x) { return !std::isprint(x) && !std::isspace(x) && x != 127; /* 127 = del char */ }),
+                  str.end());
+        raw_output_.append(std::move(str));
     }
 } // namespace gui
