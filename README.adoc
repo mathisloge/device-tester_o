@@ -34,3 +34,7 @@ cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsy
 [#img-serial-raw] 
 .Serial connection raw output
 image::screen_serial_raw.png[SerialRawOutput]  
+
+[#img-add-connection] 
+.Add connection with previous connection test
+image::screen_add_connection.png[ConAdd]  
