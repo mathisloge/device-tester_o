@@ -32,11 +32,11 @@ cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsy
 
 == Acknowledgments
 
-Thanks to https://github.com/mosra[mosra] for creating such an easy to use graphics middleware https://github.com/mosra/magnum[Magnum @ Github] - https://magnum.graphics[Website].
+Thanks to https://github.com/mosra[mosra,role=external,window=_blank] for creating such an easy to use graphics middleware https://github.com/mosra/magnum[Magnum @ Github,role=external,window=_blank] - https://magnum.graphics[Website,role=external,window=_blank].
 
-Thanks to https://github.com/ocornut[omar] for the awesome UI Library https://github.com/ocornut/imgui[Dear ImGui] and https://github.com/ocornut/imgui_club[ImGui Club].
+Thanks to https://github.com/ocornut[omar,role=external,window=_blank] for the awesome UI Library https://github.com/ocornut/imgui[Dear ImGui,role=external,window=_blank] and https://github.com/ocornut/imgui_club[ImGui Club,role=external,window=_blank].
 
-Thanks to https://github.com/epezent[epezent] for creating the great graph library https://github.com/epezent/implot[ImPlot]
+Thanks to https://github.com/epezent[epezent,role=external,window=_blank] for creating the great graph library https://github.com/epezent/implot[ImPlot,role=external,window=_blank]
 
 
 
