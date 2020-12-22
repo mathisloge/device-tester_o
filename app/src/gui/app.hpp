@@ -35,7 +35,7 @@ namespace gui
         void mouseMoveEvent(MouseMoveEvent &event) override;
         void mouseScrollEvent(MouseScrollEvent &event) override;
         void textInputEvent(TextInputEvent &event) override;
-
+        ~App();
     private:
         void showMainMenu();
         void showDeviceMenu();

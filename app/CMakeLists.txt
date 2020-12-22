@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
 
 find_package(imgui CONFIG REQUIRED)
+find_package(implot CONFIG REQUIRED)
 add_library(ImGui::ImGui ALIAS imgui::imgui)
 find_package(Corrade REQUIRED Main)
 find_package(Magnum REQUIRED GL)
@@ -41,6 +42,7 @@ set(GUI_SRC
     src/gui/device_manager.cpp
     src/gui/app.cpp
     src/gui/widgets/raw_text_output.cpp
+    src/gui/widgets/plot_throughput.cpp
     src/gui/modals/base_modal.cpp
     src/gui/modals/device_create.cpp
     src/gui/windows/base_window.cpp
@@ -76,6 +78,7 @@ target_link_libraries(gps-tester PUBLIC
     Magnum::GL
     Magnum::Magnum
     imgui::imgui
+    implot::implot
     MagnumIntegration::ImGui
 )
 

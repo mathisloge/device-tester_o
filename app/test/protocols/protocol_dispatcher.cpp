@@ -1,5 +1,6 @@
 #include <catch.hpp>
 #include <iostream>
+#include <span>
 #include "protocols/protocol_types.hpp"
 #include "protocols/protocol_dispatcher.hpp"
 #include "protocols/protocol.hpp"
@@ -37,7 +38,7 @@ SCENARIO("protocol dispatcher with simple protocols", "[protocol-dispatcher]")
         ProtocolDispatcher<MockProtocolCorrect> dispatcher{MockProtocolCorrect{start_offset, end_offset}};
         WHEN("data is added")
         {
-            dispatcher.appendData(&message[0], message.size());
+            dispatcher.appendData(std::span<uint8_t>(message.begin(), message.end()));
             THEN("protocol should have a message and size 0")
             {
                 const auto &resv_msg = std::get<0>(dispatcher.protocols()).message_;
@@ -48,7 +49,7 @@ SCENARIO("protocol dispatcher with simple protocols", "[protocol-dispatcher]")
         WHEN("data is added and the first bytes are not needed")
         {
             start_offset = 2;
-            dispatcher.appendData(&message[0], message.size());
+            dispatcher.appendData(std::span<uint8_t>(message.begin(), message.end()));
             THEN("protocol should have a message and size 0")
             {
                 const auto &resv_msg = std::get<0>(dispatcher.protocols()).message_;
@@ -60,7 +61,7 @@ SCENARIO("protocol dispatcher with simple protocols", "[protocol-dispatcher]")
         WHEN("data is not completly used")
         {
             end_offset = 2;
-            dispatcher.appendData(&message[0], message.size());
+            dispatcher.appendData(std::span<uint8_t>(message.begin(), message.end()));
             THEN("protocol should have a message and bytes should left")
             {
                 const auto &resv_msg = std::get<0>(dispatcher.protocols()).message_;

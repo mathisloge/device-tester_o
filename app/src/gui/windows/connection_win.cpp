@@ -5,7 +5,10 @@ namespace gui
     ConnectionWin::ConnectionWin(const std::string &name, DeviceConnection &device_connection)
         : BaseWindow(name)
     {
-        device_connection.connectData([this](std::span<uint8_t> data) { raw_text_.addData(data); });
+        device_connection.connectData([this](std::span<uint8_t> data) {
+            raw_text_.addData(data);
+            data_throughput_.addData(data);
+        });
     }
 
     void ConnectionWin::drawContent()
@@ -16,6 +19,7 @@ namespace gui
             if (ImGui::BeginTabItem("Overview"))
             {
                 drawConnectionOverview();
+                data_throughput_.drawPlot();
                 ImGui::EndTabItem();
             }
             if (ImGui::BeginTabItem("Raw output"))

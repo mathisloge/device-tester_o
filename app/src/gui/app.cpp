@@ -1,5 +1,5 @@
 #include "app.hpp"
-
+#include <implot.h>
 using namespace Magnum;
 
 namespace gui
@@ -10,6 +10,8 @@ namespace gui
     {
 
         ImGui::CreateContext();
+        ImPlot::CreateContext();
+
         auto &imgui_io = ImGui::GetIO();
         imgui_io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
         
@@ -145,4 +147,8 @@ namespace gui
             return;
     }
 
+    App::~App()
+    {
+        ImPlot::DestroyContext();
+    }
 } // namespace gui

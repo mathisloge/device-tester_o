@@ -1,6 +1,7 @@
 #pragma once
 #include "base_window.hpp"
 #include "../widgets/raw_text_output.hpp"
+#include "../widgets/plot_throughput.hpp"
 #include "../../devices/device_connection.hpp"
 namespace gui
 {
@@ -21,5 +22,6 @@ namespace gui
 
     private:
         RawTextOutput raw_text_;
+        PlotThroughput data_throughput_; 
     };
 } // namespace gui
