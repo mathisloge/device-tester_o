@@ -9,6 +9,7 @@
         "boost-signals2",
         "boost-circular-buffer",
         "boost-spirit",
+        "nlohmann-json",
         "corrade",
         {
             "name": "imgui",

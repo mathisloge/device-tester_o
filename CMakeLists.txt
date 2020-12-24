@@ -16,6 +16,7 @@ target_include_directories(imgui-club INTERFACE imgui_club/imgui_memory_editor)
 add_library(imgui::club ALIAS imgui-club)
 
 option(ENABLE_TESTS ON)
+
 set(ENABLE_TESTS ON)
 if(ENABLE_TESTS)
     include(CTest)
@@ -26,6 +27,8 @@ if(BUILD_TESTING)
 endif()
 add_subdirectory(nmea)
 add_subdirectory(app)
+
+add_subdirectory(docs)
 
 # Package Generator  #######################################################
 set(CPACK_PACKAGE_DESCRIPTION ${CMAKE_PROJECT_DESCRIPTION})

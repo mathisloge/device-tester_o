@@ -2,14 +2,20 @@
 Mathis Logemann <https://github.com/mathisloge>
 v0.1.0
 :toc:
-:imagesdir: assets/images
-:homepage: https://github.com/mathisloge/gps-tester
+:imagesdir: images
+:homepage: https://github.com/mathisloge/device-tester
 :toc: left
 :icons: font
 
-== Introduction
+:leveloffset: +1
 
+include::intro.adoc[]
 
+include::project_structure.adoc[]
+
+include::architecture.adoc[]
+
+:leveloffset: -1
 
 
 [bibliography]

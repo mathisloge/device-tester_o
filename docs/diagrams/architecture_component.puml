@@ -1,0 +1,33 @@
+@startuml ArchitectureComponent
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_WITH_LEGEND()
+
+title Component diagram for the Device Tester
+
+Container(gui, "GUI Application", "c++", "The frontend")
+
+Container_Boundary(dp, "Device Plugin") {
+    Component(dp_device, "Device", "Definition", "Provides the definition of a device")
+    Component(dp_protocols, "Protocols", "Needed", "Provides a list of needed protocols")
+    Component(dp_gui, "GUI", "Needed", "Provides a list of needed GUI plugins")
+}
+
+Container_Boundary(gp, "GUI Plugin") {
+    Component(widget, "Widget", "reusable gui component", "Can be used multiple times by different Windows/Widgets")
+    Component(window, "Window", "Window/Popup/Modal", "Layout of components")
+
+    Rel(window, widget, "Uses")
+    Rel(widget, widget, "Uses")
+}
+
+Container_Boundary(pp, "Protocol Plugin") {
+    Component(pp_reader, "Protocol Reader", "Interface", "Takes raw data as input and dispatches the protocol messages")
+    Component(pp_impl, "Protocol implementation", "internal", "The implementation of the protocol")
+    Rel(pp_reader, pp_impl, "Uses")
+}
+
+Rel(gui, dp, "Loads")
+Rel(gui, gp, "Loads")
+Rel(gui, pp, "Loads")
+@enduml

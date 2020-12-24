@@ -1,0 +1,9 @@
+= Architecture
+
+[#img-arch-main] 
+.Structure
+image::Architecture.png[]
+
+[#img-arch-comp] 
+.Components
+image::ArchitectureComponent.png[]

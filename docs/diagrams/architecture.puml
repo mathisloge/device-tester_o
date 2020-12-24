@@ -1,0 +1,33 @@
+@startuml Architecture
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+' uncomment the following line and comment the first to use locally
+' !include C4_Container.puml
+
+' LAYOUT_TOP_DOWN()
+' LAYOUT_AS_SKETCH()
+LAYOUT_WITH_LEGEND()
+
+title Device-Tester architecture
+
+Person(user, User, "The user")
+
+System_Boundary(c1, "Application") {
+    Container(gui, "GUI", "imgui", "The frontend of the application")
+    Container(connection, "Connection", "c++", "Provides connection implementations. Eg. serial, tcp, udp, etc.")
+    Container(pp, "Protocol Plugin", "c++/python", "Provides specific implementations of protocols")
+    Container(dp, "Device Plugin", "c++/python", "Provides specific settings of devices and special gui bindings")
+    Container(gp, "GUI Plugin", "c++", "Provides widgets and windows to be used by the Device plugins")
+    ContainerDb(config, "Configuration", "File based", "Stores user settings, logs, etc.")
+}
+
+Rel(gui, connection, "Creates")
+Rel(connection, dp, "Uses")
+Rel(connection, pp, "Add Data")
+Rel(gui, pp, "Loads")
+Rel(gui, dp, "Loads")
+Rel(gui, gp, "Loads")
+Rel(gui, config, "Read/Write")
+Rel(gp, gui, "Displays")
+Rel(dp, gp, "Needs")
+Rel(dp, pp, "Needs")
+@enduml
