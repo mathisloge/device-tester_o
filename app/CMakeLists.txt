@@ -36,6 +36,9 @@ set(DEVICE_SRC
     src/devices/ublox_device.cpp
 )
 
+set(CONFIG_SRC
+    src/config/config_manager.cpp
+)
 
 set(GUI_SRC 
     src/gui/imgui_commons.cpp
@@ -55,6 +58,7 @@ add_library(gps-tester STATIC
     ${CONNECTION_SRC}
     ${PROTOCOL_SRC}
     ${DEVICE_SRC}
+    ${CONFIG_SRC}
     ${GUI_SRC}
 )
 set_property(TARGET gps-tester PROPERTY CXX_STANDARD 20)
@@ -73,7 +77,7 @@ target_link_libraries(gps-tester PUBLIC
     spdlog::spdlog
     cc::comms
     cc::ublox
-    nmea-parser
+    nmea::nmea
     Corrade::Main
     Magnum::Application
     Magnum::GL
