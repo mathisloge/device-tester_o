@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.14)
-project(gps-tester
+project(DeviceTester
         VERSION 0.1.0
-        DESCRIPTION "gps tester application"
-        HOMEPAGE_URL https://github.com/mathisloge/gps-tester
+        DESCRIPTION "device tester application"
+        HOMEPAGE_URL https://github.com/mathisloge/device-tester
         LANGUAGES CXX)
 
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
@@ -25,7 +25,9 @@ endif()
 if(BUILD_TESTING)
     find_package(Catch2 REQUIRED)
 endif()
+
 add_subdirectory(nmea)
+add_subdirectory(plugins)
 add_subdirectory(app)
 
 add_subdirectory(docs)
