@@ -82,8 +82,14 @@ namespace gui
 
     void DeviceCreate::drawContent()
     {
+        static const ImVec4 err_col{1.f, 0.f, 0.f, 1.f};
+        static const ImVec4 succs_col{0.1f, 0.8f, 0.1f, 1.f};
         SimpleInputText("Name", &input_name_);
-
+        const bool has_input_name = !input_name_.empty();
+        if (!has_input_name)
+        {
+            ImGui::TextColored(err_col, "Name cannot be empty");
+        }
         static constexpr std::array<std::string_view, static_cast<int>(DeviceInterface::count)> kPreviewValueDevNames{"Serial", "TCP", "UDP"};
 
         if (ImGui::BeginCombo("Interface", validDeviceInterface(device_interface_) ? kPreviewValueDevNames[static_cast<int>(device_interface_)].data() : "unknown"))
@@ -114,27 +120,25 @@ namespace gui
             ImGui::Text("unknown device interface");
         }
 
-        const bool has_connection_check = testConnectionInProg();
+        const bool conn_check_in_prog = testConnectionInProg();
 
         ImGui::Separator();
         if (!error_msg_.empty())
         {
-            static const ImVec4 err_col{1.f, 0.f, 0.f, 1.f};
             ImGui::TextColored(err_col, "Error:");
             ImGui::TextWrapped(error_msg_.c_str());
         }
         if (!success_msg_.empty())
         {
-            static const ImVec4 succs_col{0.1f, 0.8f, 0.1f, 1.f};
             ImGui::TextColored(succs_col, "Success:");
             ImGui::TextWrapped(success_msg_.c_str());
         }
         std::string loader_str{"Test connection"};
-        if (has_connection_check)
+        if (conn_check_in_prog)
         {
             loader_str = fmt::format("Loading {}", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
         }
-        if (Button(loader_str.c_str(), has_connection_check))
+        if (Button(loader_str.c_str(), conn_check_in_prog))
         {
             checkConnection();
         }
@@ -150,12 +154,12 @@ namespace gui
         ImGui::Separator();
 
         ImGui::SetItemDefaultFocus();
-        if (Button("Cancel", has_connection_check))
+        if (Button("Cancel", conn_check_in_prog))
         {
             ImGui::CloseCurrentPopup();
         }
         ImGui::SameLine();
-        if (Button("Add connection", has_connection_check))
+        if (Button("Add connection", !has_input_name || conn_check_in_prog))
         {
             if (addConnection())
             {
