@@ -21,6 +21,8 @@ set(CONNECTION_SRC
     src/connection/connection_handle.cpp
     src/connection/connection.cpp
     src/connection/serial_connection.cpp
+    src/connection/tcp_connection.hpp
+    #src/connection/udp_connection.hpp
 )
 
 set(PROTOCOL_SRC 
