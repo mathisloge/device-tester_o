@@ -56,6 +56,18 @@ namespace gui
             error_msg_ = add_ret.second;
             break;
         }
+        case DeviceInterface::tcp:
+        {
+            const auto add_ret = device_manager_.addTcpConnection(input_name_,
+                                                                  tcp_input_.address,
+                                                                  tcp_input_.port,
+                                                                  tcp_input_.service,
+                                                                  tcp_input_.packet_end);
+            if (add_ret.first)
+                return true;
+            error_msg_ = add_ret.second;
+            break;
+        }
         default:
             error_msg_ = "Connection not supported.";
         }
@@ -74,6 +86,10 @@ namespace gui
                                                                               serial_input_.char_size,
                                                                               serial_input_.flow_control,
                                                                               serial_input_.stop_bits);
+            break;
+        case DeviceInterface::tcp:
+            connection_check_.in_progress = true;
+            connection_check_.progress = device_manager_.testTcpConnection(tcp_input_.address, tcp_input_.port, tcp_input_.service, tcp_input_.packet_end);
             break;
         default:
             error_msg_ = "Connection not supported";
@@ -246,7 +262,9 @@ namespace gui
     }
     void DeviceCreate::drawDeviceInterfaceTcp()
     {
-        ImGui::Text("NOT IMPLEMENTED");
+        SimpleInputText("Address", &tcp_input_.address);
+        ImGui::InputInt("Port", &tcp_input_.port);
+        SimpleInputText("Service", &tcp_input_.service);
     }
     void DeviceCreate::drawDeviceInterfaceUdp()
     {
@@ -264,5 +282,10 @@ namespace gui
         serial_input_.parity = SerialConnection::kDefaultPar;
         serial_input_.flow_control = SerialConnection::kDefaultFlow;
         serial_input_.stop_bits = SerialConnection::kDefaultStopBits;
+
+        tcp_input_.address = "";
+        tcp_input_.port = 80;
+        tcp_input_.service = "";
+        tcp_input_.packet_end = '\n';
     }
 } // namespace gui

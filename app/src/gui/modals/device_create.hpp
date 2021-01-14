@@ -49,6 +49,13 @@ namespace gui
             boost::asio::serial_port_base::stop_bits::type stop_bits;
         } serial_input_;
 
+        struct TcpInput {
+            std::string address;
+            int port;
+            std::string service;
+            char packet_end;
+        } tcp_input_;
+
         struct
         {
             bool in_progress;

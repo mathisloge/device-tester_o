@@ -7,6 +7,7 @@
 #include "../connection/connection.hpp"
 #include "../connection/serial_connection.hpp"
 #include "../devices/device_connection.hpp"
+#include "../connection/tcp_connection.hpp"
 #include "windows/connection_win.hpp"
 namespace gui
 {
@@ -15,6 +16,7 @@ namespace gui
     {
     public:
         using SerialMap = std::map<std::string, std::pair<std::unique_ptr<DeviceConnection>, std::shared_ptr<SerialConnection>>>;
+        using TcpMap = std::map<std::string, std::pair<std::unique_ptr<DeviceConnection>, std::shared_ptr<TcpConnection>>>;
 
     public:
         DeviceManager();
@@ -33,7 +35,18 @@ namespace gui
                                                          boost::asio::serial_port_base::flow_control::type flow_ctrl,
                                                          boost::asio::serial_port_base::stop_bits::type stop_bits);
 
+        std::future<std::tuple<bool, std::string, std::string>> testTcpConnection(const std::string &address,
+                                                                                  unsigned short port,
+                                                                                  const std::string &service,
+                                                                                  const char packet_end);
+        std::pair<bool, std::string> addTcpConnection(const std::string &identifier,
+                                                      const std::string &address,
+                                                      unsigned short port,
+                                                      const std::string &service,
+                                                      const char packet_end);
+
         const SerialMap &serial_connections() const;
+        const TcpMap &tcp_connections() const;
         ~DeviceManager();
 
     private:
@@ -45,6 +58,7 @@ namespace gui
         std::thread io_thread_;
 
         SerialMap serial_connections_;
+        TcpMap tcp_connections_;
         std::vector<std::unique_ptr<ConnectionWin>> connection_windows_;
 
         std::unique_ptr<DumbConnectionHandle> connection_test_handle_;

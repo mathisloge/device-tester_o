@@ -35,4 +35,6 @@ private:
     tcp::socket socket_;
     tcp::resolver::results_type endpoints_;
     bool should_run_;
+
+    bool is_connected_;
 };

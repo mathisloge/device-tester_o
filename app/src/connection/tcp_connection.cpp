@@ -3,28 +3,46 @@
 #include <spdlog/spdlog.h>
 TcpConnection::TcpConnection(ConnectionHandle &handle, const std::string &identifier, boost::asio::io_context &io_context)
     : Connection(handle, identifier),
-      strand_{asio::make_strand(io_context)},
+      strand_{boost::asio::make_strand(io_context)},
       packet_end_{'\n'},
-      should_run_{true}
+      should_run_{true},
+      socket_{strand_},
+      is_connected_{false}
 {
 }
 bool TcpConnection::isConnected() const
 {
+    return is_connected_ && socket_.is_open();
 }
 void TcpConnection::connect()
 {
-    tcp::resolver resolver(strand_);
-    const auto network_target = fmt::format("{}:{}", server_, server_port_);
-
+    disconnect();
+    boost::asio::io_context resolver_ctx;
+    tcp::resolver resolver(resolver_ctx);
     // Start the connect actor.
-    endpoints_ = resolver.resolve(network_target, service_);
+    if (service_.empty())
+        endpoints_ = resolver.resolve(server_, fmt::format("{}", server_port_));
+    else
+    {
+        const auto network_target = (server_port_ == 0) ? server_ : fmt::format("{}:{}", server_, server_port_);
+        endpoints_ = resolver.resolve(network_target, service_);
+    }
+    should_run_ = true;
     beginConnect(endpoints_.begin());
 }
 void TcpConnection::disconnect()
 {
+    if (!isConnected())
+    {
+        should_run_ = false;
+        return;
+    }
+    SPDLOG_INFO("Disconnecting from {}:{}", server_, server_port_);
+    is_connected_ = false;
+    should_run_ = false;
     socket_.close();
 }
-void TcpConnection::setOption(const std::string &server, const unsigned short server_port, const std::string &service = "")
+void TcpConnection::setOption(const std::string &server, const unsigned short server_port, const std::string &service)
 {
     server_ = server;
     server_port_ = server_port;
@@ -40,8 +58,8 @@ void TcpConnection::beginConnect(tcp::resolver::results_type::iterator endpoint_
 {
     if (endpoint_iter != endpoints_.end())
     {
-        SPDLOG_INFO("Connecting to {}...", endpoint_iter->endpoint());
-        socket_.async_connect(endpoint_iter->endpoint(), std::bind(&TcpConnection::handleConnect, this, std::placeholder::_1, endpoint_iter));
+        SPDLOG_INFO("Connecting to {}...", endpoint_iter->endpoint().address().to_string());
+        socket_.async_connect(endpoint_iter->endpoint(), std::bind(&TcpConnection::handleConnect, shared_from_this(), std::placeholders::_1, endpoint_iter));
     }
     else
         disconnect();
@@ -59,13 +77,14 @@ void TcpConnection::handleConnect(const boost::system::error_code &error, tcp::r
     }
     else if (error)
     {
-        SPDLOG_INFO("Connect error: {}", error.message());
+        SPDLOG_ERROR("Connect error: {}", error.message());
         disconnect();
-        start_connect(++endpoint_iter);
+        beginConnect(++endpoint_iter);
     }
     else
     {
-        SPDLOG_INFO("Connected to: {}", endpoint_iter->endpoint());
+        SPDLOG_INFO("Connected to: {}", endpoint_iter->endpoint().address().to_string());
+        is_connected_ = true;
         startRead();
         startWrite();
     }
@@ -73,31 +92,28 @@ void TcpConnection::handleConnect(const boost::system::error_code &error, tcp::r
 
 void TcpConnection::startRead()
 {
-    boost::asio::async_read_until(socket_,
-                                  boost::asio::dynamic_buffer(buffer_rx_), packet_end_,
-                                  std::bind(&TcpConnection::handleRead, this, std::placeholders::_1, std::placeholders::_2));
+    boost::asio::async_read_until(socket_, boost::asio::dynamic_buffer(buffer_rx_), packet_end_,
+                                  std::bind(&TcpConnection::handleRead, shared_from_this(), std::placeholders::_1, std::placeholders::_2));
 }
 void TcpConnection::startWrite()
 {
     // todo add write buffer
 #if 0
-    if (should_run_)
+    if (!should_run_)
         return;
     boost::asio::async_write(socket_, boost::asio::buffer(buffer_tx_),
-                             std::bind(&TcpConnection::handleWrite, this, std::placeholders::_1));
+                             std::bind(&TcpConnection::handleWrite, shared_from_this(), std::placeholders::_1));
 #endif
 }
 
-void TcpConnection::handleRead(const boost::system::error_code &error, std::size_t n)
+void TcpConnection::handleRead(const boost::system::error_code &error, std::size_t length /*length*/)
 {
-    if (should_run_)
-        return;
-
     if (!error)
     {
-        handle_.processData(std::span<uint8_t>(input_buffer_.begin(), input_buffer_.end());
-        input_buffer_.clear();
-        startRead();
+        handle_.processData(std::span<uint8_t>(buffer_rx_.begin(), buffer_rx_.end()));
+        buffer_rx_.clear();
+        if (should_run_)
+            startRead();
     }
     else
     {
@@ -108,7 +124,7 @@ void TcpConnection::handleRead(const boost::system::error_code &error, std::size
 
 void TcpConnection::handleWrite(const boost::system::error_code &error)
 {
-    if (should_run_)
+    if (!should_run_)
         return;
 
     if (!error)

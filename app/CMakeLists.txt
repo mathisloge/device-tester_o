@@ -21,7 +21,7 @@ set(CONNECTION_SRC
     src/connection/connection_handle.cpp
     src/connection/connection.cpp
     src/connection/serial_connection.cpp
-    src/connection/tcp_connection.hpp
+    src/connection/tcp_connection.cpp
     #src/connection/udp_connection.hpp
 )
 
@@ -54,6 +54,7 @@ set(GUI_SRC
     src/gui/windows/base_window.cpp
     src/gui/windows/connection_win.cpp
     src/gui/windows/serial_connection_win.cpp
+    src/gui/windows/tcp_connection_win.cpp
 )
 
 add_library(gps-tester STATIC
