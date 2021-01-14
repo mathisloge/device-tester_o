@@ -22,7 +22,7 @@ set(CONNECTION_SRC
     src/connection/connection.cpp
     src/connection/serial_connection.cpp
     src/connection/tcp_connection.cpp
-    #src/connection/udp_connection.hpp
+    src/connection/udp_connection.cpp
 )
 
 set(PROTOCOL_SRC 
