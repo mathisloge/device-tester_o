@@ -14,26 +14,43 @@ bool UdpConnection::isConnected() const
 }
 void UdpConnection::connect()
 {
-  should_receive_ = true;
-  startRead();
+  if (listen_protocol_ != Protocol::none)
+  {
+    should_receive_ = true;
+    listen_endpoint_ = udp::endpoint(listen_protocol_ == Protocol::ipv4 ? udp::v4() : udp::v6(), listen_port_);
+    try
+    {
+      socket_.open(listen_endpoint_.protocol());
+      socket_.bind(listen_endpoint_);
+      startRead();
+    }
+    catch (const std::runtime_error &err)
+    {
+      should_receive_ = false;
+      SPDLOG_ERROR("Error while binding listen port {}", err.what());
+    }
+  }
 }
 void UdpConnection::disconnect()
 {
   should_receive_ = false;
+  socket_.close();
 }
 
 void UdpConnection::setOption(const std::string &write_address, const unsigned short send_port)
 {
 }
-void UdpConnection::setOption(const unsigned short resv_port)
+void UdpConnection::setOption(const unsigned short listen_port, const Protocol protocol)
 {
+  listen_port_ = listen_port;
+  listen_protocol_ = protocol;
 }
 
 void UdpConnection::startRead()
 {
   socket_.async_receive_from(
       boost::asio::buffer(buffer_rx_),
-      rx_endpoint_,
+      remote_endpoint_,
       std::bind(&UdpConnection::handleRead, shared_from_this(), std::placeholders::_1, std::placeholders::_2));
 }
 void UdpConnection::startWrite()

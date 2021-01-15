@@ -6,6 +6,7 @@
 #include "../connection/serial_connection.hpp"
 #include "windows/serial_connection_win.hpp"
 #include "windows/tcp_connection_win.hpp"
+#include "windows/udp_connection_win.hpp"
 namespace gui
 {
 
@@ -180,6 +181,33 @@ namespace gui
         return std::make_pair(true, "Connection established");
     }
 
+    std::pair<bool, std::string> DeviceManager::addUdpConnection(const std::string &identifier,
+                                                                 const std::string &write_address, const unsigned short send_port,
+                                                                 const unsigned short listen_port, const UdpConnection::Protocol protocol)
+    {
+        if (auto it = udp_connections_.find(identifier); it != udp_connections_.end())
+        {
+            return std::make_pair(false, "udp connection identifier already exits. please close it first");
+        }
+        auto &instance = udp_connections_[identifier];
+        instance.first = std::make_unique<DeviceConnection>();
+        auto con = std::make_shared<UdpConnection>(*instance.first, identifier, io_context_);
+        try
+        {
+            con->setOption(write_address, send_port);
+            con->setOption(listen_port, protocol);
+        }
+        catch (const std::exception &err)
+        {
+            udp_connections_.erase(identifier);
+            return std::make_pair(false, fmt::format("udp connection with error: {}", identifier, err.what()));
+        }
+        instance.second = std::move(con);
+        auto con_win = std::make_unique<UdpConnectionWin>(instance.second, *instance.first);
+        connection_windows_.push_back(std::move(con_win));
+        return std::make_pair(true, "Connection established");
+    }
+
     const DeviceManager::SerialMap &DeviceManager::serial_connections() const
     {
         return serial_connections_;
@@ -188,6 +216,11 @@ namespace gui
     const DeviceManager::TcpMap &DeviceManager::tcp_connections() const
     {
         return tcp_connections_;
+    }
+
+    const DeviceManager::UdpMap &DeviceManager::udp_connections() const
+    {
+        return udp_connections_;
     }
 
     DeviceManager::~DeviceManager()

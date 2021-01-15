@@ -68,6 +68,18 @@ namespace gui
             error_msg_ = add_ret.second;
             break;
         }
+        case DeviceInterface::udp:
+        {
+            const auto add_ret = device_manager_.addUdpConnection(input_name_,
+                                                                  udp_input_.write_address,
+                                                                  udp_input_.write_port,
+                                                                  udp_input_.listen_port,
+                                                                  udp_input_.listen_protocol);
+            if (add_ret.first)
+                return true;
+            error_msg_ = add_ret.second;
+            break;
+        }
         default:
             error_msg_ = "Connection not supported.";
         }
@@ -90,6 +102,9 @@ namespace gui
         case DeviceInterface::tcp:
             connection_check_.in_progress = true;
             connection_check_.progress = device_manager_.testTcpConnection(tcp_input_.address, tcp_input_.port, tcp_input_.service, tcp_input_.packet_end);
+            break;
+        case DeviceInterface::udp:
+            error_msg_ = "Connection check not available for udp";
             break;
         default:
             error_msg_ = "Connection not supported";
@@ -268,7 +283,23 @@ namespace gui
     }
     void DeviceCreate::drawDeviceInterfaceUdp()
     {
-        ImGui::Text("NOT IMPLEMENTED");
+        SimpleInputText("Write address", &udp_input_.write_address);
+        ImGui::InputInt("Write port", &udp_input_.write_port);
+        ImGui::InputInt("Listen port", &udp_input_.listen_port);
+
+        static constexpr std::array<std::string_view, 3> kNamesProtocol{"none", "ipv4", "ipv6"};
+        if (ImGui::BeginCombo("Listen protocol",
+                              (udp_input_.listen_protocol >= UdpConnection::Protocol::none && udp_input_.listen_protocol <= UdpConnection::Protocol::ipv6) ? kNamesProtocol[static_cast<int>(udp_input_.listen_protocol)].data() : "unknown"))
+        {
+            for (int i = 0; i < kNamesProtocol.size(); i++)
+            {
+                ImGui::PushID(this);
+                if (ImGui::Selectable(kNamesProtocol[i].data(), udp_input_.listen_protocol == UdpConnection::Protocol(i)))
+                    udp_input_.listen_protocol = UdpConnection::Protocol(i);
+                ImGui::PopID();
+            }
+            ImGui::EndCombo();
+        }
     }
 
     void DeviceCreate::clearInputs()
@@ -287,5 +318,10 @@ namespace gui
         tcp_input_.port = 80;
         tcp_input_.service = "";
         tcp_input_.packet_end = '\n';
+
+        udp_input_.write_address = "";
+        udp_input_.write_port = 0;
+        udp_input_.listen_port = 0;
+        udp_input_.listen_protocol = UdpConnection::Protocol::none;
     }
 } // namespace gui

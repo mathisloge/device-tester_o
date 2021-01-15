@@ -6,8 +6,9 @@
 #include <boost/asio.hpp>
 #include "../connection/connection.hpp"
 #include "../connection/serial_connection.hpp"
-#include "../devices/device_connection.hpp"
 #include "../connection/tcp_connection.hpp"
+#include "../connection/udp_connection.hpp"
+#include "../devices/device_connection.hpp"
 #include "windows/connection_win.hpp"
 namespace gui
 {
@@ -17,6 +18,7 @@ namespace gui
     public:
         using SerialMap = std::map<std::string, std::pair<std::unique_ptr<DeviceConnection>, std::shared_ptr<SerialConnection>>>;
         using TcpMap = std::map<std::string, std::pair<std::unique_ptr<DeviceConnection>, std::shared_ptr<TcpConnection>>>;
+        using UdpMap = std::map<std::string, std::pair<std::unique_ptr<DeviceConnection>, std::shared_ptr<UdpConnection>>>;
 
     public:
         DeviceManager();
@@ -44,9 +46,13 @@ namespace gui
                                                       unsigned short port,
                                                       const std::string &service,
                                                       const char packet_end);
+        std::pair<bool, std::string> addUdpConnection(const std::string &identifier,
+                                                      const std::string &write_address, const unsigned short send_port,
+                                                      const unsigned short listen_port, const UdpConnection::Protocol protocol);
 
         const SerialMap &serial_connections() const;
         const TcpMap &tcp_connections() const;
+        const UdpMap &udp_connections() const;
         ~DeviceManager();
 
     private:
@@ -59,6 +65,7 @@ namespace gui
 
         SerialMap serial_connections_;
         TcpMap tcp_connections_;
+        UdpMap udp_connections_;
         std::vector<std::unique_ptr<ConnectionWin>> connection_windows_;
 
         std::unique_ptr<DumbConnectionHandle> connection_test_handle_;

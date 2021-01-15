@@ -5,6 +5,7 @@
 
 #include "../device_manager.hpp"
 #include "../../connection/serial_connection.hpp"
+#include "../../connection/udp_connection.hpp"
 namespace gui
 {
     class DeviceCreate : public BaseModal
@@ -49,12 +50,21 @@ namespace gui
             boost::asio::serial_port_base::stop_bits::type stop_bits;
         } serial_input_;
 
-        struct TcpInput {
+        struct TcpInput
+        {
             std::string address;
             int port;
             std::string service;
             char packet_end;
         } tcp_input_;
+
+        struct UdpInput
+        {
+            std::string write_address;
+            int write_port;
+            int listen_port;
+            UdpConnection::Protocol listen_protocol;
+        } udp_input_;
 
         struct
         {

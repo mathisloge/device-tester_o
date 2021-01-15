@@ -8,13 +8,21 @@ class UdpConnection : public std::enable_shared_from_this<UdpConnection>, public
     using udp = boost::asio::ip::udp;
 
 public:
+    enum class Protocol
+    {
+        none,
+        ipv4,
+        ipv6       
+    };
+
+public:
     explicit UdpConnection(ConnectionHandle &handle, const std::string &identifier, boost::asio::io_context &io_context);
     bool isConnected() const override;
     void connect() override;
     void disconnect() override;
 
     void setOption(const std::string &write_address, const unsigned short send_port);
-    void setOption(const unsigned short resv_port);
+    void setOption(const unsigned short listen_port, const Protocol protocol = Protocol::ipv4);
 
 private:
     void startRead();
@@ -27,6 +35,10 @@ private:
     boost::asio::strand<boost::asio::executor> strand_;
     udp::socket socket_;
     std::array<uint8_t, 1024> buffer_rx_;
-    udp::endpoint rx_endpoint_;
+    udp::endpoint listen_endpoint_;
+     udp::endpoint  remote_endpoint_;
     bool should_receive_;
+
+    unsigned short listen_port_;
+    Protocol listen_protocol_;
 };
