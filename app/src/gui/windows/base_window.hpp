@@ -6,9 +6,10 @@ namespace gui
     {
     public:
         explicit BaseWindow(const std::string &name);
+        const std::string &name() const;
         void draw();
-        void setOpenState(bool is_open);
         bool isOpen() const;
+        bool &openState();
         virtual ~BaseWindow() = default;
 
     protected:

@@ -81,6 +81,7 @@ namespace gui
                 showDeviceMenu();
                 ImGui::EndMenu();
             }
+            device_manager_.drawMenu();
             ImGui::EndMainMenuBar();
         }
     }

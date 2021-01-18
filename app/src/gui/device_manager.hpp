@@ -16,13 +16,13 @@ namespace gui
     class DeviceManager
     {
     public:
-        using SerialMap = std::map<std::string, std::pair<std::unique_ptr<DeviceConnection>, std::shared_ptr<SerialConnection>>>;
-        using TcpMap = std::map<std::string, std::pair<std::unique_ptr<DeviceConnection>, std::shared_ptr<TcpConnection>>>;
-        using UdpMap = std::map<std::string, std::pair<std::unique_ptr<DeviceConnection>, std::shared_ptr<UdpConnection>>>;
-
+        using DeviceMap = std::map<std::string, std::unique_ptr<DeviceConnection>>;
+        using ConnectionMap = std::map<std::string, std::shared_ptr<Connection>>;
+        using WindowMap =  std::map<std::string, std::unique_ptr<ConnectionWin>>;
     public:
         DeviceManager();
         void draw();
+        void drawMenu();
         std::future<std::tuple<bool, std::string, std::string>> testSerialConnection(const std::string &devname,
                                                                                      unsigned int baud_rate,
                                                                                      boost::asio::serial_port_base::parity::type parity,
@@ -50,9 +50,7 @@ namespace gui
                                                       const std::string &write_address, const unsigned short send_port,
                                                       const unsigned short listen_port, const UdpConnection::Protocol protocol);
 
-        const SerialMap &serial_connections() const;
-        const TcpMap &tcp_connections() const;
-        const UdpMap &udp_connections() const;
+        void closeConnection();
         ~DeviceManager();
 
     private:
@@ -63,11 +61,10 @@ namespace gui
         boost::asio::io_context io_context_;
         std::thread io_thread_;
 
-        SerialMap serial_connections_;
-        TcpMap tcp_connections_;
-        UdpMap udp_connections_;
-        std::vector<std::unique_ptr<ConnectionWin>> connection_windows_;
-
+        DeviceMap devices_;
+        ConnectionMap connections_;
+        WindowMap windows_;
+        
         std::unique_ptr<DumbConnectionHandle> connection_test_handle_;
         std::string connection_test_buffer_;
     };

@@ -28,9 +28,43 @@ namespace gui
 
     void DeviceManager::draw()
     {
-        for (auto &con_win : connection_windows_)
+        for (auto &con_win : windows_)
         {
-            con_win->draw();
+            con_win.second->draw();
+        }
+    }
+
+    void DeviceManager::drawMenu()
+    {
+        std::vector<std::string> delayed_delete;
+        if (ImGui::BeginMenu("Connections"))
+        {
+            for (auto &con_win : windows_)
+            {
+                ImGui::PushID(con_win.second.get());
+                if (ImGui::BeginMenu(con_win.second->name().c_str()))
+                {
+                    ImGui::MenuItem("Show/Hide Window", "", &con_win.second->openState());
+                    if (ImGui::MenuItem("Close Connection"))
+                    {
+                        delayed_delete.push_back(con_win.first);
+                    }
+                    ImGui::EndMenu();
+                }
+                ImGui::PopID();
+            }
+            ImGui::EndMenu();
+        }
+
+        for (const auto &id : delayed_delete)
+        {
+            windows_.erase(id);
+            if (auto it = connections_.find(id); it != connections_.end())
+            {
+                it->second->disconnect();
+            }
+            connections_.erase(id);
+            devices_.erase(id);
         }
     }
 
@@ -92,13 +126,12 @@ namespace gui
                                                                     boost::asio::serial_port_base::flow_control::type flow_ctrl,
                                                                     boost::asio::serial_port_base::stop_bits::type stop_bits)
     {
-        if (auto it = serial_connections_.find(devname); it != serial_connections_.end())
+        if (auto it = connections_.find(identifier); it != connections_.end())
         {
-            return std::make_pair(false, "serial connection port already exits. please close it first");
+            return std::make_pair(false, "Connection with identifier already exists");
         }
-        auto &dev_instance = serial_connections_[devname];
-        dev_instance.first = std::make_unique<DeviceConnection>();
-        auto con = std::make_shared<SerialConnection>(*dev_instance.first, identifier, io_context_);
+        auto &dev_instance = devices_[identifier] = std::make_unique<DeviceConnection>();
+        auto con = std::make_shared<SerialConnection>(*dev_instance, identifier, io_context_);
         try
         {
             spdlog::debug("test connection for serial device at {}@{}", devname, baud_rate);
@@ -110,13 +143,13 @@ namespace gui
         catch (const std::exception &err)
         {
             SPDLOG_ERROR("while connecting to serial device {}. with error: {}", devname, err.what());
-            serial_connections_.erase(devname);
+            devices_.erase(identifier);
             return std::make_pair(false, fmt::format("while connecting to serial device {}. with error: {}", devname, err.what()));
         }
         con->connect();
-        dev_instance.second = std::move(con);
-        auto con_win = std::make_unique<SerialConnectionWin>(dev_instance.second, *dev_instance.first);
-        connection_windows_.push_back(std::move(con_win));
+
+        windows_.emplace(identifier, std::make_unique<SerialConnectionWin>(con, *dev_instance));
+        connections_.emplace(identifier, std::move(con));
         return std::make_pair(true, "Connection established");
     }
 
@@ -158,13 +191,12 @@ namespace gui
                                                                  const std::string &service,
                                                                  const char packet_end)
     {
-        if (auto it = tcp_connections_.find(identifier); it != tcp_connections_.end())
+        if (auto it = connections_.find(identifier); it != connections_.end())
         {
             return std::make_pair(false, "tcp connection identifier already exits. please close it first");
         }
-        auto &instance = tcp_connections_[identifier];
-        instance.first = std::make_unique<DeviceConnection>();
-        auto con = std::make_shared<TcpConnection>(*instance.first, identifier, io_context_);
+        auto &dev_instance = devices_[identifier] = std::make_unique<DeviceConnection>();
+        auto con = std::make_shared<TcpConnection>(*dev_instance, identifier, io_context_);
         try
         {
             con->setOption(address, port, service);
@@ -172,12 +204,12 @@ namespace gui
         }
         catch (const std::exception &err)
         {
-            tcp_connections_.erase(identifier);
+            devices_.erase(identifier);
             return std::make_pair(false, fmt::format("tcp connection with error: {}", identifier, err.what()));
         }
-        instance.second = std::move(con);
-        auto con_win = std::make_unique<TcpConnectionWin>(instance.second, *instance.first);
-        connection_windows_.push_back(std::move(con_win));
+
+        windows_.emplace(identifier, std::make_unique<TcpConnectionWin>(con, *dev_instance));
+        connections_.emplace(identifier, std::move(con));
         return std::make_pair(true, "Connection established");
     }
 
@@ -185,13 +217,12 @@ namespace gui
                                                                  const std::string &write_address, const unsigned short send_port,
                                                                  const unsigned short listen_port, const UdpConnection::Protocol protocol)
     {
-        if (auto it = udp_connections_.find(identifier); it != udp_connections_.end())
+        if (auto it = connections_.find(identifier); it != connections_.end())
         {
             return std::make_pair(false, "udp connection identifier already exits. please close it first");
         }
-        auto &instance = udp_connections_[identifier];
-        instance.first = std::make_unique<DeviceConnection>();
-        auto con = std::make_shared<UdpConnection>(*instance.first, identifier, io_context_);
+        auto &dev_instance = devices_[identifier] = std::make_unique<DeviceConnection>();
+        auto con = std::make_shared<UdpConnection>(*dev_instance, identifier, io_context_);
         try
         {
             con->setOption(write_address, send_port);
@@ -199,37 +230,19 @@ namespace gui
         }
         catch (const std::exception &err)
         {
-            udp_connections_.erase(identifier);
+            devices_.erase(identifier);
             return std::make_pair(false, fmt::format("udp connection with error: {}", identifier, err.what()));
         }
-        instance.second = std::move(con);
-        auto con_win = std::make_unique<UdpConnectionWin>(instance.second, *instance.first);
-        connection_windows_.push_back(std::move(con_win));
+        windows_.emplace(identifier, std::make_unique<UdpConnectionWin>(con, *dev_instance));
+        connections_.emplace(identifier, std::move(con));
         return std::make_pair(true, "Connection established");
-    }
-
-    const DeviceManager::SerialMap &DeviceManager::serial_connections() const
-    {
-        return serial_connections_;
-    }
-
-    const DeviceManager::TcpMap &DeviceManager::tcp_connections() const
-    {
-        return tcp_connections_;
-    }
-
-    const DeviceManager::UdpMap &DeviceManager::udp_connections() const
-    {
-        return udp_connections_;
     }
 
     DeviceManager::~DeviceManager()
     {
         should_stop_ = true;
-        for (auto &con : serial_connections_)
-            con.second.second->disconnect();
-        for (auto &con : tcp_connections_)
-            con.second.second->disconnect();
+        for (auto &con : connections_)
+            con.second->disconnect();
 
         io_context_.stop();
         if (io_thread_.joinable())

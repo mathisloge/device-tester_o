@@ -7,6 +7,11 @@ namespace gui
     {
     }
 
+    const std::string &BaseWindow::name() const
+    {
+        return name_;
+    }
+
     void BaseWindow::draw()
     {
         if (!is_open_)
@@ -18,9 +23,9 @@ namespace gui
         ImGui::End();
     }
 
-    void BaseWindow::setOpenState(bool is_open)
+    bool &BaseWindow::openState()
     {
-        is_open_ = is_open;
+        return is_open_;
     }
 
     bool BaseWindow::isOpen() const
