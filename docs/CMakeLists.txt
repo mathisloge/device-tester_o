@@ -6,9 +6,11 @@ find_program (ASCIIDOCTOR_PDF_EXE asciidoctor-pdf)
 
 if(NOT ASCIIDOCTOR_EXE)
     message(WARNING "asciidoctor not found. Could not create targets for docs")
+    return()
 endif()
 if(NOT ASCIIDOCTOR_PDF_EXE)
     message(WARNING "asciidoctor-pdf not found. Could not create targets for docs")
+    return()
 endif()
 
 set (MAIN_FILE "${PROJECT_SOURCE_DIR}/main.adoc")

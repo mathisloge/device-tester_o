@@ -34,8 +34,10 @@ namespace gui
         ImPlot::SetNextPlotLimits(minmax_x_.first, minmax_x_.second, minmax_y_.first, minmax_y_.second, ImGuiCond_Always);
         if (ImPlot::BeginPlot("##pltthroughput", "time", "bytes", ImVec2(-1, -1), 0, ImPlotAxisFlags_Time))
         {
-            ImPlot::PlotStairs("throughput", &data_sizes_.data[0].x, &data_sizes_.data[0].y, data_sizes_.data.size(), data_sizes_.offset, 2 * sizeof(DataPoint::DataType));
-            ImPlot::PlotLine("avg. throughput", &avg_data_sizes_.data[0].x, &avg_data_sizes_.data[0].y, avg_data_sizes_.data.size(), avg_data_sizes_.offset, 2 * sizeof(DataPoint::DataType));
+            if (data_sizes_.data.size() > 0)
+                ImPlot::PlotStairs("throughput", &data_sizes_.data[0].x, &data_sizes_.data[0].y, data_sizes_.data.size(), data_sizes_.offset, 2 * sizeof(DataPoint::DataType));
+            if (avg_data_sizes_.data.size() > 0)
+                ImPlot::PlotLine("avg. throughput", &avg_data_sizes_.data[0].x, &avg_data_sizes_.data[0].y, avg_data_sizes_.data.size(), avg_data_sizes_.offset, 2 * sizeof(DataPoint::DataType));
             ImPlot::EndPlot();
         }
     }

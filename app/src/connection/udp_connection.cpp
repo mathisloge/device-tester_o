@@ -1,4 +1,5 @@
 #include "udp_connection.hpp"
+#include <span>
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>
 
@@ -37,7 +38,7 @@ void UdpConnection::disconnect()
   socket_.close();
 }
 
-void UdpConnection::setOption(const std::string &write_address, const unsigned short send_port)
+void UdpConnection::setOption(const std::string &/*write_address*/, const unsigned short /*send_port*/)
 {
 }
 void UdpConnection::setOption(const unsigned short listen_port, const Protocol protocol)
@@ -72,6 +73,6 @@ void UdpConnection::handleRead(const boost::system::error_code &error, std::size
     disconnect();
   }
 }
-void UdpConnection::handleWrite(const boost::system::error_code &error)
+void UdpConnection::handleWrite(const boost::system::error_code &)
 {
 }

@@ -19,7 +19,7 @@ static int InputTextCallback(ImGuiInputTextCallbackData *data)
 }
 bool SimpleInputText(const char *label, std::string *str, ImGuiInputTextFlags flags = 0)
 {
-    flags |= ImGuiInputTextFlags_CallbackResize;
+    //flags |= ImGuiInputTextFlags_CallbackResize;
     return ImGui::InputText(label, str, flags, InputTextCallback, (void *)str);
 }
 
