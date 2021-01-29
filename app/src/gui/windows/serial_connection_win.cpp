@@ -3,14 +3,14 @@
 #include <imgui.h>
 namespace gui
 {
-    SerialConnectionWin::SerialConnectionWin(const std::shared_ptr<SerialConnection> &serial_connection, DeviceConnection &device_connection)
+    SerialConnectionWin::SerialConnectionWin(const std::shared_ptr<connection::Serial> &serial_connection, DeviceConnection &device_connection)
         : ConnectionWin(serial_connection->identifier(), device_connection), serial_connection_{serial_connection}
     {
     }
 
     void SerialConnectionWin::drawConnectionOverview()
     {
-        ImGui::Text("Port: %s", serial_connection_->port().c_str());
+        ImGui::Text("Port: %s", serial_connection_->serialOptions().port.c_str());
         const bool is_connected = serial_connection_->isConnected();
         if (is_connected)
         {

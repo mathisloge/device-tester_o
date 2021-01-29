@@ -3,7 +3,7 @@
 #include <imgui.h>
 namespace gui
 {
-    TcpConnectionWin::TcpConnectionWin(const std::shared_ptr<TcpConnection> &connection, DeviceConnection &device_connection)
+    TcpConnectionWin::TcpConnectionWin(const std::shared_ptr<connection::Tcp> &connection, DeviceConnection &device_connection)
         : ConnectionWin(connection->identifier(), device_connection), connection_{connection}
     {
     }

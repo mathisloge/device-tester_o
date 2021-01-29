@@ -1,8 +1,12 @@
 #pragma once
 #include <cstdint>
 #include <span>
-class ConnectionHandle
+
+namespace connection
 {
-public:
-    virtual void processData(std::span<uint8_t> data) = 0;
-};
+    class ConnectionHandle
+    {
+    public:
+        virtual void processData(std::span<uint8_t> data) = 0;
+    };
+} // namespace connection

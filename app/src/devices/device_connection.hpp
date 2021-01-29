@@ -5,7 +5,8 @@
 #include <boost/signals2.hpp>
 #include "base_device.hpp"
 #include "../connection/connection_handle.hpp"
-class DeviceConnection : public ConnectionHandle
+
+class DeviceConnection : public connection::ConnectionHandle
 {
 public:
     using DataSig = boost::signals2::signal<void(std::span<uint8_t>)>;

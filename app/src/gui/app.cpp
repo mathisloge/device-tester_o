@@ -94,9 +94,7 @@ namespace gui
         }
         if (ImGui::BeginMenu("Open Recent"))
         {
-            ImGui::MenuItem("COM8@115200");
-            ImGui::MenuItem("COM8@115200");
-            ImGui::MenuItem("COM8@115200");
+            device_manager_.drawOpenRecent();
             ImGui::EndMenu();
         }
     }

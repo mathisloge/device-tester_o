@@ -7,7 +7,7 @@ namespace gui
     class SerialConnectionWin : public ConnectionWin
     {
     public:
-        explicit SerialConnectionWin(const std::shared_ptr<SerialConnection> &serial_connection, DeviceConnection &device_connection);
+        explicit SerialConnectionWin(const std::shared_ptr<connection::Serial> &serial_connection, DeviceConnection &device_connection);
 
     private:
         void drawConnectionOverview() override;
@@ -16,6 +16,6 @@ namespace gui
         void drawConnectionSettings() override;
 
     private:
-        std::shared_ptr<SerialConnection> serial_connection_;
+        std::shared_ptr<connection::Serial> serial_connection_;
     };
 } // namespace gui

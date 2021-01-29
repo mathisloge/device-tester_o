@@ -7,7 +7,7 @@ namespace gui
     class TcpConnectionWin : public ConnectionWin
     {
     public:
-        explicit TcpConnectionWin(const std::shared_ptr<TcpConnection> &connection, DeviceConnection &device_connection);
+        explicit TcpConnectionWin(const std::shared_ptr<connection::Tcp> &connection, DeviceConnection &device_connection);
 
     private:
         void drawConnectionOverview() override;
@@ -16,6 +16,6 @@ namespace gui
         void drawConnectionSettings() override;
 
     private:
-        std::shared_ptr<TcpConnection> connection_;
+        std::shared_ptr<connection::Tcp> connection_;
     };
 } // namespace gui

@@ -3,7 +3,7 @@
 #include <imgui.h>
 namespace gui
 {
-    UdpConnectionWin::UdpConnectionWin(const std::shared_ptr<UdpConnection> &connection, DeviceConnection &device_connection)
+    UdpConnectionWin::UdpConnectionWin(const std::shared_ptr<connection::Udp> &connection, DeviceConnection &device_connection)
         : ConnectionWin(connection->identifier(), device_connection), connection_{connection}
     {
     }

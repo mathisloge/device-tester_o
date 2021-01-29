@@ -29,6 +29,7 @@ namespace gui
         void drawDeviceInterfaceUdp();
         bool testConnectionInProg();
         void clearInputs();
+        void syncInputs();
         bool addConnection();
         void checkConnection();
 
@@ -39,32 +40,9 @@ namespace gui
 
         DeviceInterface device_interface_;
 
-        struct SerialInput
-        {
-            static constexpr int kSizePort = 150;
-            std::string port;
-            int baud_rate;
-            boost::asio::serial_port_base::parity::type parity;
-            int char_size;
-            boost::asio::serial_port_base::flow_control::type flow_control;
-            boost::asio::serial_port_base::stop_bits::type stop_bits;
-        } serial_input_;
-
-        struct TcpInput
-        {
-            std::string address;
-            int port;
-            std::string service;
-            char packet_end;
-        } tcp_input_;
-
-        struct UdpInput
-        {
-            std::string write_address;
-            int write_port;
-            int listen_port;
-            UdpConnection::Protocol listen_protocol;
-        } udp_input_;
+        connection::SerialOptions serial_input_;
+        connection::TcpOptions tcp_input_;
+        connection::UdpOptions udp_input_;
 
         struct
         {

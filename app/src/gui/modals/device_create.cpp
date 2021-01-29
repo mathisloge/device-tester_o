@@ -45,12 +45,7 @@ namespace gui
         {
         case DeviceInterface::serial:
         {
-            const auto add_ret = device_manager_.addSerialConnection(input_name_, serial_input_.port,
-                                                                     serial_input_.baud_rate,
-                                                                     serial_input_.parity,
-                                                                     serial_input_.char_size,
-                                                                     serial_input_.flow_control,
-                                                                     serial_input_.stop_bits);
+            const auto add_ret = device_manager_.addSerialConnection(serial_input_);
             if (add_ret.first)
                 return true;
             error_msg_ = add_ret.second;
@@ -58,11 +53,7 @@ namespace gui
         }
         case DeviceInterface::tcp:
         {
-            const auto add_ret = device_manager_.addTcpConnection(input_name_,
-                                                                  tcp_input_.address,
-                                                                  tcp_input_.port,
-                                                                  tcp_input_.service,
-                                                                  tcp_input_.packet_end);
+            const auto add_ret = device_manager_.addTcpConnection(tcp_input_);
             if (add_ret.first)
                 return true;
             error_msg_ = add_ret.second;
@@ -70,11 +61,7 @@ namespace gui
         }
         case DeviceInterface::udp:
         {
-            const auto add_ret = device_manager_.addUdpConnection(input_name_,
-                                                                  udp_input_.write_address,
-                                                                  udp_input_.write_port,
-                                                                  udp_input_.listen_port,
-                                                                  udp_input_.listen_protocol);
+            const auto add_ret = device_manager_.addUdpConnection(udp_input_);
             if (add_ret.first)
                 return true;
             error_msg_ = add_ret.second;
@@ -92,16 +79,11 @@ namespace gui
         {
         case DeviceInterface::serial:
             connection_check_.in_progress = true;
-            connection_check_.progress = device_manager_.testSerialConnection(serial_input_.port,
-                                                                              serial_input_.baud_rate,
-                                                                              serial_input_.parity,
-                                                                              serial_input_.char_size,
-                                                                              serial_input_.flow_control,
-                                                                              serial_input_.stop_bits);
+            connection_check_.progress = device_manager_.testSerialConnection(serial_input_);
             break;
         case DeviceInterface::tcp:
             connection_check_.in_progress = true;
-            connection_check_.progress = device_manager_.testTcpConnection(tcp_input_.address, tcp_input_.port, tcp_input_.service, tcp_input_.packet_end);
+            connection_check_.progress = device_manager_.testTcpConnection(tcp_input_);
             break;
         case DeviceInterface::udp:
             error_msg_ = "Connection check not available for udp";
@@ -171,6 +153,7 @@ namespace gui
         }
         if (Button(loader_str.c_str(), conn_check_in_prog))
         {
+            syncInputs();
             checkConnection();
         }
         if (std::get<bool>(connection_check_.result))
@@ -192,6 +175,7 @@ namespace gui
         ImGui::SameLine();
         if (Button("Add connection", !has_input_name || conn_check_in_prog))
         {
+            syncInputs();
             if (addConnection())
             {
                 ImGui::CloseCurrentPopup();
@@ -238,38 +222,49 @@ namespace gui
         static constexpr std::array<std::string_view, 3> kNamesFlowControl{"none", "software", "hardware"};
 
         SimpleInputText("Port", &serial_input_.port);
-        ImGui::InputInt("Baud rate", &serial_input_.baud_rate, 100, 1000);
-        ImGui::InputInt("Character size", &serial_input_.char_size, 1, 2);
+        int baud_rate = serial_input_.baud_rate;
+        if (ImGui::InputInt("Baud rate", &baud_rate, 100, 1000))
+        {
+            serial_input_.baud_rate = baud_rate;
+        }
+        int char_size = serial_input_.char_size.value();
+        if (ImGui::InputInt("Character size", &char_size, 1, 2))
+        {
+            serial_input_.char_size = boost::asio::serial_port_base::character_size(char_size);
+        }
 
-        if (ImGui::BeginCombo("Parity", (serial_input_.parity >= 0 && serial_input_.parity < 3) ? kNamesParity[serial_input_.parity].data() : "unknown"))
+        const int parity = static_cast<int>(serial_input_.parity.value());
+        if (ImGui::BeginCombo("Parity", (parity >= 0 && parity < 3) ? kNamesParity[parity].data() : "unknown"))
         {
             for (int i = 0; i < kNamesParity.size(); i++)
             {
                 ImGui::PushID(this);
-                if (ImGui::Selectable(kNamesParity[i].data(), serial_input_.parity == i))
-                    serial_input_.parity = boost::asio::serial_port_base::parity::type(i);
+                if (ImGui::Selectable(kNamesParity[i].data(), parity == i))
+                    serial_input_.parity = boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::type(i));
                 ImGui::PopID();
             }
             ImGui::EndCombo();
         }
-        if (ImGui::BeginCombo("Stop bits", (serial_input_.stop_bits >= 0 && serial_input_.stop_bits < 3) ? kNamesStopBits[serial_input_.stop_bits].data() : "unknown"))
+        const int stop_bits = static_cast<int>(serial_input_.stop_bits.value());
+        if (ImGui::BeginCombo("Stop bits", (stop_bits >= 0 && stop_bits < 3) ? kNamesStopBits[stop_bits].data() : "unknown"))
         {
             for (int i = 0; i < kNamesStopBits.size(); i++)
             {
                 ImGui::PushID(this);
-                if (ImGui::Selectable(kNamesStopBits[i].data(), serial_input_.stop_bits == i))
-                    serial_input_.stop_bits = boost::asio::serial_port_base::stop_bits::type(i);
+                if (ImGui::Selectable(kNamesStopBits[i].data(), stop_bits == i))
+                    serial_input_.stop_bits = boost::asio::serial_port_base::stop_bits(boost::asio::serial_port_base::stop_bits::type(i));
                 ImGui::PopID();
             }
             ImGui::EndCombo();
         }
-        if (ImGui::BeginCombo("Flow control", (serial_input_.flow_control >= 0 && serial_input_.flow_control < 3) ? kNamesFlowControl[serial_input_.flow_control].data() : "unknown"))
+        const int flow_control = static_cast<int>(serial_input_.flow_control.value());
+        if (ImGui::BeginCombo("Flow control", (flow_control >= 0 && flow_control < 3) ? kNamesFlowControl[flow_control].data() : "unknown"))
         {
             for (int i = 0; i < kNamesFlowControl.size(); i++)
             {
                 ImGui::PushID(this);
-                if (ImGui::Selectable(kNamesFlowControl[i].data(), serial_input_.flow_control == i))
-                    serial_input_.flow_control = boost::asio::serial_port_base::flow_control::type(i);
+                if (ImGui::Selectable(kNamesFlowControl[i].data(), flow_control == i))
+                    serial_input_.flow_control = boost::asio::serial_port_base::flow_control(boost::asio::serial_port_base::flow_control::type(i));
                 ImGui::PopID();
             }
             ImGui::EndCombo();
@@ -277,25 +272,41 @@ namespace gui
     }
     void DeviceCreate::drawDeviceInterfaceTcp()
     {
-        SimpleInputText("Address", &tcp_input_.address);
-        ImGui::InputInt("Port", &tcp_input_.port);
+        SimpleInputText("Address", &tcp_input_.server);
+        int port = tcp_input_.server_port;
+        if (ImGui::InputInt("Port", &port))
+        {
+            if (port >= 0 && port <= 65535)
+                tcp_input_.server_port = port;
+        }
         SimpleInputText("Service", &tcp_input_.service);
     }
     void DeviceCreate::drawDeviceInterfaceUdp()
     {
         SimpleInputText("Write address", &udp_input_.write_address);
-        ImGui::InputInt("Write port", &udp_input_.write_port);
-        ImGui::InputInt("Listen port", &udp_input_.listen_port);
+        int wport = udp_input_.listen_port;
+        if (ImGui::InputInt("Port", &wport))
+        {
+            if (wport >= 0 && wport <= 65535)
+                udp_input_.listen_port = wport;
+        }
+
+        int rport = udp_input_.listen_port;
+        if (ImGui::InputInt("Port", &rport))
+        {
+            if (rport >= 0 && rport <= 65535)
+                udp_input_.listen_port = rport;
+        }
 
         static constexpr std::array<std::string_view, 3> kNamesProtocol{"none", "ipv4", "ipv6"};
         if (ImGui::BeginCombo("Listen protocol",
-                              (udp_input_.listen_protocol >= UdpConnection::Protocol::none && udp_input_.listen_protocol <= UdpConnection::Protocol::ipv6) ? kNamesProtocol[static_cast<int>(udp_input_.listen_protocol)].data() : "unknown"))
+                              (udp_input_.listen_protocol >= connection::UdpOptions::Protocol::none && udp_input_.listen_protocol <= connection::UdpOptions::Protocol::ipv6) ? kNamesProtocol[static_cast<int>(udp_input_.listen_protocol)].data() : "unknown"))
         {
             for (int i = 0; i < kNamesProtocol.size(); i++)
             {
                 ImGui::PushID(this);
-                if (ImGui::Selectable(kNamesProtocol[i].data(), udp_input_.listen_protocol == UdpConnection::Protocol(i)))
-                    udp_input_.listen_protocol = UdpConnection::Protocol(i);
+                if (ImGui::Selectable(kNamesProtocol[i].data(), udp_input_.listen_protocol == connection::UdpOptions::Protocol(i)))
+                    udp_input_.listen_protocol = connection::UdpOptions::Protocol(i);
                 ImGui::PopID();
             }
             ImGui::EndCombo();
@@ -307,21 +318,15 @@ namespace gui
         device_interface_ = DeviceInterface::serial;
         input_name_ = "";
 
-        serial_input_.port = "";
-        serial_input_.baud_rate = 9600;
-        serial_input_.char_size = SerialConnection::kDefaultCharSize;
-        serial_input_.parity = SerialConnection::kDefaultPar;
-        serial_input_.flow_control = SerialConnection::kDefaultFlow;
-        serial_input_.stop_bits = SerialConnection::kDefaultStopBits;
+        serial_input_ = connection::SerialOptions();
+        tcp_input_ = connection::TcpOptions();
+        udp_input_ = connection::UdpOptions();
+    }
 
-        tcp_input_.address = "";
-        tcp_input_.port = 80;
-        tcp_input_.service = "";
-        tcp_input_.packet_end = '\n';
-
-        udp_input_.write_address = "";
-        udp_input_.write_port = 0;
-        udp_input_.listen_port = 0;
-        udp_input_.listen_protocol = UdpConnection::Protocol::none;
+    void DeviceCreate::syncInputs()
+    {
+        serial_input_.identifier = input_name_;
+        tcp_input_.identifier = input_name_;
+        udp_input_.identifier = input_name_;
     }
 } // namespace gui

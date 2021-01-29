@@ -3,76 +3,97 @@
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>
 
-UdpConnection::UdpConnection(ConnectionHandle &handle, const std::string &identifier, boost::asio::io_context &io_context)
-    : Connection(handle, identifier),
-      strand_{boost::asio::make_strand(io_context)},
-      socket_{strand_}
+namespace connection
 {
-}
-bool UdpConnection::isConnected() const
-{
-  return should_receive_;
-}
-void UdpConnection::connect()
-{
-  if (listen_protocol_ != Protocol::none)
+  Udp::Udp(ConnectionHandle &handle, boost::asio::io_context &io_context, const std::string &identifier)
+      : Connection(handle),
+        strand_{boost::asio::make_strand(io_context)},
+        socket_{strand_},
+        options_{identifier}
   {
-    should_receive_ = true;
-    listen_endpoint_ = udp::endpoint(listen_protocol_ == Protocol::ipv4 ? udp::v4() : udp::v6(), listen_port_);
-    try
+  }
+
+  bool Udp::isConnected() const
+  {
+    return should_receive_;
+  }
+
+  void Udp::connect()
+  {
+    if (options_.listen_protocol != UdpOptions::Protocol::none)
     {
-      socket_.open(listen_endpoint_.protocol());
-      socket_.bind(listen_endpoint_);
-      startRead();
+      should_receive_ = true;
+      listen_endpoint_ = udp::endpoint(options_.listen_protocol == UdpOptions::Protocol::ipv4 ? udp::v4() : udp::v6(), options_.listen_port);
+      try
+      {
+        socket_.open(listen_endpoint_.protocol());
+        socket_.bind(listen_endpoint_);
+        startRead();
+      }
+      catch (const std::runtime_error &err)
+      {
+        should_receive_ = false;
+        SPDLOG_ERROR("Error while binding listen port {}", err.what());
+      }
     }
-    catch (const std::runtime_error &err)
+  }
+  void Udp::disconnect()
+  {
+    should_receive_ = false;
+    socket_.close();
+  }
+
+  void Udp::setOption(const std::string & /*write_address*/, const unsigned short /*send_port*/)
+  {
+  }
+  void Udp::setOption(const unsigned short listen_port, const UdpOptions::Protocol protocol)
+  {
+    options_.listen_port = listen_port;
+    options_.listen_protocol = protocol;
+  }
+
+  void Udp::startRead()
+  {
+    socket_.async_receive_from(
+        boost::asio::buffer(buffer_rx_),
+        remote_endpoint_,
+        std::bind(&Udp::handleRead, shared_from_this(), std::placeholders::_1, std::placeholders::_2));
+  }
+  void Udp::startWrite()
+  {
+  }
+
+  void Udp::handleRead(const boost::system::error_code &error, std::size_t n)
+  {
+    if (!error)
     {
-      should_receive_ = false;
-      SPDLOG_ERROR("Error while binding listen port {}", err.what());
+      handle_.processData(std::span<uint8_t>(buffer_rx_.begin(), buffer_rx_.begin() + n));
+      buffer_rx_.fill(0);
+      if (should_receive_)
+        startRead();
+    }
+    else
+    {
+      SPDLOG_ERROR("Error while receiving {}", error.message());
+      disconnect();
     }
   }
-}
-void UdpConnection::disconnect()
-{
-  should_receive_ = false;
-  socket_.close();
-}
-
-void UdpConnection::setOption(const std::string &/*write_address*/, const unsigned short /*send_port*/)
-{
-}
-void UdpConnection::setOption(const unsigned short listen_port, const Protocol protocol)
-{
-  listen_port_ = listen_port;
-  listen_protocol_ = protocol;
-}
-
-void UdpConnection::startRead()
-{
-  socket_.async_receive_from(
-      boost::asio::buffer(buffer_rx_),
-      remote_endpoint_,
-      std::bind(&UdpConnection::handleRead, shared_from_this(), std::placeholders::_1, std::placeholders::_2));
-}
-void UdpConnection::startWrite()
-{
-}
-
-void UdpConnection::handleRead(const boost::system::error_code &error, std::size_t n)
-{
-  if (!error)
+  void Udp::handleWrite(const boost::system::error_code &)
   {
-    handle_.processData(std::span<uint8_t>(buffer_rx_.begin(), buffer_rx_.begin() + n));
-    buffer_rx_.fill(0);
-    if (should_receive_)
-      startRead();
   }
-  else
+
+  const Options &Udp::options() const
   {
-    SPDLOG_ERROR("Error while receiving {}", error.message());
-    disconnect();
+    return options_;
   }
-}
-void UdpConnection::handleWrite(const boost::system::error_code &)
-{
-}
+
+  const UdpOptions &Udp::udpOptions() const
+  {
+    return options_;
+  }
+
+  std::string_view Udp::type() const
+  {
+    return kType;
+  }
+} // namespace connection

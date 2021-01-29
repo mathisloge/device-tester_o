@@ -3,42 +3,57 @@
 #include <array>
 #include <boost/asio.hpp>
 #include "connection.hpp"
-class UdpConnection : public std::enable_shared_from_this<UdpConnection>, public Connection
+
+namespace connection
 {
-    using udp = boost::asio::ip::udp;
 
-public:
-    enum class Protocol
+    struct UdpOptions : public Options
     {
-        none,
-        ipv4,
-        ipv6       
+        enum class Protocol
+        {
+            none,
+            ipv4,
+            ipv6
+        };
+        std::string write_address;
+        unsigned short write_port;
+        Protocol listen_protocol;
+        unsigned short listen_port;
     };
+    class Udp : public std::enable_shared_from_this<Udp>, public Connection
+    {
+        using udp = boost::asio::ip::udp;
 
-public:
-    explicit UdpConnection(ConnectionHandle &handle, const std::string &identifier, boost::asio::io_context &io_context);
-    bool isConnected() const override;
-    void connect() override;
-    void disconnect() override;
+    public:
+        static constexpr std::string_view kType = "udp";
 
-    void setOption(const std::string &write_address, const unsigned short send_port);
-    void setOption(const unsigned short listen_port, const Protocol protocol = Protocol::ipv4);
+    public:
+        explicit Udp(ConnectionHandle &handle, boost::asio::io_context &io_context, const std::string &identifier);
+        bool isConnected() const override;
+        void connect() override;
+        void disconnect() override;
 
-private:
-    void startRead();
-    void startWrite();
-    void handleRead(const boost::system::error_code &error, std::size_t n);
-    void handleWrite(const boost::system::error_code &error);
+        void setOption(const std::string &write_address, const unsigned short write_port);
+        void setOption(const unsigned short listen_port, const UdpOptions::Protocol protocol = UdpOptions::Protocol::ipv4);
+        const connection::Options &options() const override;
+        const UdpOptions &udpOptions() const;
+        std::string_view type() const override;
 
-private:
-    /// Strand to ensure the connection's handlers are not called concurrently.
-    boost::asio::strand<boost::asio::executor> strand_;
-    udp::socket socket_;
-    std::array<uint8_t, 1024> buffer_rx_;
-    udp::endpoint listen_endpoint_;
-     udp::endpoint  remote_endpoint_;
-    bool should_receive_;
+    private:
+        void startRead();
+        void startWrite();
+        void handleRead(const boost::system::error_code &error, std::size_t n);
+        void handleWrite(const boost::system::error_code &error);
 
-    unsigned short listen_port_;
-    Protocol listen_protocol_;
-};
+    private:
+        /// Strand to ensure the connection's handlers are not called concurrently.
+        boost::asio::strand<boost::asio::executor> strand_;
+        udp::socket socket_;
+        std::array<uint8_t, 1024> buffer_rx_;
+        udp::endpoint listen_endpoint_;
+        udp::endpoint remote_endpoint_;
+        bool should_receive_;
+
+        UdpOptions options_;
+    };
+} // namespace connection

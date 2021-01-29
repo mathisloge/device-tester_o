@@ -2,15 +2,17 @@
 #include <future>
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>
+#include "params.hpp"
 #include "device_manager.hpp"
 #include "../connection/serial_connection.hpp"
 #include "windows/serial_connection_win.hpp"
 #include "windows/tcp_connection_win.hpp"
 #include "windows/udp_connection_win.hpp"
+#include "../config/recent.hpp"
 namespace gui
 {
 
-    class DumbConnectionHandle : public ConnectionHandle
+    class DumbConnectionHandle : public connection::ConnectionHandle
     {
     public:
         std::string &buffer_;
@@ -24,6 +26,7 @@ namespace gui
           connection_test_handle_{std::make_unique<DumbConnectionHandle>(connection_test_buffer_)}
     {
         connection_test_buffer_.reserve(1000);
+        refreshRecents();
     }
 
     void DeviceManager::draw()
@@ -68,6 +71,25 @@ namespace gui
         }
     }
 
+    void DeviceManager::drawOpenRecent()
+    {
+        std::shared_lock<std::shared_mutex> l(recent_cons_mtx_);
+        for (const auto &con : recent_connections_)
+        {
+            if (ImGui::MenuItem(con.options->identifier.c_str()))
+            {
+                if (con.connection_type == connection::Serial::kType)
+                    addSerialConnection(*std::static_pointer_cast<connection::SerialOptions>(con.options), false);
+                else if (con.connection_type == connection::Tcp::kType)
+                    addTcpConnection(*std::static_pointer_cast<connection::TcpOptions>(con.options), false);
+                else if (con.connection_type == connection::Udp::kType)
+                    addUdpConnection(*std::static_pointer_cast<connection::UdpOptions>(con.options), false);
+                else
+                    SPDLOG_WARN("Unknown connection type: {}", con.connection_type);
+            }
+        }
+    }
+
     void DeviceManager::ioThread()
     {
         while (!should_stop_)
@@ -84,158 +106,154 @@ namespace gui
         }
     }
 
-    std::future<std::tuple<bool, std::string, std::string>> DeviceManager::testSerialConnection(const std::string &devname,
-                                                                                                unsigned int baud_rate,
-                                                                                                boost::asio::serial_port_base::parity::type parity,
-                                                                                                int char_size,
-                                                                                                boost::asio::serial_port_base::flow_control::type flow_ctrl,
-                                                                                                boost::asio::serial_port_base::stop_bits::type stop_bits)
+    std::future<std::tuple<bool, std::string, std::string>> DeviceManager::testSerialConnection(const connection::SerialOptions &opts)
     {
         return std::async([=]() {
             connection_test_buffer_.clear();
-            auto con = std::make_shared<SerialConnection>(*connection_test_handle_, "connection_test_serial", io_context_);
+            auto con = std::make_shared<connection::Serial>(*connection_test_handle_, io_context_, "connection_test_serial");
 
             try
             {
-                spdlog::debug("test connection for serial device at {}@{}", devname, baud_rate);
-                con->setOptions(devname, baud_rate, boost::asio::serial_port_base::parity(parity),
-                                boost::asio::serial_port_base::character_size(char_size),
-                                boost::asio::serial_port_base::flow_control(flow_ctrl),
-                                boost::asio::serial_port_base::stop_bits(stop_bits));
+                spdlog::debug("test connection for serial device at {}@{}", opts.port, opts.baud_rate);
+                con->setOptions(opts);
             }
             catch (const std::exception &err)
             {
-                SPDLOG_ERROR("while connecting to serial device {}. with error: {}", devname, err.what());
+                SPDLOG_ERROR("while connecting to serial device {}. with error: {}", opts.port, err.what());
                 return std::make_tuple(false, std::string(err.what()), connection_test_buffer_);
             }
             if (!con->isConnected())
             {
-                return std::make_tuple(false, fmt::format("Could set options but couldn't connect to {}@{}", devname, baud_rate), connection_test_buffer_);
+                return std::make_tuple(false, fmt::format("Could set options but couldn't connect to {}@{}", opts.port, opts.baud_rate), connection_test_buffer_);
             }
             std::this_thread::sleep_for(std::chrono::seconds(1));
             con->disconnect();
-            return std::make_tuple(true, fmt::format("Connected to {}@{}", devname, baud_rate), connection_test_buffer_);
+            return std::make_tuple(true, fmt::format("Connected to {}@{}", opts.port, opts.baud_rate), connection_test_buffer_);
         });
     }
 
-    std::pair<bool, std::string> DeviceManager::addSerialConnection(const std::string &identifier,
-                                                                    const std::string &devname,
-                                                                    unsigned int baud_rate,
-                                                                    boost::asio::serial_port_base::parity::type parity,
-                                                                    int char_size,
-                                                                    boost::asio::serial_port_base::flow_control::type flow_ctrl,
-                                                                    boost::asio::serial_port_base::stop_bits::type stop_bits)
+    std::pair<bool, std::string> DeviceManager::addSerialConnection(const connection::SerialOptions &opts, const bool add_to_recents)
     {
-        if (auto it = connections_.find(identifier); it != connections_.end())
+        if (auto it = connections_.find(opts.identifier); it != connections_.end())
         {
             return std::make_pair(false, "Connection with identifier already exists");
         }
-        auto &dev_instance = devices_[identifier] = std::make_unique<DeviceConnection>();
-        auto con = std::make_shared<SerialConnection>(*dev_instance, identifier, io_context_);
+        auto &dev_instance = devices_[opts.identifier] = std::make_unique<DeviceConnection>();
+        auto con = std::make_shared<connection::Serial>(*dev_instance, io_context_, opts.identifier);
         try
         {
-            spdlog::debug("test connection for serial device at {}@{}", devname, baud_rate);
-            con->setOptions(devname, baud_rate, boost::asio::serial_port_base::parity(parity),
-                            boost::asio::serial_port_base::character_size(char_size),
-                            boost::asio::serial_port_base::flow_control(flow_ctrl),
-                            boost::asio::serial_port_base::stop_bits(stop_bits));
+            spdlog::debug("test connection for serial device at {}@{}", opts.port, opts.baud_rate);
+            con->setOptions(opts);
         }
         catch (const std::exception &err)
         {
-            SPDLOG_ERROR("while connecting to serial device {}. with error: {}", devname, err.what());
-            devices_.erase(identifier);
-            return std::make_pair(false, fmt::format("while connecting to serial device {}. with error: {}", devname, err.what()));
+            SPDLOG_ERROR("while connecting to serial device {}. with error: {}", opts.port, err.what());
+            devices_.erase(opts.identifier);
+            return std::make_pair(false, fmt::format("while connecting to serial device {}. with error: {}", opts.port, err.what()));
         }
         con->connect();
 
-        windows_.emplace(identifier, std::make_unique<SerialConnectionWin>(con, *dev_instance));
-        connections_.emplace(identifier, std::move(con));
+        windows_.emplace(opts.identifier, std::make_unique<SerialConnectionWin>(con, *dev_instance));
+        if (add_to_recents)
+        {
+            config::addRecentConnection(kDefaultRecentConnectionsFile, con->type(), con->serialOptions());
+            refreshRecents();
+        }
+        connections_.emplace(opts.identifier, std::move(con));
         return std::make_pair(true, "Connection established");
     }
 
-    std::future<std::tuple<bool, std::string, std::string>> DeviceManager::testTcpConnection(const std::string &address,
-                                                                                             unsigned short port,
-                                                                                             const std::string &service,
-                                                                                             const char packet_end)
+    std::future<std::tuple<bool, std::string, std::string>> DeviceManager::testTcpConnection(const connection::TcpOptions &opts)
     {
         return std::async([=]() {
             connection_test_buffer_.clear();
-            auto con = std::make_shared<TcpConnection>(*connection_test_handle_, "connection_test_tcp", io_context_);
+            auto con = std::make_shared<connection::Tcp>(*connection_test_handle_, io_context_, "connection_test_tcp");
 
             try
             {
-                spdlog::debug("test tcp connection {}:{}", address, port);
-                con->setOption(address, port, service);
-                con->setOption(packet_end);
+                spdlog::debug("test tcp connection {}:{}", opts.server, opts.server_port);
+                con->setOption(opts.server, opts.server_port, opts.service);
+                con->setOption(opts.packet_end);
                 con->connect();
                 std::this_thread::sleep_for(std::chrono::seconds(2));
             }
             catch (const std::exception &err)
             {
-                SPDLOG_ERROR("while connecting to tcp connection {}:{}. with error: {}", address, port, err.what());
+                SPDLOG_ERROR("while connecting to tcp connection {}:{}. with error: {}", opts.server, opts.server_port, err.what());
                 return std::make_tuple(false, std::string(err.what()), connection_test_buffer_);
             }
             if (!con->isConnected())
             {
-                return std::make_tuple(false, fmt::format("Could set options but couldn't connect to {}:{}", address, port), connection_test_buffer_);
+                return std::make_tuple(false, fmt::format("Could set options but couldn't connect to {}:{}", opts.server, opts.server_port), connection_test_buffer_);
             }
             std::this_thread::sleep_for(std::chrono::seconds(1));
             con->disconnect();
-            return std::make_tuple(true, fmt::format("Connected to {}:{}", address, port), connection_test_buffer_);
+            return std::make_tuple(true, fmt::format("Connected to {}:{}", opts.server, opts.server_port), connection_test_buffer_);
         });
     }
 
-    std::pair<bool, std::string> DeviceManager::addTcpConnection(const std::string &identifier,
-                                                                 const std::string &address,
-                                                                 unsigned short port,
-                                                                 const std::string &service,
-                                                                 const char packet_end)
+    std::pair<bool, std::string> DeviceManager::addTcpConnection(const connection::TcpOptions &opts, const bool add_to_recents)
     {
-        if (auto it = connections_.find(identifier); it != connections_.end())
+        if (auto it = connections_.find(opts.identifier); it != connections_.end())
         {
             return std::make_pair(false, "tcp connection identifier already exits. please close it first");
         }
-        auto &dev_instance = devices_[identifier] = std::make_unique<DeviceConnection>();
-        auto con = std::make_shared<TcpConnection>(*dev_instance, identifier, io_context_);
+        auto &dev_instance = devices_[opts.identifier] = std::make_unique<DeviceConnection>();
+        auto con = std::make_shared<connection::Tcp>(*dev_instance, io_context_, opts.identifier);
         try
         {
-            con->setOption(address, port, service);
-            con->setOption(packet_end);
+            con->setOption(opts.server, opts.server_port, opts.service);
+            con->setOption(opts.packet_end);
         }
         catch (const std::exception &err)
         {
-            devices_.erase(identifier);
-            return std::make_pair(false, fmt::format("tcp connection with error: {}", identifier, err.what()));
+            devices_.erase(opts.identifier);
+            return std::make_pair(false, fmt::format("tcp connection with error: {}", opts.identifier, err.what()));
         }
 
-        windows_.emplace(identifier, std::make_unique<TcpConnectionWin>(con, *dev_instance));
-        connections_.emplace(identifier, std::move(con));
+        windows_.emplace(opts.identifier, std::make_unique<TcpConnectionWin>(con, *dev_instance));
+        if (add_to_recents)
+        {
+            config::addRecentConnection(kDefaultRecentConnectionsFile, con->type(), con->tcpOptions());
+            refreshRecents();
+        }
+        connections_.emplace(opts.identifier, std::move(con));
+
         return std::make_pair(true, "Connection established");
     }
 
-    std::pair<bool, std::string> DeviceManager::addUdpConnection(const std::string &identifier,
-                                                                 const std::string &write_address, const unsigned short send_port,
-                                                                 const unsigned short listen_port, const UdpConnection::Protocol protocol)
+    std::pair<bool, std::string> DeviceManager::addUdpConnection(const connection::UdpOptions &opts, const bool add_to_recents)
     {
-        if (auto it = connections_.find(identifier); it != connections_.end())
+        if (auto it = connections_.find(opts.identifier); it != connections_.end())
         {
             return std::make_pair(false, "udp connection identifier already exits. please close it first");
         }
-        auto &dev_instance = devices_[identifier] = std::make_unique<DeviceConnection>();
-        auto con = std::make_shared<UdpConnection>(*dev_instance, identifier, io_context_);
+        auto &dev_instance = devices_[opts.identifier] = std::make_unique<DeviceConnection>();
+        auto con = std::make_shared<connection::Udp>(*dev_instance, io_context_, opts.identifier);
         try
         {
-            con->setOption(write_address, send_port);
-            con->setOption(listen_port, protocol);
+            con->setOption(opts.listen_port, opts.listen_protocol);
+            con->setOption(opts.write_address, opts.write_port);
         }
         catch (const std::exception &err)
         {
-            devices_.erase(identifier);
-            return std::make_pair(false, fmt::format("udp connection with error: {}", identifier, err.what()));
+            devices_.erase(opts.identifier);
+            return std::make_pair(false, fmt::format("udp connection with error: {}", opts.identifier, err.what()));
         }
-        windows_.emplace(identifier, std::make_unique<UdpConnectionWin>(con, *dev_instance));
-        connections_.emplace(identifier, std::move(con));
+        windows_.emplace(opts.identifier, std::make_unique<UdpConnectionWin>(con, *dev_instance));
+        if (add_to_recents)
+        {
+            config::addRecentConnection(kDefaultRecentConnectionsFile, con->type(), con->udpOptions());
+            refreshRecents();
+        }
+        connections_.emplace(opts.identifier, std::move(con));
         return std::make_pair(true, "Connection established");
+    }
+
+    void DeviceManager::refreshRecents()
+    {
+        std::unique_lock<std::shared_mutex> l(recent_cons_mtx_);
+        recent_connections_ = config::recentConnections(kDefaultRecentConnectionsFile);
     }
 
     DeviceManager::~DeviceManager()

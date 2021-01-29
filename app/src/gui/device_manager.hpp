@@ -3,7 +3,9 @@
 #include <tuple>
 #include <thread>
 #include <vector>
+#include <shared_mutex>
 #include <boost/asio.hpp>
+#include "../config/recent.hpp"
 #include "../connection/connection.hpp"
 #include "../connection/serial_connection.hpp"
 #include "../connection/tcp_connection.hpp"
@@ -13,47 +15,31 @@
 namespace gui
 {
     class DumbConnectionHandle;
-    class DeviceManager
+    class DeviceManager final
     {
     public:
         using DeviceMap = std::map<std::string, std::unique_ptr<DeviceConnection>>;
-        using ConnectionMap = std::map<std::string, std::shared_ptr<Connection>>;
-        using WindowMap =  std::map<std::string, std::unique_ptr<ConnectionWin>>;
+        using ConnectionMap = std::map<std::string, std::shared_ptr<connection::Connection>>;
+        using WindowMap = std::map<std::string, std::unique_ptr<ConnectionWin>>;
+
     public:
         DeviceManager();
         void draw();
         void drawMenu();
-        std::future<std::tuple<bool, std::string, std::string>> testSerialConnection(const std::string &devname,
-                                                                                     unsigned int baud_rate,
-                                                                                     boost::asio::serial_port_base::parity::type parity,
-                                                                                     int char_size,
-                                                                                     boost::asio::serial_port_base::flow_control::type flow_ctrl,
-                                                                                     boost::asio::serial_port_base::stop_bits::type stop_bits);
-        std::pair<bool, std::string> addSerialConnection(const std::string &identifier,
-                                                         const std::string &devname,
-                                                         unsigned int baud_rate,
-                                                         boost::asio::serial_port_base::parity::type parity,
-                                                         int char_size,
-                                                         boost::asio::serial_port_base::flow_control::type flow_ctrl,
-                                                         boost::asio::serial_port_base::stop_bits::type stop_bits);
+        void drawOpenRecent();
+        std::future<std::tuple<bool, std::string, std::string>> testSerialConnection(const connection::SerialOptions &opts);
+        std::pair<bool, std::string> addSerialConnection(const connection::SerialOptions &opts, const bool add_to_recents = true);
 
-        std::future<std::tuple<bool, std::string, std::string>> testTcpConnection(const std::string &address,
-                                                                                  unsigned short port,
-                                                                                  const std::string &service,
-                                                                                  const char packet_end);
-        std::pair<bool, std::string> addTcpConnection(const std::string &identifier,
-                                                      const std::string &address,
-                                                      unsigned short port,
-                                                      const std::string &service,
-                                                      const char packet_end);
-        std::pair<bool, std::string> addUdpConnection(const std::string &identifier,
-                                                      const std::string &write_address, const unsigned short send_port,
-                                                      const unsigned short listen_port, const UdpConnection::Protocol protocol);
+        std::future<std::tuple<bool, std::string, std::string>> testTcpConnection(const connection::TcpOptions &opts);
+        std::pair<bool, std::string> addTcpConnection(const connection::TcpOptions &opts, const bool add_to_recents = true);
+
+        std::pair<bool, std::string> addUdpConnection(const connection::UdpOptions &opts, const bool add_to_recents = true);
 
         void closeConnection();
         ~DeviceManager();
 
     private:
+        void refreshRecents();
         void ioThread();
 
     private:
@@ -61,10 +47,13 @@ namespace gui
         boost::asio::io_context io_context_;
         std::thread io_thread_;
 
+        mutable std::shared_mutex recent_cons_mtx_;
+        std::vector<config::RecentConnection> recent_connections_;
+
         DeviceMap devices_;
         ConnectionMap connections_;
         WindowMap windows_;
-        
+
         std::unique_ptr<DumbConnectionHandle> connection_test_handle_;
         std::string connection_test_buffer_;
     };

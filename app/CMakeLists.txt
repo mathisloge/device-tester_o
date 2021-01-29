@@ -6,6 +6,7 @@ add_library(ImGui::ImGui ALIAS imgui::imgui)
 find_package(Corrade REQUIRED Main)
 find_package(Magnum REQUIRED GL)
 find_package(MagnumIntegration REQUIRED ImGui)
+find_package(nlohmann_json CONFIG REQUIRED)
 
 if(CORRADE_TARGET_ANDROID)
     find_package(Magnum REQUIRED AndroidApplication)
@@ -18,7 +19,7 @@ endif()
 set_directory_properties(PROPERTIES CORRADE_USE_PEDANTIC_FLAGS ON)
 
 set(CONNECTION_SRC 
-    src/connection/connection_handle.cpp
+    src/connection/config_io.cpp
     src/connection/connection.cpp
     src/connection/serial_connection.cpp
     src/connection/tcp_connection.cpp
@@ -39,7 +40,7 @@ set(DEVICE_SRC
 )
 
 set(CONFIG_SRC
-    src/config/config_manager.cpp
+    src/config/recent.cpp
 )
 
 set(GUI_SRC 
@@ -82,14 +83,15 @@ target_link_libraries(gps-tester PUBLIC
     cc::comms
     cc::ublox
     nmea::nmea
+    imgui::imgui
+    implot::implot
+    imgui::club
     Corrade::Main
     Magnum::Application
     Magnum::GL
     Magnum::Magnum
-    imgui::imgui
-    implot::implot
-    imgui::club
     MagnumIntegration::ImGui
+    nlohmann_json nlohmann_json::nlohmann_json
 )
 
 add_executable(gps-tester-app 

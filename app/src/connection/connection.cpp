@@ -1,15 +1,18 @@
 #include "connection.hpp"
 
-Connection::Connection(ConnectionHandle &handle, const std::string &identifier)
-    : handle_{handle}, identifier_{identifier}
+namespace connection
 {
-}
+    Connection::Connection(ConnectionHandle &handle)
+        : handle_{handle}
+    {
+    }
 
-const std::string &Connection::identifier()
-{
-    return identifier_;
-}
+    const std::string &Connection::identifier() const
+    {
+        return options().identifier;
+    }
 
-Connection::~Connection()
-{
-}
+    Connection::~Connection()
+    {
+    }
+} // namespace connection

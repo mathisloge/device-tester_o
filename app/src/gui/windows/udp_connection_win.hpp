@@ -7,7 +7,7 @@ namespace gui
     class UdpConnectionWin : public ConnectionWin
     {
     public:
-        explicit UdpConnectionWin(const std::shared_ptr<UdpConnection> &connection, DeviceConnection &device_connection);
+        explicit UdpConnectionWin(const std::shared_ptr<connection::Udp> &connection, DeviceConnection &device_connection);
 
     private:
         void drawConnectionOverview() override;
@@ -16,6 +16,6 @@ namespace gui
         void drawConnectionSettings() override;
 
     private:
-        std::shared_ptr<UdpConnection> connection_;
+        std::shared_ptr<connection::Udp> connection_;
     };
 } // namespace gui
