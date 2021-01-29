@@ -38,7 +38,7 @@ SCENARIO("protocol dispatcher with simple protocols", "[protocol-dispatcher]")
         ProtocolDispatcher<MockProtocolCorrect> dispatcher{MockProtocolCorrect{start_offset, end_offset}};
         WHEN("data is added")
         {
-            dispatcher.appendData(std::span<uint8_t>(message.begin(), message.end()));
+            dispatcher.appendData(message);
             THEN("protocol should have a message and size 0")
             {
                 const auto &resv_msg = std::get<0>(dispatcher.protocols()).message_;
@@ -49,7 +49,7 @@ SCENARIO("protocol dispatcher with simple protocols", "[protocol-dispatcher]")
         WHEN("data is added and the first bytes are not needed")
         {
             start_offset = 2;
-            dispatcher.appendData(std::span<uint8_t>(message.begin(), message.end()));
+            dispatcher.appendData(message);
             THEN("protocol should have a message and size 0")
             {
                 const auto &resv_msg = std::get<0>(dispatcher.protocols()).message_;
@@ -61,7 +61,7 @@ SCENARIO("protocol dispatcher with simple protocols", "[protocol-dispatcher]")
         WHEN("data is not completly used")
         {
             end_offset = 2;
-            dispatcher.appendData(std::span<uint8_t>(message.begin(), message.end()));
+            dispatcher.appendData(message);
             THEN("protocol should have a message and bytes should left")
             {
                 const auto &resv_msg = std::get<0>(dispatcher.protocols()).message_;
