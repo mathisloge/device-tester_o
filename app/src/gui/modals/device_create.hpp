@@ -24,9 +24,6 @@ namespace gui
 
     private:
         void drawContent() override;
-        void drawDeviceInterfaceSerial();
-        void drawDeviceInterfaceTcp();
-        void drawDeviceInterfaceUdp();
         bool testConnectionInProg();
         void clearInputs();
         void syncInputs();

@@ -1,6 +1,7 @@
 #include "serial_connection_win.hpp"
-#include "../imgui_commons.hpp"
 #include <imgui.h>
+#include "../widgets/inputs.hpp"
+#include "../widgets/connection_settings.hpp"
 namespace gui
 {
     SerialConnectionWin::SerialConnectionWin(const std::shared_ptr<connection::Serial> &serial_connection, DeviceConnection &device_connection)

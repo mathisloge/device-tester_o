@@ -76,6 +76,10 @@ namespace connection
         }
     }
 
+    void Serial::write(std::span<uint8_t> data)
+    {
+    }
+
     //! \todo move the try and errors in one single function...
     void Serial::setOptions(const SerialOptions &options)
     {

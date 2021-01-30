@@ -43,6 +43,7 @@ namespace connection
         bool isConnected() const override;
         void connect() override;
         void disconnect() override;
+        void write(std::span<uint8_t> data) override;
         const connection::Options &options() const override;
         std::string_view type() const override;
         ~Serial();

@@ -1,6 +1,8 @@
+#include <span>
 #include "udp_connection_win.hpp"
-#include "../imgui_commons.hpp"
 #include <imgui.h>
+#include "../widgets/inputs.hpp"
+#include "../widgets/connection_settings.hpp"
 namespace gui
 {
     UdpConnectionWin::UdpConnectionWin(const std::shared_ptr<connection::Udp> &connection, DeviceConnection &device_connection)
@@ -26,8 +28,14 @@ namespace gui
     void UdpConnectionWin::drawConnectionRawInput()
     {
         const bool is_connected = connection_->isConnected();
-        if (Button("Send", !is_connected))
+        SimpleInputText("Write", &udp_write_);
+        ImGui::Checkbox("Newline", &append_new_line_);
+        if (ImGui::Button("Send"))
         {
+            udp_write_.append("\n");
+            if (udp_write_.size() > 0)
+                connection_->write(std::span<uint8_t>{reinterpret_cast<uint8_t *>(udp_write_.data()), udp_write_.size()});
+            udp_write_ = "";
         }
     }
 
@@ -36,5 +44,10 @@ namespace gui
     }
     void UdpConnectionWin::drawConnectionSettings()
     {
+        drawUdpOptions(connection_->udpOptions());
+        if (ImGui::Button("Apply options"))
+        {
+            connection_->setOptions(connection_->udpOptions());
+        }
     }
 } // namespace gui

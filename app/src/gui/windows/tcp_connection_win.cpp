@@ -1,6 +1,7 @@
 #include "tcp_connection_win.hpp"
-#include "../imgui_commons.hpp"
 #include <imgui.h>
+#include "../widgets/inputs.hpp"
+#include "../widgets/connection_settings.hpp"
 namespace gui
 {
     TcpConnectionWin::TcpConnectionWin(const std::shared_ptr<connection::Tcp> &connection, DeviceConnection &device_connection)

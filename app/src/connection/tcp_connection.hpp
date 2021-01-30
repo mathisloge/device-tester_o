@@ -25,6 +25,7 @@ namespace connection
         bool isConnected() const override;
         void connect() override;
         void disconnect() override;
+        void write(std::span<uint8_t> data) override;
         void setOption(const std::string &server, const unsigned short server_port, const std::string &service = "");
         void setOption(char packet_end);
         const Options &options() const override;

@@ -1,27 +1,9 @@
 #include "device_create.hpp"
-#include "../imgui_commons.hpp"
 #include <string_view>
 #include <array>
 #include <fmt/format.h>
-#include <imgui_stdlib.h>
-
-static int InputTextCallback(ImGuiInputTextCallbackData *data)
-{
-    if (data->EventFlag == ImGuiInputTextFlags_CallbackResize)
-    {
-        // Resize string callback
-        std::string *str = (std::string *)data->UserData;
-        IM_ASSERT(data->Buf == str->c_str());
-        str->resize(data->BufTextLen);
-        data->Buf = (char *)str->c_str();
-    }
-    return 0;
-}
-bool SimpleInputText(const char *label, std::string *str, ImGuiInputTextFlags flags = 0)
-{
-    //flags |= ImGuiInputTextFlags_CallbackResize;
-    return ImGui::InputText(label, str, flags, InputTextCallback, (void *)str);
-}
+#include "../widgets/inputs.hpp"
+#include "../widgets/connection_settings.hpp"
 
 namespace gui
 {
@@ -121,13 +103,13 @@ namespace gui
         switch (device_interface_)
         {
         case DeviceInterface::serial:
-            drawDeviceInterfaceSerial();
+            drawSerialOptions(serial_input_);
             break;
         case DeviceInterface::tcp:
-            drawDeviceInterfaceTcp();
+            drawTcpOptions(tcp_input_);
             break;
         case DeviceInterface::udp:
-            drawDeviceInterfaceUdp();
+            drawUdpOptions(udp_input_);
             break;
         default:
             ImGui::Text("unknown device interface");
@@ -213,104 +195,6 @@ namespace gui
             return true;
         }
         return false;
-    }
-
-    void DeviceCreate::drawDeviceInterfaceSerial()
-    {
-        static constexpr std::array<std::string_view, 3> kNamesParity{"none", "odd", "even"};
-        static constexpr std::array<std::string_view, 3> kNamesStopBits{"1", "1.5", "2"};
-        static constexpr std::array<std::string_view, 3> kNamesFlowControl{"none", "software", "hardware"};
-
-        SimpleInputText("Port", &serial_input_.port);
-        int baud_rate = serial_input_.baud_rate;
-        if (ImGui::InputInt("Baud rate", &baud_rate, 100, 1000))
-        {
-            serial_input_.baud_rate = baud_rate;
-        }
-        int char_size = serial_input_.char_size.value();
-        if (ImGui::InputInt("Character size", &char_size, 1, 2))
-        {
-            serial_input_.char_size = boost::asio::serial_port_base::character_size(char_size);
-        }
-
-        const int parity = static_cast<int>(serial_input_.parity.value());
-        if (ImGui::BeginCombo("Parity", (parity >= 0 && parity < 3) ? kNamesParity[parity].data() : "unknown"))
-        {
-            for (int i = 0; i < kNamesParity.size(); i++)
-            {
-                ImGui::PushID(this);
-                if (ImGui::Selectable(kNamesParity[i].data(), parity == i))
-                    serial_input_.parity = boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::type(i));
-                ImGui::PopID();
-            }
-            ImGui::EndCombo();
-        }
-        const int stop_bits = static_cast<int>(serial_input_.stop_bits.value());
-        if (ImGui::BeginCombo("Stop bits", (stop_bits >= 0 && stop_bits < 3) ? kNamesStopBits[stop_bits].data() : "unknown"))
-        {
-            for (int i = 0; i < kNamesStopBits.size(); i++)
-            {
-                ImGui::PushID(this);
-                if (ImGui::Selectable(kNamesStopBits[i].data(), stop_bits == i))
-                    serial_input_.stop_bits = boost::asio::serial_port_base::stop_bits(boost::asio::serial_port_base::stop_bits::type(i));
-                ImGui::PopID();
-            }
-            ImGui::EndCombo();
-        }
-        const int flow_control = static_cast<int>(serial_input_.flow_control.value());
-        if (ImGui::BeginCombo("Flow control", (flow_control >= 0 && flow_control < 3) ? kNamesFlowControl[flow_control].data() : "unknown"))
-        {
-            for (int i = 0; i < kNamesFlowControl.size(); i++)
-            {
-                ImGui::PushID(this);
-                if (ImGui::Selectable(kNamesFlowControl[i].data(), flow_control == i))
-                    serial_input_.flow_control = boost::asio::serial_port_base::flow_control(boost::asio::serial_port_base::flow_control::type(i));
-                ImGui::PopID();
-            }
-            ImGui::EndCombo();
-        }
-    }
-    void DeviceCreate::drawDeviceInterfaceTcp()
-    {
-        SimpleInputText("Address", &tcp_input_.server);
-        int port = tcp_input_.server_port;
-        if (ImGui::InputInt("Port", &port))
-        {
-            if (port >= 0 && port <= 65535)
-                tcp_input_.server_port = port;
-        }
-        SimpleInputText("Service", &tcp_input_.service);
-    }
-    void DeviceCreate::drawDeviceInterfaceUdp()
-    {
-        SimpleInputText("Write address", &udp_input_.write_address);
-        int wport = udp_input_.listen_port;
-        if (ImGui::InputInt("Port", &wport))
-        {
-            if (wport >= 0 && wport <= 65535)
-                udp_input_.listen_port = wport;
-        }
-
-        int rport = udp_input_.listen_port;
-        if (ImGui::InputInt("Port", &rport))
-        {
-            if (rport >= 0 && rport <= 65535)
-                udp_input_.listen_port = rport;
-        }
-
-        static constexpr std::array<std::string_view, 3> kNamesProtocol{"none", "ipv4", "ipv6"};
-        if (ImGui::BeginCombo("Listen protocol",
-                              (udp_input_.listen_protocol >= connection::UdpOptions::Protocol::none && udp_input_.listen_protocol <= connection::UdpOptions::Protocol::ipv6) ? kNamesProtocol[static_cast<int>(udp_input_.listen_protocol)].data() : "unknown"))
-        {
-            for (int i = 0; i < kNamesProtocol.size(); i++)
-            {
-                ImGui::PushID(this);
-                if (ImGui::Selectable(kNamesProtocol[i].data(), udp_input_.listen_protocol == connection::UdpOptions::Protocol(i)))
-                    udp_input_.listen_protocol = connection::UdpOptions::Protocol(i);
-                ImGui::PopID();
-            }
-            ImGui::EndCombo();
-        }
     }
 
     void DeviceCreate::clearInputs()

@@ -22,7 +22,8 @@ namespace gui
         }
         ImGui::SameLine();
         ImGui::Checkbox("Autoscroll", &auto_scroll_);
-        if(auto_scroll_) {
+        if (auto_scroll_)
+        {
             mem_edit_.GotoAddr = data_.size() == 0 ? 0 : data_.size() - 1;
         }
         mem_edit_.DrawContents(data_.size() == 0 ? nullptr : &data_[0], data_.size());

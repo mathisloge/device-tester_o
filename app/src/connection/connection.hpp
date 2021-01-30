@@ -13,6 +13,7 @@ namespace connection
         virtual bool isConnected() const = 0;
         virtual void connect() = 0;
         virtual void disconnect() = 0;
+        virtual void write(std::span<uint8_t> data) = 0;
         virtual const Options &options() const = 0;
         const std::string &identifier() const;
         /**

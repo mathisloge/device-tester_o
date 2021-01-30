@@ -2,6 +2,7 @@
 #include <memory>
 #include <array>
 #include <boost/asio.hpp>
+#include <boost/circular_buffer.hpp>
 #include "connection.hpp"
 
 namespace connection
@@ -20,7 +21,7 @@ namespace connection
         Protocol listen_protocol;
         unsigned short listen_port;
     };
-    class Udp : public std::enable_shared_from_this<Udp>, public Connection
+    class Udp final : public std::enable_shared_from_this<Udp>, public Connection
     {
         using udp = boost::asio::ip::udp;
 
@@ -32,18 +33,21 @@ namespace connection
         bool isConnected() const override;
         void connect() override;
         void disconnect() override;
-
+        void write(std::span<uint8_t> data) override;
+        void setOptions(const UdpOptions &options);
         void setOption(const std::string &write_address, const unsigned short write_port);
         void setOption(const unsigned short listen_port, const UdpOptions::Protocol protocol = UdpOptions::Protocol::ipv4);
         const connection::Options &options() const override;
         const UdpOptions &udpOptions() const;
+        UdpOptions &udpOptions();
         std::string_view type() const override;
 
     private:
         void startRead();
-        void startWrite();
         void handleRead(const boost::system::error_code &error, std::size_t n);
-        void handleWrite(const boost::system::error_code &error);
+        void handleWrite(std::shared_ptr<std::vector<uint8_t>> buffer_tx,
+                         const boost::system::error_code &error,
+                         std::size_t bytes_transferred);
 
     private:
         /// Strand to ensure the connection's handlers are not called concurrently.
@@ -52,6 +56,7 @@ namespace connection
         std::array<uint8_t, 1024> buffer_rx_;
         udp::endpoint listen_endpoint_;
         udp::endpoint remote_endpoint_;
+        udp::endpoint write_endpoint_;
         bool should_receive_;
 
         UdpOptions options_;

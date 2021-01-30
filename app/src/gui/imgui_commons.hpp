@@ -2,8 +2,6 @@
 #include <vector>
 namespace gui
 {
-    bool Button(const char *text, bool disabled = true);
-
     template <typename T, typename E>
     struct ScrollingBuffer
     {

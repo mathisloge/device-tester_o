@@ -45,6 +45,11 @@ namespace connection
         should_run_ = false;
         socket_.close();
     }
+
+    void Tcp::write(std::span<uint8_t> data)
+    {
+    }
+
     void Tcp::setOption(const std::string &server, const unsigned short server_port, const std::string &service)
     {
         options_.server = server;

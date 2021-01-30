@@ -17,5 +17,7 @@ namespace gui
 
     private:
         std::shared_ptr<connection::Udp> connection_;
+        std::string udp_write_;
+        bool append_new_line_;
     };
 } // namespace gui

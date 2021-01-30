@@ -50,6 +50,8 @@ set(GUI_SRC
     src/gui/widgets/raw_text_output.cpp
     src/gui/widgets/raw_mem_viewer.cpp
     src/gui/widgets/plot_throughput.cpp
+    src/gui/widgets/inputs.cpp
+    src/gui/widgets/connection_settings.cpp
     src/gui/modals/base_modal.cpp
     src/gui/modals/device_create.cpp
     src/gui/windows/base_window.cpp
