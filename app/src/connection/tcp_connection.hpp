@@ -13,7 +13,7 @@ namespace connection
         char packet_end;
     };
 
-    class Tcp : public std::enable_shared_from_this<Tcp>, public Connection
+    class Tcp final: public std::enable_shared_from_this<Tcp>, public Connection
     {
         using tcp = boost::asio::ip::tcp;
 

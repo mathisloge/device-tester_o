@@ -13,6 +13,5 @@ boost::signals2::connection DeviceConnection::addDevice(boost::shared_ptr<BaseDe
 
 void DeviceConnection::processData(std::span<uint8_t> data)
 {
-
     data_sig_(data);
 }
