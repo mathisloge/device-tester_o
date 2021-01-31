@@ -34,6 +34,7 @@ namespace connection
         void connect() override;
         void disconnect() override;
         void write(std::span<uint8_t> data) override;
+        void applyOptions() override;
         void setOptions(const UdpOptions &options);
         void setOption(const std::string &write_address, const unsigned short write_port);
         void setOption(const unsigned short listen_port, const UdpOptions::Protocol protocol = UdpOptions::Protocol::ipv4);

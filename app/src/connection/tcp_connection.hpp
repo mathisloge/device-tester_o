@@ -26,6 +26,8 @@ namespace connection
         void connect() override;
         void disconnect() override;
         void write(std::span<uint8_t> data) override;
+        void applyOptions() override;
+        void setOptions(const TcpOptions& opts);
         void setOption(const std::string &server, const unsigned short server_port, const std::string &service = "");
         void setOption(char packet_end);
         const Options &options() const override;
@@ -36,9 +38,10 @@ namespace connection
         void beginConnect(tcp::resolver::results_type::iterator endpoint_iter);
         void handleConnect(const boost::system::error_code &error, tcp::resolver::results_type::iterator endpoint_iter);
         void startRead();
-        void startWrite();
         void handleRead(const boost::system::error_code &error, std::size_t n);
-        void handleWrite(const boost::system::error_code &error);
+        void handleWrite(std::shared_ptr<std::vector<uint8_t>> buffer_tx,
+                         const boost::system::error_code &error,
+                         std::size_t bytes_transferred);
 
     private:
         /// Strand to ensure the connection's handlers are not called concurrently.

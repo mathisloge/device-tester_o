@@ -6,7 +6,9 @@
 namespace gui
 {
     UdpConnectionWin::UdpConnectionWin(const std::shared_ptr<connection::Udp> &connection, DeviceConnection &device_connection)
-        : ConnectionWin(connection->identifier(), device_connection), connection_{connection}
+        : ConnectionWin(connection->identifier(), device_connection),
+          connection_{connection},
+          options_{connection->udpOptions()}
     {
     }
 
@@ -45,9 +47,21 @@ namespace gui
     void UdpConnectionWin::drawConnectionSettings()
     {
         drawUdpOptions(connection_->udpOptions());
+        if (ImGui::Button("Reset"))
+        {
+            options_ = connection_->udpOptions();
+        }
         if (ImGui::Button("Apply options"))
         {
-            connection_->setOptions(connection_->udpOptions());
+            connection_->setOptions(options_);
+            try
+            {
+                connection_->applyOptions();
+            }
+            catch (const std::exception &ex)
+            {
+                error_str_ = ex.what();
+            }
         }
     }
 } // namespace gui

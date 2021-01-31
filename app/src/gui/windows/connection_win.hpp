@@ -9,7 +9,7 @@ namespace gui
     class ConnectionWin : public BaseWindow
     {
     public:
-        explicit ConnectionWin(const std::string &name, DeviceConnection& device_connection);
+        explicit ConnectionWin(const std::string &name, DeviceConnection &device_connection);
 
     protected:
         virtual void drawConnectionOverview() = 0;
@@ -21,9 +21,12 @@ namespace gui
     private:
         void drawContent() override;
 
+    protected:
+        std::string error_str_;
+
     private:
         RawTextOutput raw_text_;
         RawMemViewer raw_mem_viewer_;
-        PlotThroughput data_throughput_; 
+        PlotThroughput data_throughput_;
     };
 } // namespace gui

@@ -14,12 +14,17 @@ namespace gui
 
         auto &imgui_io = ImGui::GetIO();
         imgui_io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-        
+
         imgui_io.Fonts->Clear();
 
         const Vector2 size = Vector2{windowSize()} / dpiScaling();
         const float supersamplingRatio = framebufferSize().x() / size.x();
-        imgui_io.Fonts->AddFontFromFileTTF("fonts/FiraCode/FiraCode-Regular.ttf", 18.0f * supersamplingRatio);
+
+        auto *roboto_font = imgui_io.Fonts->AddFontFromFileTTF("fonts/Roboto/Roboto-Regular.ttf", 18.0f * supersamplingRatio); //0
+        gFonts["Text"] = roboto_font;
+        auto *firacode_font = imgui_io.Fonts->AddFontFromFileTTF("fonts/Iosevka/iosevka-term-regular.ttf", 18.0f * supersamplingRatio); //1
+        gFonts["Monospace"] = firacode_font;
+        imgui_io.FontDefault = roboto_font;
 
         imgui_ = ImGuiIntegration::Context(*ImGui::GetCurrentContext(), size, windowSize(), framebufferSize());
 

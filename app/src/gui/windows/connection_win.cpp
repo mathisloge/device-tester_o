@@ -1,5 +1,6 @@
 #include "connection_win.hpp"
 #include <imgui.h>
+#include "../imgui_commons.hpp"
 namespace gui
 {
     ConnectionWin::ConnectionWin(const std::string &name, DeviceConnection &device_connection)
@@ -15,6 +16,9 @@ namespace gui
     void ConnectionWin::drawContent()
     {
         ImGui::PushID(this);
+        if (!error_str_.empty())
+            ImGui::TextColored(kErrorColor, "Error: %s", error_str_.c_str());
+
         if (ImGui::BeginTabBar("ConnectionTabBar"))
         {
             if (ImGui::BeginTabItem("Overview"))

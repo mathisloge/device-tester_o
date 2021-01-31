@@ -122,6 +122,7 @@ namespace gui
                 SPDLOG_ERROR("while connecting to serial device {}. with error: {}", opts.port, err.what());
                 return std::make_tuple(false, std::string(err.what()), connection_test_buffer_);
             }
+            con->connect();
             if (!con->isConnected())
             {
                 return std::make_tuple(false, fmt::format("Could set options but couldn't connect to {}@{}", opts.port, opts.baud_rate), connection_test_buffer_);
@@ -142,16 +143,15 @@ namespace gui
         auto con = std::make_shared<connection::Serial>(*dev_instance, io_context_, opts.identifier);
         try
         {
-            spdlog::debug("test connection for serial device at {}@{}", opts.port, opts.baud_rate);
+            spdlog::debug("add connection for serial device at {}@{}", opts.port, opts.baud_rate);
             con->setOptions(opts);
         }
         catch (const std::exception &err)
         {
-            SPDLOG_ERROR("while connecting to serial device {}. with error: {}", opts.port, err.what());
+            SPDLOG_ERROR("while adding serial device {}. with error: {}", opts.port, err.what());
             devices_.erase(opts.identifier);
-            return std::make_pair(false, fmt::format("while connecting to serial device {}. with error: {}", opts.port, err.what()));
+            return std::make_pair(false, fmt::format("while adding serial device {}. with error: {}", opts.port, err.what()));
         }
-        con->connect();
 
         windows_.emplace(opts.identifier, std::make_unique<SerialConnectionWin>(con, *dev_instance));
         if (add_to_recents)
@@ -160,7 +160,7 @@ namespace gui
             refreshRecents();
         }
         connections_.emplace(opts.identifier, std::move(con));
-        return std::make_pair(true, "Connection established");
+        return std::make_pair(true, "Connection added");
     }
 
     std::future<std::tuple<bool, std::string, std::string>> DeviceManager::testTcpConnection(const connection::TcpOptions &opts)
@@ -204,6 +204,7 @@ namespace gui
         {
             con->setOption(opts.server, opts.server_port, opts.service);
             con->setOption(opts.packet_end);
+            con->applyOptions();
         }
         catch (const std::exception &err)
         {
@@ -234,6 +235,7 @@ namespace gui
         {
             con->setOption(opts.listen_port, opts.listen_protocol);
             con->setOption(opts.write_address, opts.write_port);
+            con->applyOptions();
         }
         catch (const std::exception &err)
         {

@@ -48,6 +48,24 @@ namespace connection
 
     void Tcp::write(std::span<uint8_t> data)
     {
+        std::shared_ptr<std::vector<uint8_t>> buffer_tx = std::make_shared<std::vector<uint8_t>>(data.begin(), data.end());
+        socket_.async_write_some(
+            boost::asio::buffer(*buffer_tx),
+            std::bind(&Tcp::handleWrite, shared_from_this(), buffer_tx, std::placeholders::_1, std::placeholders::_2));
+    }
+
+    void Tcp::applyOptions()
+    {
+        if (isConnected())
+        {
+            connect();
+        }
+    }
+
+    void Tcp::setOptions(const TcpOptions &opts)
+    {
+        setOption(opts.server, opts.server_port, opts.service);
+        setOption(opts.packet_end);
     }
 
     void Tcp::setOption(const std::string &server, const unsigned short server_port, const std::string &service)
@@ -94,7 +112,6 @@ namespace connection
             SPDLOG_INFO("Connected to: {}", endpoint_iter->endpoint().address().to_string());
             is_connected_ = true;
             startRead();
-            startWrite();
         }
     }
 
@@ -102,16 +119,6 @@ namespace connection
     {
         boost::asio::async_read_until(socket_, boost::asio::dynamic_buffer(buffer_rx_), options_.packet_end,
                                       std::bind(&Tcp::handleRead, shared_from_this(), std::placeholders::_1, std::placeholders::_2));
-    }
-    void Tcp::startWrite()
-    {
-        // todo add write buffer
-#if 0
-    if (!should_run_)
-        return;
-    boost::asio::async_write(socket_, boost::asio::buffer(buffer_tx_),
-                             std::bind(&Tcp::handleWrite, shared_from_this(), std::placeholders::_1));
-#endif
     }
 
     void Tcp::handleRead(const boost::system::error_code &error, std::size_t /*length*/)
@@ -130,19 +137,22 @@ namespace connection
         }
     }
 
-    void Tcp::handleWrite(const boost::system::error_code &error)
+    void Tcp::handleWrite(std::shared_ptr<std::vector<uint8_t>> buffer_tx,
+                          const boost::system::error_code &error,
+                          std::size_t bytes_transferred)
     {
-        if (!should_run_)
-            return;
-
         if (!error)
         {
-            startWrite();
+            if (buffer_tx->size() != bytes_transferred)
+            {
+                SPDLOG_DEBUG("couldn't send all bytes");
+                buffer_tx->erase(buffer_tx->begin(), buffer_tx->begin() + bytes_transferred);
+                socket_.async_write_some(boost::asio::buffer(*buffer_tx), std::bind(&Tcp::handleWrite, shared_from_this(), buffer_tx, std::placeholders::_1, std::placeholders::_2));
+            }
         }
         else
         {
-            SPDLOG_ERROR("Error while writing {}", error.message());
-            disconnect();
+            SPDLOG_ERROR("Couldn't write {} bytes", buffer_tx->size());
         }
     }
 

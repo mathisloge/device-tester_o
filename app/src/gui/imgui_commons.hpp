@@ -1,7 +1,13 @@
 #pragma once
 #include <vector>
+#include <imgui.h>
+#include <unordered_map>
 namespace gui
 {
+    const ImVec4 kErrorColor{1.f, 0.f, 0.f, 1.f};
+    const ImVec4 kSuccessColor{0.1f, 0.8f, 0.1f, 1.f};
+
+    inline std::unordered_map<std::string, ImFont *> gFonts;
     template <typename T, typename E>
     struct ScrollingBuffer
     {

@@ -2,6 +2,7 @@
 #include <string_view>
 #include <array>
 #include <fmt/format.h>
+#include "../imgui_commons.hpp"
 #include "../widgets/inputs.hpp"
 #include "../widgets/connection_settings.hpp"
 
@@ -77,13 +78,12 @@ namespace gui
 
     void DeviceCreate::drawContent()
     {
-        static const ImVec4 err_col{1.f, 0.f, 0.f, 1.f};
-        static const ImVec4 succs_col{0.1f, 0.8f, 0.1f, 1.f};
+       
         SimpleInputText("Name", &input_name_);
         const bool has_input_name = !input_name_.empty();
         if (!has_input_name)
         {
-            ImGui::TextColored(err_col, "Name cannot be empty");
+            ImGui::TextColored(kErrorColor, "Name cannot be empty");
         }
         static constexpr std::array<std::string_view, static_cast<int>(DeviceInterface::count)> kPreviewValueDevNames{"Serial", "TCP", "UDP"};
 
@@ -120,12 +120,12 @@ namespace gui
         ImGui::Separator();
         if (!error_msg_.empty())
         {
-            ImGui::TextColored(err_col, "Error:");
+            ImGui::TextColored(kErrorColor, "Error:");
             ImGui::TextWrapped(error_msg_.c_str());
         }
         if (!success_msg_.empty())
         {
-            ImGui::TextColored(succs_col, "Success:");
+            ImGui::TextColored(kSuccessColor, "Success:");
             ImGui::TextWrapped(success_msg_.c_str());
         }
         std::string loader_str{"Test connection"};

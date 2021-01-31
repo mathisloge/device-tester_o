@@ -15,7 +15,7 @@ namespace connection
 
     bool Udp::isConnected() const
     {
-        return should_receive_;
+        return socket_.is_open();
     }
 
     void Udp::connect()
@@ -46,13 +46,24 @@ namespace connection
     void Udp::write(std::span<uint8_t> data)
     {
         std::shared_ptr<std::vector<uint8_t>> buffer_tx = std::make_shared<std::vector<uint8_t>>(data.begin(), data.end());
-        if(!socket_.is_open()) {
+        if (!socket_.is_open())
+        {
             socket_.open(udp::v4());
         }
         socket_.async_send_to(
             boost::asio::buffer(*buffer_tx),
             write_endpoint_,
             std::bind(&Udp::handleWrite, shared_from_this(), buffer_tx, std::placeholders::_1, std::placeholders::_2));
+    }
+
+    void Udp::applyOptions()
+    {
+        if(isConnected()) {
+            disconnect();
+            connect();
+        }
+        if (!options_.write_address.empty() && options_.write_port > 0)
+            write_endpoint_ = boost::asio::ip::udp::endpoint(boost::asio::ip::address::from_string(options_.write_address), options_.write_port);
     }
 
     void Udp::setOptions(const UdpOptions &options)
@@ -65,15 +76,12 @@ namespace connection
     {
         options_.write_address = write_address;
         options_.write_port = write_port;
-        if (!write_address.empty() && write_port > 0)
-            write_endpoint_ = boost::asio::ip::udp::endpoint(boost::asio::ip::address::from_string(write_address), write_port);
     }
 
     void Udp::setOption(const unsigned short listen_port, const UdpOptions::Protocol protocol)
     {
         options_.listen_port = listen_port;
         options_.listen_protocol = protocol;
-        //disconnect();
     }
 
     void Udp::startRead()

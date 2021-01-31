@@ -17,5 +17,7 @@ namespace gui
 
     private:
         std::shared_ptr<connection::Serial> serial_connection_;
+        connection::SerialOptions serial_options_;
+        std::string tx_str_;
     };
 } // namespace gui

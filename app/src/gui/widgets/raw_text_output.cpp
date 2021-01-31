@@ -1,5 +1,6 @@
 #include "raw_text_output.hpp"
 #include <imgui.h>
+#include "../imgui_commons.hpp"
 
 namespace gui
 {
@@ -20,9 +21,11 @@ namespace gui
         static constexpr float kOffsetSize = 150.f;
         if (ImGui::BeginChild("##raw_output_content", ImVec2{-1.f, window_height <= kOffsetSize ? -1 : window_height - kOffsetSize}))
         {
+            ImGui::PushFont(gFonts["Monospace"]);
             ImGui::TextUnformatted(raw_output_.c_str());
             if (auto_scroll_)
                 ImGui::SetScrollHereY(1.0f);
+            ImGui::PopFont();
         }
         ImGui::EndChild();
     }

@@ -17,5 +17,8 @@ namespace gui
 
     private:
         std::shared_ptr<connection::Tcp> connection_;
+        connection::TcpOptions options_;
+        std::string tx_buffer_;
+        bool append_new_line_;
     };
 } // namespace gui

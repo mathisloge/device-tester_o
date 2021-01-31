@@ -22,7 +22,8 @@ namespace gui
         int char_size = opts.char_size.value();
         if (ImGui::InputInt("Character size", &char_size, 1, 2))
         {
-            opts.char_size = boost::asio::serial_port_base::character_size(char_size);
+            if (char_size >= 5 && char_size <= 8)
+                opts.char_size = boost::asio::serial_port_base::character_size(char_size);
         }
 
         const int parity = static_cast<int>(opts.parity.value());

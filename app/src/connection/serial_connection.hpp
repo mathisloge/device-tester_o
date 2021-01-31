@@ -2,6 +2,7 @@
 #include <memory>
 #include <array>
 #include <boost/asio.hpp>
+#include <boost/circular_buffer.hpp>
 #include "connection.hpp"
 
 namespace connection
@@ -31,7 +32,7 @@ namespace connection
 
     public:
         explicit Serial(ConnectionHandle &handle, boost::asio::io_context &io_context, const std::string &identifier);
-
+        void applyOptions() override;
         void setOptions(const SerialOptions &options);
         void setOption(const std::string &devname);
         void setOption(unsigned int baud_rate);
@@ -51,6 +52,9 @@ namespace connection
     private:
         void open();
         void handleRead(const boost::system::error_code &e, std::size_t bytes_transferred);
+        void handleWrite(std::shared_ptr<std::vector<uint8_t>> buffer_tx,
+                         const boost::system::error_code &error,
+                         std::size_t bytes_transferred);
         void processData();
 
     private:
