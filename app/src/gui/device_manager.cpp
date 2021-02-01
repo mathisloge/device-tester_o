@@ -22,11 +22,13 @@ namespace gui
 
     DeviceManager::DeviceManager()
         : should_stop_{false},
+          io_idle_timer_{boost::asio::make_strand(io_context_), std::chrono::seconds(1)},
           io_thread_{std::bind(&DeviceManager::ioThread, this)},
           connection_test_handle_{std::make_unique<DumbConnectionHandle>(connection_test_buffer_)}
     {
         connection_test_buffer_.reserve(1000);
         refreshRecents();
+        startIdleTimer();
     }
 
     void DeviceManager::draw()
@@ -256,6 +258,19 @@ namespace gui
     {
         std::unique_lock<std::shared_mutex> l(recent_cons_mtx_);
         recent_connections_ = config::recentConnections(kDefaultRecentConnectionsFile);
+    }
+
+    void DeviceManager::startIdleTimer()
+    {
+        if (should_stop_)
+            return;
+        io_idle_timer_.async_wait([this](boost::system::error_code err) {
+            if (err)
+                SPDLOG_ERROR("Error in idle timer: {}", err.message());
+            for (auto &d : devices_)
+                d.second->processData(std::span<uint8_t>());
+            startIdleTimer();
+        });
     }
 
     DeviceManager::~DeviceManager()

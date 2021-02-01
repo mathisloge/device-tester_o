@@ -41,10 +41,12 @@ namespace gui
     private:
         void refreshRecents();
         void ioThread();
+        void startIdleTimer();
 
     private:
         bool should_stop_;
         boost::asio::io_context io_context_;
+        boost::asio::steady_timer io_idle_timer_;
         std::thread io_thread_;
 
         mutable std::shared_mutex recent_cons_mtx_;

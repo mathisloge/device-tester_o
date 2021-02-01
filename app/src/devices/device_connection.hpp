@@ -14,8 +14,6 @@ public:
 public:
     boost::signals2::connection connectData(const DataSig::slot_type &subscriber);
     boost::signals2::connection addDevice(boost::shared_ptr<BaseDevice> device);
-
-private:
     virtual void processData(std::span<uint8_t> data) override;
 
 private:
