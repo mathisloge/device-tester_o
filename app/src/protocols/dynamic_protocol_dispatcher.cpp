@@ -1,41 +1,46 @@
-#pragma once
-#include <type_traits>
-#include <cstdint>
-#include <vector>
-#include <tuple>
-#include <algorithm>
+#include "dynamic_protocol_dispatcher.hpp"
 #include <spdlog/spdlog.h>
-#include "protocol_types.hpp"
-#include "protocol.hpp"
 
-template <typename T>
-concept IsProtocol = std::is_base_of<Protocol, T>::value;
-
-template <IsProtocol... Ts>
-class ProtocolDispatcher
+namespace protocol
 {
-public:
-    explicit ProtocolDispatcher(Ts... ts) : protocols_{ts...} {}
 
-    void appendData(std::span<uint8_t> data)
+    DynamicProtocolDispatcher::DynamicProtocolDispatcher()
+    {
+    }
+
+    void DynamicProtocolDispatcher::addProtocol(std::unique_ptr<Protocol> protocol)
+    {
+        protocols_.push_back(std::move(protocol));
+    }
+
+    void DynamicProtocolDispatcher::appendData(std::span<uint8_t> data)
     {
         data_.reserve(data.size());
         data_.insert(data_.end(), data.begin(), data.end());
         processAllData();
     }
 
-    const std::tuple<Ts...> &protocols() const { return protocols_; }
-    const ProtoData &data() const { return data_; }
+    const std::vector<std::unique_ptr<Protocol>> &DynamicProtocolDispatcher::protocols() const
+    {
+        return protocols_;
+    }
 
-private:
-    void processAllData()
+    const ProtoData &DynamicProtocolDispatcher::data() const
+    {
+        return data_;
+    }
+
+    void DynamicProtocolDispatcher::processAllData()
     {
         //! \todo wrap in while. condition => at least one protocol detects a message
         ProtoCIter prev_begin = data_.begin();
         ProtoCIter prev_end = data_.end();
         while (!data_.empty())
         {
-            std::apply([this](auto &... protocol) { (processProtocol(protocol), ...); }, protocols_);
+            for (auto &protocol : protocols_)
+            {
+                processProtocol(*protocol);
+            }
             if (prev_begin == data_.begin() && prev_end == data_.end())
                 return;
             prev_begin = data_.begin();
@@ -43,9 +48,10 @@ private:
         }
     }
 
-    template <IsProtocol T>
-    void processProtocol(T &protocol)
+    void DynamicProtocolDispatcher::processProtocol(Protocol &protocol)
     {
+        if (!protocol.isActive())
+            return;
         if (auto consumed = protocol.consumeOneMessage(data_.begin(), data_.end()); consumed.second != data_.begin())
         {
             SPDLOG_TRACE("{}: consumed {}", protocol.name(), std::distance(consumed.first, consumed.second));
@@ -58,7 +64,8 @@ private:
         }
     }
 
-private:
-    std::tuple<Ts...> protocols_;
-    ProtoData data_;
-};
+    DynamicProtocolDispatcher::~DynamicProtocolDispatcher()
+    {
+    }
+
+} // namespace protocol

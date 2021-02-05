@@ -2,9 +2,8 @@
 #include <comms/comms.h>
 #include <comms/process.h>
 
-namespace detail::proto
+namespace protocol::detail
 {
-
     comms::ErrorStatus UbloxInstance::processSingle(ProtoCIter begin, ProtoCIter end,
                                                     std::pair<ProtoCIter, ProtoCIter> &read_range,
                                                     UbloxHandler &handler)
@@ -19,8 +18,9 @@ namespace detail::proto
         read_range.second = read_it;
         return status;
     }
-} // namespace detail::proto
 
-void UbloxHandler::handle(detail::proto::UbloxMessage &msg)
-{
-}
+    void UbloxHandler::handle(UbloxMessage &msg)
+    {
+    }
+
+} // namespace protocol::detail

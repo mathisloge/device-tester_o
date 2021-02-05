@@ -31,16 +31,13 @@ set(CONNECTION_SRC
 )
 
 set(PROTOCOL_SRC 
-    src/protocols/protocol.cpp
-    src/protocols/protocol_ublox.cpp
-    src/protocols/ublox_detail.cpp
-    src/protocols/protocol_nmea.cpp
+    src/protocols/dynamic_protocol_dispatcher.cpp
+    src/protocols/protocol_loader.cpp
 )
 
 set(DEVICE_SRC 
     src/devices/device_connection.cpp
     src/devices/base_device.cpp
-    src/devices/ublox_device.cpp
 )
 
 set(CONFIG_SRC
@@ -85,10 +82,8 @@ endif()
 target_compile_definitions(gps-tester PUBLIC ${COMPILE_DEFS})
 target_link_libraries(gps-tester PUBLIC 
     Boost::headers
+    Boost::filesystem
     spdlog::spdlog
-    cc::comms
-    cc::ublox
-    nmea::nmea
     imgui::imgui
     implot::implot
     imgui::club
@@ -98,6 +93,7 @@ target_link_libraries(gps-tester PUBLIC
     Magnum::Magnum
     MagnumIntegration::ImGui
     nlohmann_json nlohmann_json::nlohmann_json
+    plugin::protocol
 )
 
 add_executable(gps-tester-app 
@@ -121,7 +117,6 @@ if(BUILD_TESTING)
     add_executable(gps-tester-tests 
         test/main.cpp
         test/protocols/protocol_dispatcher.cpp
-        test/protocols/protocol_ublox.cpp
     )
     set_property(TARGET gps-tester-tests PROPERTY CXX_STANDARD 20)
     target_link_libraries(gps-tester-tests Catch2::Catch2 gps-tester)

@@ -1,5 +1,5 @@
 #pragma once
-#include "protocol_types.hpp"
+#include <dt-protocol/protocol_types.hpp>
 #include <ublox/Message.h>
 #include <ublox/frame/UbloxFrame.h>
 #include <ublox/input/ClientInputMessages.h>
@@ -7,10 +7,10 @@
 
 // we compile this in a seperate compile unit since the build time of the protocol itself can be very long.
 // as this header will not change this often, the build times will decrease a lot after the first build
-class UbloxHandler;
-namespace detail::proto
-{
 
+namespace protocol::detail
+{
+    class UbloxHandler;
     // Common interface class for all the messages
     using UbloxMessage =
         ublox::Message<
@@ -38,9 +38,11 @@ namespace detail::proto
                                          std::pair<ProtoCIter, ProtoCIter> &read_range,
                                          UbloxHandler &handler);
     };
-} // namespace detail::proto
-class UbloxHandler
-{
-public:
-    virtual void handle(detail::proto::UbloxMessage &msg);
-};
+
+    class UbloxHandler
+    {
+    public:
+        virtual void handle(UbloxMessage &msg);
+    };
+
+} // namespace protocol::detail
