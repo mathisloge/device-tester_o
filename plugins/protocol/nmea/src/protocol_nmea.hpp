@@ -6,7 +6,6 @@ namespace protocol
 {
     class ProtocolNmea : public Protocol
     {
-
     public:
         ProtocolNmea();
         std::string_view name() const override;

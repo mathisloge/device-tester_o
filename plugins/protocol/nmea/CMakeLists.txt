@@ -1,19 +1,23 @@
-project(ProtocolPluginNmea)
+project(PluginNmeaProtocol)
 
-add_library(ProtocolPluginNmea  SHARED
+
+set(SOURCES 
     src/handler.cpp
     src/protocol_nmea.cpp
     src/protocol_plugin.cpp
 )
-
-set_property(TARGET ProtocolPluginNmea PROPERTY CXX_STANDARD 20)
-
+corrade_add_plugin(ProtocolNmea 
+    "${PROTOCOL_INSTALL_DBG_DIR}"
+    "${PROTOCOL_INSTALL_REL_DIR}"
+    ProtocolNmea.conf 
+    ${SOURCES}
+)
+set_property(TARGET ProtocolNmea PROPERTY CXX_STANDARD 20)
 target_include_directories(
-    ProtocolPluginNmea PRIVATE
+    ProtocolNmea PRIVATE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
 )
-
-target_link_libraries(ProtocolPluginNmea PRIVATE 
+target_link_libraries(ProtocolNmea PRIVATE 
     nmea::nmea
     plugin::protocol
 )

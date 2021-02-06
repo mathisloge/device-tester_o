@@ -5,7 +5,7 @@
 namespace protocol
 {
     ProtocolNmea::ProtocolNmea()
-    :state_{State::activated}
+        : state_{State::activated}
     {
     }
 
@@ -23,7 +23,7 @@ namespace protocol
         return std::make_pair(begin, begin);
     }
 
-        void ProtocolNmea::setState(State state)
+    void ProtocolNmea::setState(State state)
     {
         state_ = state;
     }

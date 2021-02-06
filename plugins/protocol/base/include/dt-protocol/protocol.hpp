@@ -1,11 +1,10 @@
 #pragma once
 #include <string_view>
-#include <boost/config.hpp>
 #include <boost/noncopyable.hpp>
 #include "protocol_types.hpp"
 namespace protocol
 {
-    class BOOST_SYMBOL_VISIBLE Protocol : public boost::noncopyable
+    class Protocol : boost::noncopyable
     {
     public:
         enum class State

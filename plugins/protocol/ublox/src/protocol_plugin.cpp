@@ -1,11 +1,24 @@
-#include <boost/dll/alias.hpp>
+#include <Corrade/PluginManager/AbstractManager.h>
+#include <dt-protocol/protocol_plugin.hpp>
 #include "protocol_ublox.hpp"
 namespace protocol
 {
-    std::unique_ptr<Protocol> createProtocol()
+    class UbloxProtocolPlugin final : public ProtocolPlugin
     {
-        return std::make_unique<Ublox>();
-    }
+
+    public:
+        explicit UbloxProtocolPlugin(Corrade::PluginManager::AbstractManager &manager, const std::string &plugin)
+            : ProtocolPlugin{manager, plugin} {}
+
+        std::string_view protocolVersion() const override
+        {
+            return "UBX9";
+        }
+        std::unique_ptr<Protocol> createProtocol() const override
+        {
+            return std::make_unique<Ublox>();
+        }
+    };
 } // namespace protocol
 
-BOOST_DLL_ALIAS(protocol::createProtocol, createProtocol)
+CORRADE_PLUGIN_REGISTER(ProtocolUblox, protocol::UbloxProtocolPlugin, "de.mathisloge.devicetester.ProtocolPlugin/1.0")

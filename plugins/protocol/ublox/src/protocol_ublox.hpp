@@ -5,7 +5,7 @@
 
 namespace protocol
 {
-    class Ublox : public Protocol
+    class Ublox final : public Protocol
     {
     public:
         Ublox();
