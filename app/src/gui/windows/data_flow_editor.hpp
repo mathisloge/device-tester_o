@@ -19,7 +19,6 @@ namespace gui
         void refreshProtocols();
 
     private:
-        ImNodes::CanvasState canvas_;
         protocol::ProtocolLoader &proto_loader_;
         std::vector<std::string> protocol_names_;
         df::DataFlowGraph data_flow_graph_;

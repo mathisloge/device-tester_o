@@ -1,7 +1,6 @@
 #include "data_flow_editor.hpp"
 #include <spdlog/spdlog.h>
 #include <imgui.h>
-#include <ImNodesEz.h>
 #include "../data_flow/node.hpp"
 namespace gui
 {
@@ -16,15 +15,15 @@ namespace gui
         data_flow_graph_.registerNodeFactory("test", []() {
             auto node = std::make_shared<df::Node>(
                 "Test",
-                df::Node::Slots{{"Int", 1}, {"string", 2}},
-                df::Node::Slots{{"Int", 1}, {"string", 2}});
+                df::Node::Slots{df::Slot{"Int", df::Slot::Type::input}, df::Slot{"string", df::Slot::Type::input}},
+                df::Node::Slots{df::Slot{"Int", df::Slot::Type::output}, df::Slot{"string", df::Slot::Type::output}});
             return node;
         });
         data_flow_graph_.registerNodeFactory("test2", []() {
             auto node = std::make_shared<df::Node>(
                 "Test2",
-                df::Node::Slots{{"string", 2}, {"Int", 1}},
-                df::Node::Slots{{"string", 2}, {"Int", 1}});
+                df::Node::Slots{df::Slot{"Int", df::Slot::Type::input}, df::Slot{"string", df::Slot::Type::input}},
+                df::Node::Slots{df::Slot{"Int", df::Slot::Type::output}, df::Slot{"string", df::Slot::Type::output}});
             return node;
         });
     }
@@ -57,12 +56,16 @@ namespace gui
         // content window
         {
             ImGui::BeginChild("data flow canvas view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()));
-            ImNodes::BeginCanvas(&canvas_);
+            imnodes::BeginNodeEditor();
             handleDnD();
 
             data_flow_graph_.drawNodes();
+            data_flow_graph_.drawLinks();
 
-            ImNodes::EndCanvas();
+            imnodes::EndNodeEditor();
+            data_flow_graph_.addPendingConnections();
+            data_flow_graph_.deletePendingConnections();
+
             ImGui::EndChild();
         }
     }

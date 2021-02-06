@@ -1,5 +1,6 @@
 #include "app.hpp"
 #include <implot.h>
+#include <imnodes.h>
 using namespace Magnum;
 
 namespace gui
@@ -12,8 +13,13 @@ namespace gui
 
         ImGui::CreateContext();
         ImPlot::CreateContext();
-
         auto &imgui_io = ImGui::GetIO();
+        {
+            imnodes::Initialize();
+            imnodes::IO &imnodes_io = imnodes::GetIO();
+            imnodes_io.link_detach_with_modifier_click.modifier = &imgui_io.KeyCtrl;
+        }
+
         imgui_io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
         imgui_io.Fonts->Clear();
@@ -159,5 +165,6 @@ namespace gui
     App::~App()
     {
         ImPlot::DestroyContext();
+        imnodes::Shutdown();
     }
 } // namespace gui

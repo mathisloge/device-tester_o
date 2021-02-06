@@ -14,10 +14,7 @@ add_library(imgui-club INTERFACE)
 target_include_directories(imgui-club INTERFACE imgui_club/imgui_memory_editor)
 add_library(imgui::club ALIAS imgui-club)
 
-add_library(imgui-imnodes STATIC ImNodes/ImNodes.cpp ImNodes/ImNodesEz.cpp)
-target_include_directories(imgui-imnodes PUBLIC ImNodes)
-target_link_libraries(imgui-imnodes PRIVATE imgui::imgui)
-add_library(imgui::imnodes ALIAS imgui-imnodes)
+add_subdirectory(imnodes)
 
 option(ENABLE_TESTS ON)
 
