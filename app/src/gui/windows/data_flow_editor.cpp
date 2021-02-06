@@ -2,6 +2,7 @@
 #include <spdlog/spdlog.h>
 #include <imgui.h>
 #include <ImNodesEz.h>
+#include "../data_flow/node.hpp"
 namespace gui
 {
 
@@ -11,6 +12,21 @@ namespace gui
     {
         flags_ = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
         refreshProtocols();
+
+        data_flow_graph_.registerNodeFactory("test", []() {
+            auto node = std::make_shared<df::Node>(
+                "Test",
+                df::Node::Slots{{"Int", 1}, {"string", 2}},
+                df::Node::Slots{{"Int", 1}, {"string", 2}});
+            return node;
+        });
+        data_flow_graph_.registerNodeFactory("test2", []() {
+            auto node = std::make_shared<df::Node>(
+                "Test2",
+                df::Node::Slots{{"string", 2}, {"Int", 1}},
+                df::Node::Slots{{"string", 2}, {"Int", 1}});
+            return node;
+        });
     }
 
     void DataFlowEditor::drawContent()
@@ -20,6 +36,15 @@ namespace gui
             ImGui::BeginChild("sidbar_data_flow", ImVec2{kSidebarWidth, 0}, true);
             if (ImGui::Button("Refresh protocols", ImVec2{kSidebarWidth, 0}))
                 refreshProtocols();
+
+            if (ImGui::Button("ADD TEST NDOE"))
+            {
+                data_flow_graph_.addNode("test");
+            }
+            if (ImGui::Button("ADD TEST NDOE2"))
+            {
+                data_flow_graph_.addNode("test2");
+            }
 
             if (ImGui::TreeNode("Protocols"))
             {
@@ -31,36 +56,11 @@ namespace gui
         ImGui::SameLine();
         // content window
         {
-            ImGui::BeginChild("data flow canvas view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())); // Leave room for 1 line below us
+            ImGui::BeginChild("data flow canvas view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()));
             ImNodes::BeginCanvas(&canvas_);
             handleDnD();
 
-            struct Node
-            {
-                ImVec2 pos{};
-                bool selected{};
-                ImNodes::Ez::SlotInfo inputs[1];
-                ImNodes::Ez::SlotInfo outputs[1];
-            };
-
-            static Node nodes[3] = {
-                {{50, 100}, false, {{"In", 1}}, {{"Out", 1}}},
-                {{250, 50}, false, {{"In", 1}}, {{"Out", 1}}},
-                {{250, 100}, false, {{"In", 1}}, {{"Out", 1}}},
-            };
-
-            for (Node &node : nodes)
-            {
-                if (ImNodes::Ez::BeginNode(&node, "Node Title", &node.pos, &node.selected))
-                {
-                    ImNodes::Ez::InputSlots(node.inputs, 1);
-                    ImNodes::Ez::OutputSlots(node.outputs, 1);
-                    ImNodes::Ez::EndNode();
-                }
-            }
-
-            ImNodes::Connection(&nodes[1], "In", &nodes[0], "Out");
-            ImNodes::Connection(&nodes[2], "In", &nodes[0], "Out");
+            data_flow_graph_.drawNodes();
 
             ImNodes::EndCanvas();
             ImGui::EndChild();

@@ -3,6 +3,7 @@
 #include <ImNodes.h>
 #include "base_window.hpp"
 #include "../../protocols/protocol_loader.hpp"
+#include "../data_flow/data_flow_graph.hpp"
 
 namespace gui
 {
@@ -21,5 +22,6 @@ namespace gui
         ImNodes::CanvasState canvas_;
         protocol::ProtocolLoader &proto_loader_;
         std::vector<std::string> protocol_names_;
+        df::DataFlowGraph data_flow_graph_;
     };
 } // namespace gui
