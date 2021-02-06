@@ -1,13 +1,10 @@
 #include "protocol_loader.hpp"
 #include <functional>
-#include <boost/dll/import.hpp>
-#include <boost/dll/shared_library.hpp>
-#include <dt-protocol/protocol_plugin.hpp>
 #include <spdlog/spdlog.h>
 #include <Corrade/PluginManager/Manager.h>
+#include <Corrade/PluginManager/PluginMetadata.h>
+#include <dt-protocol/protocol_plugin.hpp>
 
-namespace dll = boost::dll;
-namespace fs = boost::filesystem;
 using namespace Corrade;
 namespace protocol
 {
@@ -15,12 +12,10 @@ namespace protocol
     {
     }
 
-    void ProtocolLoader::findAllProtocols()
+    std::vector<std::string> ProtocolLoader::findAllProtocols()
     {
-        
+        return manager_.pluginList();
     }
-
-    // todo: wrap protocol in a own FactoryInstance so we can hold the protocol library in memory.
 
     std::unique_ptr<Protocol> ProtocolLoader::createProtocol(const std::string &protocol_plugin_name)
     {

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
 
-find_package(imgui CONFIG REQUIRED)
+
 find_package(implot CONFIG REQUIRED)
 add_library(ImGui::ImGui ALIAS imgui::imgui)
 find_package(Corrade REQUIRED Main PluginManager)
@@ -82,11 +82,11 @@ endif()
 target_compile_definitions(gps-tester PUBLIC ${COMPILE_DEFS})
 target_link_libraries(gps-tester PUBLIC 
     Boost::headers
-    Boost::filesystem
     spdlog::spdlog
     imgui::imgui
     implot::implot
     imgui::club
+    imgui::imnodes
     Corrade::Main
     Magnum::Application
     Magnum::GL

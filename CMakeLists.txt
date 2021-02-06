@@ -7,13 +7,17 @@ project(DeviceTester
 
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 find_package(spdlog CONFIG REQUIRED)
-find_package(ublox CONFIG REQUIRED)
-find_package(LibComms CONFIG REQUIRED)
-find_package(Boost REQUIRED COMPONENTS filesystem)
+find_package(imgui CONFIG REQUIRED)
+find_package(Boost REQUIRED)
 
 add_library(imgui-club INTERFACE)
 target_include_directories(imgui-club INTERFACE imgui_club/imgui_memory_editor)
 add_library(imgui::club ALIAS imgui-club)
+
+add_library(imgui-imnodes STATIC ImNodes/ImNodes.cpp ImNodes/ImNodesEz.cpp)
+target_include_directories(imgui-imnodes PUBLIC ImNodes)
+target_link_libraries(imgui-imnodes PRIVATE imgui::imgui)
+add_library(imgui::imnodes ALIAS imgui-imnodes)
 
 option(ENABLE_TESTS ON)
 
