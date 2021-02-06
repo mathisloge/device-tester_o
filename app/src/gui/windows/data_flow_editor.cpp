@@ -5,34 +5,25 @@
 namespace gui
 {
 
-    DataFlowEditor::DataFlowEditor(const std::string &win_name)
-        : BaseWindow(win_name)
+    DataFlowEditor::DataFlowEditor(const std::string &win_name, protocol::ProtocolLoader &proto_loader)
+        : BaseWindow(win_name),
+          proto_loader_{proto_loader}
     {
         flags_ = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
+        refreshProtocols();
     }
 
     void DataFlowEditor::drawContent()
     {
+        constexpr int kSidebarWidth = 250;
         { // sidebar
-            ImGui::BeginChild("sidbar_data_flow", ImVec2(150, 0), true);
+            ImGui::BeginChild("sidbar_data_flow", ImVec2{kSidebarWidth, 0}, true);
+            if (ImGui::Button("Refresh protocols", ImVec2{kSidebarWidth, 0}))
+                refreshProtocols();
+
             if (ImGui::TreeNode("Protocols"))
             {
-                if (ImGui::TreeNode("Nmea"))
-                {
-                    ImGui::Button("Messagex");
-
-                    if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
-                    {
-                        ImGui::SetDragDropPayload("DND_DATAFLOW", this, sizeof(this));
-                        ImGui::Text("Messagex");
-                        ImGui::EndDragDropSource();
-                    }
-                    ImGui::TreePop();
-                }
-                if (ImGui::TreeNode("Ublox"))
-                {
-                    ImGui::TreePop();
-                }
+                drawProtocols();
                 ImGui::TreePop();
             }
             ImGui::EndChild();
@@ -76,15 +67,53 @@ namespace gui
         }
     }
 
+    void DataFlowEditor::drawProtocols()
+    {
+        for (const auto &proto_name : protocol_names_)
+        {
+            if (ImGui::TreeNode(proto_name.c_str()))
+            {
+                ImGui::Button("Protocol instance");
+                if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+                {
+                    ImGui::SetDragDropPayload(kDndTarget, this, sizeof(this));
+                    ImGui::Text(proto_name.c_str());
+                    ImGui::EndDragDropSource();
+                }
+                ImGui::Indent();
+                for (int i = 0; i < 10; i++)
+                {
+                    const auto btn_name = fmt::format("Message {}", i);
+                    ImGui::Button(btn_name.c_str());
+                    if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+                    {
+                        ImGui::SetDragDropPayload(kDndTarget, this, sizeof(this));
+                        ImGui::Text(btn_name.c_str());
+                        ImGui::EndDragDropSource();
+                    }
+                }
+
+                ImGui::Unindent();
+
+                ImGui::TreePop();
+            }
+        }
+    }
+
     void DataFlowEditor::handleDnD()
     {
         if (ImGui::BeginDragDropTarget())
         {
-            if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("DND_DATAFLOW"))
+            if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(kDndTarget))
             {
                 SPDLOG_DEBUG("got payload");
             }
             ImGui::EndDragDropTarget();
         }
+    }
+
+    void DataFlowEditor::refreshProtocols()
+    {
+        protocol_names_ = proto_loader_.findAllProtocols();
     }
 } // namespace gui

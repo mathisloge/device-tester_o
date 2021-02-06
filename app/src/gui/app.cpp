@@ -50,7 +50,7 @@ namespace gui
         setMinimalLoopPeriod(16);
 #endif
 
-        test_data_flow_editor_ = std::make_unique<DataFlowEditor>(std::string{"TEST"});
+        test_data_flow_editor_ = std::make_unique<DataFlowEditor>(std::string{"TEST"}, protocol_loader_);
     }
 
     void App::drawEvent()
