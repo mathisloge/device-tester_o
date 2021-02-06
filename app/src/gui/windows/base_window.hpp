@@ -1,8 +1,9 @@
 #pragma once
 #include <string>
+#include <boost/noncopyable.hpp>
 namespace gui
 {
-    class BaseWindow
+    class BaseWindow : public boost::noncopyable
     {
     public:
         explicit BaseWindow(const std::string &name);
@@ -16,7 +17,8 @@ namespace gui
         virtual void drawContent() = 0;
 
     protected:
-        const std::string &name_;
+        const std::string name_;
         bool is_open_;
+        int flags_;
     };
 } // namespace gui

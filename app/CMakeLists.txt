@@ -60,6 +60,7 @@ set(GUI_SRC
     src/gui/windows/serial_connection_win.cpp
     src/gui/windows/tcp_connection_win.cpp
     src/gui/windows/udp_connection_win.cpp
+    src/gui/windows/data_flow_editor.cpp
 )
 
 add_library(gps-tester STATIC

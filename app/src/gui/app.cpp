@@ -6,7 +6,8 @@ namespace gui
 {
     App::App(const Arguments &arguments)
         : Platform::Application{arguments, Configuration{}.setTitle("GNSS Tester").setWindowFlags(Configuration::WindowFlag::Resizable)},
-          device_create_modal_{device_manager_}
+          device_create_modal_{device_manager_},
+          test_data_flow_editor_{nullptr}
     {
 
         ImGui::CreateContext();
@@ -48,6 +49,8 @@ namespace gui
         /* Have some sane speed, please */
         setMinimalLoopPeriod(16);
 #endif
+
+        test_data_flow_editor_ = std::make_unique<DataFlowEditor>(std::string{"TEST"});
     }
 
     void App::drawEvent()
@@ -66,6 +69,8 @@ namespace gui
         showMainMenu();
         device_create_modal_.draw();
         device_manager_.draw();
+        if (test_data_flow_editor_)
+            test_data_flow_editor_->draw();
         ImGui::ShowDemoWindow();
 
         /* Update application cursor */

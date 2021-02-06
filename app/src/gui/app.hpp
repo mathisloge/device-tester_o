@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 #include <imgui.h>
 #include <Magnum/Math/Color.h>
 #include <Magnum/GL/DefaultFramebuffer.h>
@@ -15,6 +16,8 @@
 
 #include "device_manager.hpp"
 #include "modals/device_create.hpp"
+
+#include "windows/data_flow_editor.hpp"
 
 namespace gui
 {
@@ -46,5 +49,7 @@ namespace gui
         DeviceManager device_manager_;
         
         DeviceCreate device_create_modal_;
+
+        std::unique_ptr<DataFlowEditor> test_data_flow_editor_;
     };
 } // namespace gui

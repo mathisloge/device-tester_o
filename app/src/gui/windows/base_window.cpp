@@ -3,7 +3,7 @@
 namespace gui
 {
     BaseWindow::BaseWindow(const std::string &name)
-        : name_{name}, is_open_{true}
+        : name_{name}, is_open_{true}, flags_{0}
     {
     }
 
@@ -16,7 +16,7 @@ namespace gui
     {
         if (!is_open_)
             return;
-        if (ImGui::Begin(name_.c_str(), &is_open_))
+        if (ImGui::Begin(name_.c_str(), &is_open_, flags_))
         {
             drawContent();
         }
