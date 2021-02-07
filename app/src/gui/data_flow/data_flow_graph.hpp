@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <functional>
+
 #include "node.hpp"
 namespace gui::df
 {
@@ -11,6 +12,7 @@ namespace gui::df
     public:
         using NodePtr = std::shared_ptr<Node>;
         using NodeFactoryFnc = std::function<NodePtr()>;
+        using NodeContainer = std::map<int, NodePtr>;
 
     public:
         DataFlowGraph();
@@ -20,12 +22,11 @@ namespace gui::df
         void drawLinks();
         void addPendingConnections();
         void deletePendingConnections();
-        const std::vector<NodePtr> &nodes() const;
         ~DataFlowGraph();
 
     private:
         std::map<std::string, NodeFactoryFnc> node_factories_;
-        std::vector<NodePtr> nodes_;
+        NodeContainer nodes_;
         std::vector<std::pair<int, int>> connections_;
     };
 } // namespace gui::df

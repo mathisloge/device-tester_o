@@ -4,14 +4,21 @@
 namespace gui::df
 {
     Node::Node(const std::string &title,
-               const Slots &input_slots,
-               const Slots &output_slots)
+               InSlots &&input_slots,
+               OutSlots &&output_slots)
         : id_{node_id_counter++},
           title_{title},
-          input_slots_{input_slots},
-          output_slots_{output_slots},
           is_selected_{false}
     {
+        std::transform(input_slots.begin(), input_slots.end(), std::inserter(input_slots_, input_slots_.end()),
+                       [](const InputSlot &s) { return std::make_pair(s.id(), std::move(s)); });
+        std::transform(output_slots.begin(), output_slots.end(), std::inserter(output_slots_, output_slots_.end()),
+                       [](const OutputSlot &s) { return std::make_pair(s.id(), std::move(s)); });
+    }
+
+    int Node::id() const
+    {
+        return id_;
     }
 
     void Node::drawNode()
@@ -23,16 +30,25 @@ namespace gui::df
 
         for (auto &slot : input_slots_)
         {
-            slot.drawSlot();
+            slot.second.drawSlot();
         }
-        
+
         drawCustomContent();
 
         for (auto &slot : output_slots_)
         {
-            slot.drawSlot();
+            slot.second.drawSlot();
         }
         imnodes::EndNode();
+    }
+
+    const Node::InSlotsContainer &Node::input_slots() const
+    {
+        return input_slots_;
+    }
+    const Node::OutSlotsContainer &Node::output_slots() const
+    {
+        return output_slots_;
     }
 
     void Node::drawCustomContent()

@@ -10,6 +10,7 @@
         "boost-signals2",
         "boost-circular-buffer",
         "boost-spirit",
+        "boost-graph",
         "nlohmann-json",
         "corrade",
         {

@@ -11,7 +11,8 @@ namespace gui::df
     {
         if (auto it = node_factories_.find(key); it != node_factories_.end())
         {
-            nodes_.push_back(it->second());
+            auto node = it->second();
+            nodes_.emplace(node->id(), node);
         }
     }
 
@@ -24,7 +25,7 @@ namespace gui::df
     {
         for (auto &node : nodes_)
         {
-            node->drawNode();
+            node.second->drawNode();
         }
     }
 
@@ -39,10 +40,25 @@ namespace gui::df
 
     void DataFlowGraph::addPendingConnections()
     {
-        int start_attr, end_attr;
-        if (imnodes::IsLinkCreated(&start_attr, &end_attr))
+        int started_at_node_id;
+        int started_at_attribute_id;
+        int ended_at_node_id;
+        int ended_at_attribute_id;
+        if (imnodes::IsLinkCreated(&started_at_node_id, &started_at_attribute_id, &ended_at_node_id, &ended_at_attribute_id))
         {
-            connections_.emplace_back(std::make_pair(start_attr, end_attr));
+            auto start_it = nodes_.find(started_at_node_id);
+            auto end_it = nodes_.find(ended_at_node_id);
+            if (start_it != nodes_.end() && end_it != nodes_.end())
+            {
+                auto start_slot = start_it->second->output_slots().find(started_at_attribute_id);
+                auto end_slot = end_it->second->input_slots().find(ended_at_attribute_id);
+                if (start_slot != start_it->second->output_slots().end() &&
+                    end_slot != end_it->second->input_slots().end() &&
+                    start_slot->second.canConnectWith(end_slot->second))
+                {
+                    connections_.emplace_back(std::make_pair(started_at_attribute_id, ended_at_attribute_id));
+                }
+            }
         }
     }
 
@@ -53,11 +69,6 @@ namespace gui::df
         {
             connections_.erase(connections_.begin() + link_id);
         }
-    }
-
-    const std::vector<DataFlowGraph::NodePtr> &DataFlowGraph::nodes() const
-    {
-        return nodes_;
     }
 
     DataFlowGraph::~DataFlowGraph()
