@@ -4,6 +4,7 @@
 namespace gui::df
 {
     DataFlowGraph::DataFlowGraph()
+        : link_id_counter_(0)
     {
     }
 
@@ -11,8 +12,26 @@ namespace gui::df
     {
         if (auto it = node_factories_.find(key); it != node_factories_.end())
         {
-            auto node = it->second();
-            nodes_.emplace(node->id(), node);
+            VertexInfo node_info{VertexType::node};
+            const auto vertex_id = boost::add_vertex(node_info, graph_);
+            auto node = it->second(vertex_id);
+
+            for (auto &slot : node->inputs())
+            {
+                VertexInfo info{VertexType::input};
+                const auto slot_vertex_id = boost::add_vertex(info, graph_);
+                slot.vertexDesc(slot_vertex_id);
+                boost::add_edge(slot_vertex_id, vertex_id, EdgeProperty(link_id_counter_++), graph_);
+            }
+            for (auto &slot : node->outputs())
+            {
+                VertexInfo info{VertexType::output};
+                const auto slot_vertex_id = boost::add_vertex(info, graph_);
+                slot.vertexDesc(slot_vertex_id);
+                boost::add_edge(vertex_id, slot_vertex_id, EdgeProperty(link_id_counter_++), graph_);
+            }
+
+            nodes_.emplace(vertex_id, node);
         }
     }
 
@@ -25,40 +44,35 @@ namespace gui::df
     {
         for (auto &node : nodes_)
         {
-            node.second->drawNode();
+            node.second->draw(graph_);
         }
     }
 
     void DataFlowGraph::drawLinks()
     {
-        for (int i = 0; i < connections_.size(); ++i)
+        for (const auto &node : nodes_)
         {
-            const std::pair<int, int> p = connections_[i];
-            imnodes::Link(i, p.first, p.second);
+            const auto output_it = boost::out_edges(node.first, graph_);
+
+            for (auto eit = output_it.first; eit != output_it.second; ++eit)
+            {
+                const auto output_link_it = boost::out_edges(boost::target(*eit, graph_), graph_);
+                for (auto eeit = output_link_it.first; eeit != output_link_it.second; ++eeit)
+                {
+                    const auto edge_index = boost::get(boost::edge_index, graph_, *eeit);
+                    imnodes::Link(edge_index, boost::source(*eeit, graph_), boost::target(*eeit, graph_));
+                }
+            }
         }
     }
 
     void DataFlowGraph::addPendingConnections()
     {
-        int started_at_node_id;
         int started_at_attribute_id;
-        int ended_at_node_id;
         int ended_at_attribute_id;
-        if (imnodes::IsLinkCreated(&started_at_node_id, &started_at_attribute_id, &ended_at_node_id, &ended_at_attribute_id))
+        if (imnodes::IsLinkCreated(&started_at_attribute_id, &ended_at_attribute_id))
         {
-            auto start_it = nodes_.find(started_at_node_id);
-            auto end_it = nodes_.find(ended_at_node_id);
-            if (start_it != nodes_.end() && end_it != nodes_.end())
-            {
-                auto start_slot = start_it->second->output_slots().find(started_at_attribute_id);
-                auto end_slot = end_it->second->input_slots().find(ended_at_attribute_id);
-                if (start_slot != start_it->second->output_slots().end() &&
-                    end_slot != end_it->second->input_slots().end() &&
-                    start_slot->second.canConnectWith(end_slot->second))
-                {
-                    connections_.emplace_back(std::make_pair(started_at_attribute_id, ended_at_attribute_id));
-                }
-            }
+            boost::add_edge(started_at_attribute_id, ended_at_attribute_id, EdgeProperty(link_id_counter_++), graph_);
         }
     }
 
@@ -67,7 +81,24 @@ namespace gui::df
         int link_id;
         if (imnodes::IsLinkDestroyed(&link_id))
         {
-            connections_.erase(connections_.begin() + link_id);
+            for (const auto &node : nodes_)
+            {
+                const auto output_it = boost::out_edges(node.first, graph_);
+
+                for (auto eit = output_it.first; eit != output_it.second; ++eit)
+                {
+                    const auto output_link_it = boost::out_edges(boost::target(*eit, graph_), graph_);
+                    for (auto eeit = output_link_it.first; eeit != output_link_it.second; ++eeit)
+                    {
+                        const auto edge_index = boost::get(boost::edge_index, graph_, *eeit);
+                        if (edge_index == link_id)
+                        {
+                            boost::remove_edge(*eeit, graph_);
+                            break;
+                        }
+                    }
+                }
+            }
         }
     }
 

@@ -1,27 +1,22 @@
 #pragma once
 #include <map>
 #include <vector>
+#include <atomic>
 #include <string>
 #include <functional>
 #include <boost/graph/adjacency_list.hpp>
-
-#include "node.hpp"
+#include "data_flow_types.hpp"
+#include "ui_node.hpp"
 namespace gui::df
 {
-    struct VertexInfo
-    {
-    };
+   
     class DataFlowGraph final
     {
     public:
-        using Graph = boost::adjacency_list<boost::vecS,
-                                            boost::vecS,
-                                            boost::directedS,
-                                            VertexInfo, 
-                                            boost::property<boost::edge_index_t, int>>;
+       
 
-        using NodePtr = std::shared_ptr<Node>;
-        using NodeFactoryFnc = std::function<NodePtr()>;
+        using NodePtr = std::shared_ptr<UiNode>;
+        using NodeFactoryFnc = std::function<NodePtr(int)>;
         using NodeContainer = std::map<int, NodePtr>;
 
     public:
@@ -37,8 +32,9 @@ namespace gui::df
     private:
         std::map<std::string, NodeFactoryFnc> node_factories_;
         NodeContainer nodes_;
-        std::vector<std::pair<int, int>> connections_;
 
         Graph graph_;
+
+        std::atomic_int link_id_counter_;
     };
 } // namespace gui::df

@@ -1,7 +1,7 @@
 #include "data_flow_editor.hpp"
 #include <spdlog/spdlog.h>
 #include <imgui.h>
-#include "../data_flow/node.hpp"
+
 namespace gui
 {
 
@@ -12,18 +12,18 @@ namespace gui
         flags_ = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
         refreshProtocols();
 
-        data_flow_graph_.registerNodeFactory("test", []() {
-            auto node = std::make_shared<df::Node>(
-                "Test",
-                df::Node::InSlots{df::InputSlot{"Int", "int"}, df::InputSlot{"string", "string"}},
-                df::Node::OutSlots{df::OutputSlot{"Int", "int"}, df::OutputSlot{"string", "string"}});
+        data_flow_graph_.registerNodeFactory("test", [](int vertex_id) {
+            auto node = std::make_shared<df::UiNode>(
+                vertex_id, "Test",
+                df::UiNode::Slots{df::BaseSlot{"Int"}, df::BaseSlot{"string"}},
+                df::UiNode::Slots{df::BaseSlot{"Int"}, df::BaseSlot{"string"}});
             return node;
         });
-        data_flow_graph_.registerNodeFactory("test2", []() {
-            auto node = std::make_shared<df::Node>(
-                "Test2",
-                df::Node::InSlots{df::InputSlot{"Int", "int"}, df::InputSlot{"string", "string"}},
-                df::Node::OutSlots{df::OutputSlot{"Int", "int"}, df::OutputSlot{"string", "string"}});
+        data_flow_graph_.registerNodeFactory("test2", [](int vertex_id) {
+            auto node = std::make_shared<df::UiNode>(
+                vertex_id, "Test2",
+                df::UiNode::Slots{df::BaseSlot{"Int"}, df::BaseSlot{"string"}},
+                df::UiNode::Slots{df::BaseSlot{"Int"}, df::BaseSlot{"string"}});
             return node;
         });
     }

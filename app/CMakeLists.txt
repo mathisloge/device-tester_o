@@ -63,8 +63,8 @@ set(GUI_SRC
     src/gui/windows/data_flow_editor.cpp
 
     src/gui/data_flow/data_flow_graph.cpp
-    src/gui/data_flow/node.cpp
     src/gui/data_flow/slot.cpp
+    src/gui/data_flow/ui_node.cpp
 )
 
 add_library(gps-tester STATIC

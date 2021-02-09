@@ -3,60 +3,28 @@
 #include <imnodes.h>
 namespace gui::df
 {
-    Slot::Slot(const std::string &name, const std::string &datatype)
-        : id_{slot_id_counter++},
-          name_{name},
-          datatype_{datatype}
+
+    BaseSlot::BaseSlot(const std::string &name)
+        : name_{name}
+    {
+    }
+    void BaseSlot::operator()()
     {
     }
 
-    int Slot::id() const
+    void BaseSlot::vertexDesc(const int vertex_desc)
     {
-        return id_;
-    }
-    
-    bool Slot::canConnectWith(const Slot &rhs) const
-    {
-        return datatype_ == rhs.datatype_;
+        vertex_desc_ = vertex_desc;
     }
 
-    void Slot::drawSlot()
+    int BaseSlot::vertexDesc() const
     {
-        begin();
-        drawContent();
-        end();
+        return vertex_desc_;
     }
 
-    void Slot::drawContent()
+    void BaseSlot::draw()
     {
         ImGui::Text(name_.c_str());
     }
 
-    //========= INPUT SLOT =========
-    InputSlot::InputSlot(const std::string &name, const std::string &datatype)
-        : Slot{name, datatype}
-    {
-    }
-    void InputSlot::begin()
-    {
-        imnodes::BeginInputAttribute(id_);
-    }
-    void InputSlot::end()
-    {
-        imnodes::EndInputAttribute();
-    }
-
-    //========= OUTPUT SLOT =========
-    OutputSlot::OutputSlot(const std::string &name, const std::string &datatype)
-        : Slot{name, datatype}
-    {
-    }
-    void OutputSlot::begin()
-    {
-        imnodes::BeginOutputAttribute(id_);
-    }
-    void OutputSlot::end()
-    {
-        imnodes::EndOutputAttribute();
-    }
 } // namespace gui::df
