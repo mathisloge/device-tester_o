@@ -3,13 +3,23 @@
 #include <vector>
 #include <string>
 #include <functional>
+#include <boost/graph/adjacency_list.hpp>
 
 #include "node.hpp"
 namespace gui::df
 {
+    struct VertexInfo
+    {
+    };
     class DataFlowGraph final
     {
     public:
+        using Graph = boost::adjacency_list<boost::vecS,
+                                            boost::vecS,
+                                            boost::directedS,
+                                            VertexInfo, 
+                                            boost::property<boost::edge_index_t, int>>;
+
         using NodePtr = std::shared_ptr<Node>;
         using NodeFactoryFnc = std::function<NodePtr()>;
         using NodeContainer = std::map<int, NodePtr>;
@@ -28,5 +38,7 @@ namespace gui::df
         std::map<std::string, NodeFactoryFnc> node_factories_;
         NodeContainer nodes_;
         std::vector<std::pair<int, int>> connections_;
+
+        Graph graph_;
     };
 } // namespace gui::df

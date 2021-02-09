@@ -8,7 +8,7 @@ project(DeviceTester
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 find_package(spdlog CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
-find_package(Boost REQUIRED)
+find_package(Boost REQUIRED COMPONENTS graph)
 
 add_library(imgui-club INTERFACE)
 target_include_directories(imgui-club INTERFACE imgui_club/imgui_memory_editor)

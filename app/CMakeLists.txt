@@ -87,6 +87,7 @@ endif()
 target_compile_definitions(gps-tester PUBLIC ${COMPILE_DEFS})
 target_link_libraries(gps-tester PUBLIC 
     Boost::headers
+    Boost::graph
     spdlog::spdlog
     imgui::imgui
     implot::implot
