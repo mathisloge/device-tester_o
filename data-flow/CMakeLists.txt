@@ -2,9 +2,15 @@ project(DataFlow)
 
 find_package(Boost REQUIRED COMPONENTS graph)
 
+include(GenerateExportHeader)
+
 set_directory_properties(PROPERTIES CORRADE_USE_PEDANTIC_FLAGS ON)
 
-add_library(DataFlow SHARED
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
+
+add_library(DataFlow STATIC
+    src/gui.cpp
     src/data_flow_graph.cpp
     src/graph_impl.cpp
     src/types.cpp
@@ -17,10 +23,16 @@ add_library(DataFlow SHARED
     src/nodes/timer_node.cpp
 )
 add_library(devicetester::dataflow ALIAS DataFlow)
+generate_export_header(DataFlow)
 
 target_link_libraries(DataFlow PUBLIC 
     Boost::headers
     Boost::graph
+)
+
+target_link_libraries(DataFlow PRIVATE
+    imgui::imgui
+    imgui::imnodes
 )
 
 set_property(TARGET DataFlow PROPERTY CXX_STANDARD 20)
@@ -29,4 +41,5 @@ target_include_directories(
     DataFlow PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/include>
+    $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
 )

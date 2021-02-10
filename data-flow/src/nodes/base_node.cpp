@@ -1,5 +1,6 @@
 #include "data-flow/nodes/base_node.hpp"
-
+#include <imgui.h>
+#include <imnodes.h>
 namespace dt::df
 {
 
@@ -7,9 +8,11 @@ namespace dt::df
     {
     public:
         explicit Impl(const NodeId id,
+                      const std::string &title,
                       Slots &&inputs,
                       Slots &&outputs)
             : id_{id},
+              title_{title},
               inputs_{std::move(inputs)},
               outputs_{std::move(outputs)}
         {
@@ -17,6 +20,7 @@ namespace dt::df
 
     private:
         const NodeId id_;
+        const std::string title_;
         const Slots inputs_;
         const Slots outputs_;
 
@@ -24,9 +28,39 @@ namespace dt::df
     };
 
     BaseNode::BaseNode(const NodeId id,
+                       const std::string &title,
                        Slots &&inputs,
                        Slots &&outputs)
-        : impl_{new BaseNode::Impl{id, std::forward<Slots>(inputs), std::forward<Slots>(outputs)}}
+        : impl_{new BaseNode::Impl{id, title, std::forward<Slots>(inputs), std::forward<Slots>(outputs)}}
+    {
+    }
+
+    void BaseNode::render()
+    {
+        imnodes::BeginNode(impl_->id_);
+        imnodes::BeginNodeTitleBar();
+        ImGui::TextUnformatted(impl_->title_.c_str());
+        imnodes::EndNodeTitleBar();
+
+        for (auto &slot : impl_->inputs_)
+        {
+            imnodes::BeginInputAttribute(slot->id());
+            slot->render();
+            imnodes::EndInputAttribute();
+        }
+
+        renderCustomContent();
+
+        for (auto &slot : impl_->outputs_)
+        {
+            imnodes::BeginOutputAttribute(slot->id());
+            slot->render();
+            imnodes::EndOutputAttribute();
+        }
+        imnodes::EndNode();
+    }
+
+    void BaseNode::renderCustomContent()
     {
     }
 
@@ -60,7 +94,7 @@ namespace dt::df
             return slot->id() == id;
         });
 
-        if (slot_it == impl_->inputs_.end())
+        if (slot_it == impl_->outputs_.end())
             return nullptr;
         return *slot_it;
     }

@@ -1,6 +1,7 @@
 #include "app.hpp"
 #include <implot.h>
 #include <imnodes.h>
+#include <data-flow/gui.hpp>
 using namespace Magnum;
 
 namespace gui
@@ -13,6 +14,8 @@ namespace gui
 
         ImGui::CreateContext();
         ImPlot::CreateContext();
+
+        dt::df::InitDataflow(ImGui::GetCurrentContext());
         auto &imgui_io = ImGui::GetIO();
         {
             imnodes::Initialize();

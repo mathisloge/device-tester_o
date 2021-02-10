@@ -61,10 +61,6 @@ set(GUI_SRC
     src/gui/windows/tcp_connection_win.cpp
     src/gui/windows/udp_connection_win.cpp
     src/gui/windows/data_flow_editor.cpp
-
-    src/gui/data_flow/data_flow_graph.cpp
-    src/gui/data_flow/slot.cpp
-    src/gui/data_flow/ui_node.cpp
 )
 
 add_library(gps-tester STATIC
@@ -100,6 +96,7 @@ target_link_libraries(gps-tester PUBLIC
     MagnumIntegration::ImGui
     nlohmann_json nlohmann_json::nlohmann_json
     plugin::protocol
+    devicetester::dataflow
 )
 
 add_executable(gps-tester-app 

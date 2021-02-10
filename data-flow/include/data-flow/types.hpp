@@ -1,9 +1,11 @@
 #pragma once
 #include <string>
 #include <memory>
+#include <atomic>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/signals2.hpp>
 #include "nodes/base_node.hpp"
+#include "dataflow_export.h"
 namespace dt::df
 {
     enum class VertexType
@@ -14,14 +16,13 @@ namespace dt::df
     };
     struct VertexInfo
     {
-        NodeId parent_id; //! -1 when type == VertexType::node
         int id;
+        NodeId parent_id; //! -1 when type == VertexType::node
         VertexType type;
-        std::string title;
     };
 
     using EdgeId = int;
-    struct EdgeInfo
+    struct DATAFLOW_EXPORT EdgeInfo
     {
         EdgeId id;
         boost::signals2::connection connection;
@@ -44,6 +45,7 @@ namespace dt::df
     using EdgeDesc = Graph::edge_descriptor;
 
     using NodePtr = std::shared_ptr<BaseNode>;
-    using NodeFactory = std::function<NodePtr(NodeId)>;
-
+    using NodeIdGenerator = std::atomic_int;
+    using SlotIdGenerator = std::atomic_int;
+    using NodeFactory = std::function<NodePtr(NodeIdGenerator &, SlotIdGenerator &)>;
 } // namespace dt::df

@@ -4,6 +4,7 @@
 #include "data-flow/slots/int_slot.hpp"
 #include <thread>
 #include <chrono>
+#include <imgui.h>
 namespace dt::df
 {
     class TimerNode::Impl final
@@ -11,7 +12,8 @@ namespace dt::df
     public:
         explicit Impl(std::shared_ptr<IntSlot> int_slot,
                       std::shared_ptr<TriggerSlot> trigger_slot)
-            : int_slot_{int_slot},
+            : key_{kNodeKey},
+              int_slot_{int_slot},
               trigger_slot_{trigger_slot},
               timer_freq_{100},
               running_{true},
@@ -42,6 +44,8 @@ namespace dt::df
         }
 
     private:
+        friend TimerNode;
+        const NodeKey key_;
         std::shared_ptr<IntSlot> int_slot_;
         std::shared_ptr<TriggerSlot> trigger_slot_;
         int timer_freq_;
@@ -53,13 +57,23 @@ namespace dt::df
     TimerNode::TimerNode(const NodeId id,
                          const SlotId input_timer_id,
                          const SlotId output_trigger_id)
-        : BaseNode{id,
-                   Slots{std::make_shared<IntSlot>(input_timer_id)},
-                   Slots{std::make_shared<TriggerSlot>(output_trigger_id)}},
+        : BaseNode{id, "Timer",
+                   Slots{std::make_shared<IntSlot>(input_timer_id, SlotType::input)},
+                   Slots{std::make_shared<TriggerSlot>(output_trigger_id, SlotType::output)}},
           impl_{new TimerNode::Impl{
               std::dynamic_pointer_cast<IntSlot>(inputs()[0]),
               std::dynamic_pointer_cast<TriggerSlot>(outputs()[0])}}
     {
+    }
+
+    const NodeKey &TimerNode::key() const
+    {
+        return impl_->key_;
+    }
+
+    void TimerNode::renderCustomContent()
+    {
+        ImGui::Text("in milliseconds");
     }
 
     TimerNode::~TimerNode()

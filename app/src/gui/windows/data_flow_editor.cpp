@@ -1,7 +1,7 @@
 #include "data_flow_editor.hpp"
 #include <spdlog/spdlog.h>
 #include <imgui.h>
-
+#include <data-flow/nodes/timer_node.hpp>
 namespace gui
 {
 
@@ -12,20 +12,7 @@ namespace gui
         flags_ = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
         refreshProtocols();
 
-        data_flow_graph_.registerNodeFactory("test", [](int vertex_id) {
-            auto node = std::make_shared<df::UiNode>(
-                vertex_id, "Test",
-                df::UiNode::Slots{df::BaseSlot{"Int"}, df::BaseSlot{"string"}},
-                df::UiNode::Slots{df::BaseSlot{"Int"}, df::BaseSlot{"string"}});
-            return node;
-        });
-        data_flow_graph_.registerNodeFactory("test2", [](int vertex_id) {
-            auto node = std::make_shared<df::UiNode>(
-                vertex_id, "Test2",
-                df::UiNode::Slots{df::BaseSlot{"Int"}, df::BaseSlot{"string"}},
-                df::UiNode::Slots{df::BaseSlot{"Int"}, df::BaseSlot{"string"}});
-            return node;
-        });
+        data_flow_graph_.registerBuildinNodes();
     }
 
     void DataFlowEditor::drawContent()
@@ -36,13 +23,9 @@ namespace gui
             if (ImGui::Button("Refresh protocols", ImVec2{kSidebarWidth, 0}))
                 refreshProtocols();
 
-            if (ImGui::Button("ADD TEST NDOE"))
+            if (ImGui::Button("ADD TIMER NDOE"))
             {
-                data_flow_graph_.addNode("test");
-            }
-            if (ImGui::Button("ADD TEST NDOE2"))
-            {
-                data_flow_graph_.addNode("test2");
+                data_flow_graph_.addNode(dt::df::TimerNode::kNodeKey);
             }
 
             if (ImGui::TreeNode("Protocols"))
@@ -59,12 +42,24 @@ namespace gui
             imnodes::BeginNodeEditor();
             handleDnD();
 
-            data_flow_graph_.drawNodes();
-            data_flow_graph_.drawLinks();
+            data_flow_graph_.render();
 
             imnodes::EndNodeEditor();
-            data_flow_graph_.addPendingConnections();
-            data_flow_graph_.deletePendingConnections();
+            { // add pending connections
+                int started_at_attribute_id;
+                int ended_at_attribute_id;
+                if (imnodes::IsLinkCreated(&started_at_attribute_id, &ended_at_attribute_id))
+                {
+                    data_flow_graph_.addEdge(started_at_attribute_id, ended_at_attribute_id);
+                }
+            }
+            { // delete connection
+                int link_id;
+                if (imnodes::IsLinkDestroyed(&link_id))
+                {
+                    data_flow_graph_.removeEdge(link_id);
+                }
+            }
 
             {
                 const int num_selected = imnodes::NumSelectedNodes();

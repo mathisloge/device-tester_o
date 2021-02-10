@@ -1,7 +1,70 @@
 #include "graph_impl.hpp"
 #include <cassert>
+#include <imnodes.h>
 namespace dt::df
 {
+
+    void GraphImpl::registerNodeFactory(const NodeKey &key, NodeFactory &&factory)
+    {
+        node_factories_.emplace(key, std::forward<NodeFactory>(factory));
+    }
+
+    void GraphImpl::createNode(const NodeKey &key)
+    {
+        auto factory_fnc_it = node_factories_.find(key);
+        if (factory_fnc_it == node_factories_.end())
+            throw std::out_of_range("node factory not found");
+
+        auto node = factory_fnc_it->second(vertex_id_counter_, vertex_id_counter_);
+        nodes_.emplace(node->id(), node);
+
+        const auto node_vertex = addVertex(0, node->id(), -1, VertexType::node);
+
+        for (auto &slot : node->inputs())
+            addVertex(node_vertex, slot->id(), node->id(), VertexType::input);
+
+        for (auto &slot : node->outputs())
+            addVertex(node_vertex, slot->id(), node->id(), VertexType::output);
+    }
+
+    void GraphImpl::removeNode(const NodeId id)
+    {
+        auto node_it = nodes_.find(id);
+        if (node_it == nodes_.end())
+            return;
+
+        try
+        {
+            // remove node
+            auto node_vertex = findVertexById(id);
+            boost::clear_vertex(node_vertex, graph_);
+        }
+        catch (const std::out_of_range &)
+        {
+            //! \todo add logger
+        }
+
+        removeNodeSlots(node_it->second->inputs());
+        removeNodeSlots(node_it->second->outputs());
+
+        nodes_.erase(node_it);
+    }
+
+    VertexDesc GraphImpl::addVertex(const VertexDesc node_desc, const int id, const int parent_id, VertexType type)
+    {
+        VertexInfo info{id, parent_id, type};
+        const auto vertex_desc = boost::add_vertex(std::move(info), graph_);
+        if (type != VertexType::node)
+        {
+            EdgeInfo edge_info{link_id_counter_++};
+            if (type == VertexType::input)
+                boost::add_edge(vertex_desc, node_desc, std::move(edge_info), graph_);
+            else if (type == VertexType::output)
+                boost::add_edge(node_desc, vertex_desc, std::move(edge_info), graph_);
+        }
+        return vertex_desc;
+    }
+
     void GraphImpl::addEdge(const VertexDesc from, const VertexDesc to)
     {
         assert(("from needs to be an output", graph_[from].type == VertexType::output));
@@ -34,6 +97,27 @@ namespace dt::df
         boost::add_edge(from, to, std::move(egde_prop), graph_);
     }
 
+    void GraphImpl::removeEdge(const EdgeId id)
+    {
+        boost::graph_traits<Graph>::vertex_iterator vi, vi_end;
+        for (boost::tie(vi, vi_end) = boost::vertices(graph_); vi != vi_end; ++vi)
+        {
+            if (graph_[*vi].type == VertexType::output)
+            {
+                auto edges = boost::out_edges(*vi, graph_);
+                for (auto eeit = edges.first; eeit != edges.second; ++eeit)
+                {
+                    const auto edge_prop = boost::get(EdgeInfo_t(), graph_, *eeit);
+                    if (edge_prop.id == id)
+                    {
+                        boost::remove_edge(*eeit, graph_);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
     VertexDesc GraphImpl::findVertexById(const NodeId id) const
     {
         boost::graph_traits<Graph>::vertex_iterator vi, vi_end;
@@ -43,5 +127,44 @@ namespace dt::df
                 return *vi;
         }
         throw std::out_of_range("vertex with id not found");
+    }
+
+    void GraphImpl::removeNodeSlots(const Slots &slots)
+    {
+        for (const auto &slot : slots)
+        {
+            boost::graph_traits<Graph>::vertex_iterator vi, vi_end, next;
+            boost::tie(vi, vi_end) = boost::vertices(graph_);
+            for (next = vi; vi != vi_end; vi = next)
+            {
+                ++next;
+                if (graph_[*vi].id == slot->id())
+                    boost::clear_vertex(*vi, graph_);
+            }
+        }
+    }
+
+    void GraphImpl::renderNodes()
+    {
+        for (auto &node : nodes_)
+        {
+            node.second->render();
+        }
+    }
+    void GraphImpl::renderLinks()
+    {
+        boost::graph_traits<Graph>::vertex_iterator vi, vi_end;
+        for (boost::tie(vi, vi_end) = boost::vertices(graph_); vi != vi_end; ++vi)
+        {
+            if (graph_[*vi].type == VertexType::output)
+            {
+                const auto output_it = boost::out_edges(*vi, graph_);
+                for (auto eeit = output_it.first; eeit != output_it.second; ++eeit)
+                {
+                    const auto edge_prop = boost::get(EdgeInfo_t(), graph_, *eeit);
+                    imnodes::Link(edge_prop.id, graph_[*vi].id, graph_[boost::target(*eeit, graph_)].id);
+                }
+            }
+        }
     }
 } // namespace dt::df

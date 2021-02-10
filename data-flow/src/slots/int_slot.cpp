@@ -1,10 +1,11 @@
 #pragma once
 #include "data-flow/slots/int_slot.hpp"
+#include <imgui.h>
 
 namespace dt::df
 {
-    IntSlot::IntSlot(const SlotId id)
-        : BaseSlot{id},
+    IntSlot::IntSlot(const SlotId id, const SlotType type)
+        : BaseSlot{id, type},
           value_{0}
     {
     }
@@ -27,5 +28,18 @@ namespace dt::df
     int IntSlot::value() const
     {
         return value_;
+    }
+
+    void IntSlot::render()
+    {
+        
+        if (!hasConnection())
+        {
+            ImGui::SetNextItemWidth(100);
+            if (ImGui::InputInt("Value", &value_))
+            {
+                valueChanged();
+            }
+        }
     }
 } // namespace dt::df
