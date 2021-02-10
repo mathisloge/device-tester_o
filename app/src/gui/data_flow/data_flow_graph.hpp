@@ -9,12 +9,10 @@
 #include "ui_node.hpp"
 namespace gui::df
 {
-   
+
     class DataFlowGraph final
     {
     public:
-       
-
         using NodePtr = std::shared_ptr<UiNode>;
         using NodeFactoryFnc = std::function<NodePtr(int)>;
         using NodeContainer = std::map<int, NodePtr>;
@@ -27,7 +25,12 @@ namespace gui::df
         void drawLinks();
         void addPendingConnections();
         void deletePendingConnections();
+        void removeNode(const int vertex_id);
         ~DataFlowGraph();
+
+    private:
+        VertexDesc findVertex(const int vertex_id);
+        void deleteNodeSlots(const UiNode::Slots &slots);
 
     private:
         std::map<std::string, NodeFactoryFnc> node_factories_;
@@ -36,5 +39,6 @@ namespace gui::df
         Graph graph_;
 
         std::atomic_int link_id_counter_;
+        std::atomic_int vertex_id_counter_;
     };
 } // namespace gui::df

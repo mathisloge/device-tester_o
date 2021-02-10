@@ -66,6 +66,20 @@ namespace gui
             data_flow_graph_.addPendingConnections();
             data_flow_graph_.deletePendingConnections();
 
+            {
+                const int num_selected = imnodes::NumSelectedNodes();
+                if (num_selected > 0 && ImGui::IsKeyReleased(ImGuiKey_Delete))
+                {
+                    static std::vector<int> selected_nodes;
+                    selected_nodes.resize(static_cast<size_t>(num_selected));
+                    imnodes::GetSelectedNodes(selected_nodes.data());
+                    for (const int node_id : selected_nodes)
+                    {
+                        data_flow_graph_.removeNode(node_id);
+                    }
+                }
+            }
+
             ImGui::EndChild();
         }
     }

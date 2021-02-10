@@ -12,22 +12,23 @@ namespace gui::df
     {
         if (auto it = node_factories_.find(key); it != node_factories_.end())
         {
-            VertexInfo node_info{VertexType::node};
+            VertexInfo node_info{vertex_id_counter_++, VertexType::node};
             const auto vertex_id = boost::add_vertex(node_info, graph_);
-            auto node = it->second(vertex_id);
+            auto node = it->second(node_info.id);
 
             for (auto &slot : node->inputs())
             {
-                VertexInfo info{VertexType::input};
+                VertexInfo info{vertex_id_counter_++, VertexType::input};
                 const auto slot_vertex_id = boost::add_vertex(info, graph_);
-                slot.vertexDesc(slot_vertex_id);
+                slot.id(info.id);
                 boost::add_edge(slot_vertex_id, vertex_id, EdgeProperty(link_id_counter_++), graph_);
             }
             for (auto &slot : node->outputs())
             {
-                VertexInfo info{VertexType::output};
+                VertexInfo info{vertex_id_counter_++, VertexType::output};
                 const auto slot_vertex_id = boost::add_vertex(info, graph_);
-                slot.vertexDesc(slot_vertex_id);
+
+                slot.id(info.id);
                 boost::add_edge(vertex_id, slot_vertex_id, EdgeProperty(link_id_counter_++), graph_);
             }
 
@@ -50,17 +51,16 @@ namespace gui::df
 
     void DataFlowGraph::drawLinks()
     {
-        for (const auto &node : nodes_)
+        boost::graph_traits<Graph>::vertex_iterator vi, vi_end;
+        for (boost::tie(vi, vi_end) = boost::vertices(graph_); vi != vi_end; ++vi)
         {
-            const auto output_it = boost::out_edges(node.first, graph_);
-
-            for (auto eit = output_it.first; eit != output_it.second; ++eit)
+            if (graph_[*vi].type == VertexType::output)
             {
-                const auto output_link_it = boost::out_edges(boost::target(*eit, graph_), graph_);
-                for (auto eeit = output_link_it.first; eeit != output_link_it.second; ++eeit)
+                const auto output_it = boost::out_edges(*vi, graph_);
+                for (auto eeit = output_it.first; eeit != output_it.second; ++eeit)
                 {
                     const auto edge_index = boost::get(boost::edge_index, graph_, *eeit);
-                    imnodes::Link(edge_index, boost::source(*eeit, graph_), boost::target(*eeit, graph_));
+                    imnodes::Link(edge_index, *vi, boost::target(*eeit, graph_));
                 }
             }
         }
@@ -81,14 +81,13 @@ namespace gui::df
         int link_id;
         if (imnodes::IsLinkDestroyed(&link_id))
         {
-            for (const auto &node : nodes_)
+            boost::graph_traits<Graph>::vertex_iterator vi, vi_end;
+            for (boost::tie(vi, vi_end) = boost::vertices(graph_); vi != vi_end; ++vi)
             {
-                const auto output_it = boost::out_edges(node.first, graph_);
-
-                for (auto eit = output_it.first; eit != output_it.second; ++eit)
+                if (graph_[*vi].type == VertexType::output)
                 {
-                    const auto output_link_it = boost::out_edges(boost::target(*eit, graph_), graph_);
-                    for (auto eeit = output_link_it.first; eeit != output_link_it.second; ++eeit)
+                    auto edges = boost::out_edges(*vi, graph_);
+                    for (auto eeit = edges.first; eeit != edges.second; ++eeit)
                     {
                         const auto edge_index = boost::get(boost::edge_index, graph_, *eeit);
                         if (edge_index == link_id)
@@ -98,6 +97,55 @@ namespace gui::df
                         }
                     }
                 }
+            }
+        }
+    }
+
+    void DataFlowGraph::removeNode(const int vertex_id)
+    {
+        auto node_it = nodes_.find(vertex_id);
+        if (node_it == nodes_.end())
+            return;
+
+        try
+        {
+            // remove node
+            auto node_vertex = findVertex(vertex_id);
+            boost::clear_vertex(node_vertex, graph_);
+        }
+        catch (const std::out_of_range &ex)
+        {
+            //! \todo add logger
+        }
+
+        deleteNodeSlots(node_it->second->inputs());
+        deleteNodeSlots(node_it->second->outputs());
+
+        nodes_.erase(node_it);
+    }
+
+    VertexDesc DataFlowGraph::findVertex(const int vertex_id)
+    {
+        boost::graph_traits<Graph>::vertex_iterator vi, vi_end;
+        for (boost::tie(vi, vi_end) = boost::vertices(graph_); vi != vi_end; ++vi)
+        {
+            if (graph_[*vi].id == vertex_id)
+                return *vi;
+        }
+        throw std::out_of_range("vertex id not found");
+    }
+
+    void DataFlowGraph::deleteNodeSlots(const UiNode::Slots &slots)
+    {
+        for (const auto &slot : slots)
+        {
+            boost::graph_traits<Graph>::vertex_iterator vi, vi_end, next;
+            boost::tie(vi, vi_end) = boost::vertices(graph_);
+            for (next = vi; vi != vi_end; vi = next)
+            {
+                ++next;
+                if (graph_[*vi].id == slot.id())
+                    boost::clear_vertex(*vi, graph_);
             }
         }
     }

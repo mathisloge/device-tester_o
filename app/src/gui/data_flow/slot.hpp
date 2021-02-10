@@ -7,13 +7,13 @@ namespace gui::df
     {
     public:
         explicit BaseSlot(const std::string &name);
-        void vertexDesc(const int vertex_desc);
-        int vertexDesc() const;
+        void id(const int id);
+        int id() const;
         virtual void operator()();
         virtual void draw();
 
     private:
-    const std::string name_;
-        int vertex_desc_;
+        const std::string name_;
+        int id_;
     };
 } // namespace gui::df

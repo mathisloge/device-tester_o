@@ -3,11 +3,11 @@
 #include <imnodes.h>
 namespace gui::df
 {
-    UiNode::UiNode(const int vertex_desc,
+    UiNode::UiNode(const int vertex_id,
                    const std::string &title,
                    const Slots &inputs,
                    const Slots &outputs)
-        : vertex_desc_{vertex_desc},
+        : vertex_id_{vertex_id},
           inputs_{inputs},
           outputs_{outputs},
           title_{title}
@@ -16,14 +16,14 @@ namespace gui::df
 
     void UiNode::draw(const Graph &g)
     {
-        imnodes::BeginNode(vertex_desc_);
+        imnodes::BeginNode(vertex_id_);
         imnodes::BeginNodeTitleBar();
         ImGui::TextUnformatted(title_.c_str());
         imnodes::EndNodeTitleBar();
 
         for (auto &slot : inputs_)
         {
-            imnodes::BeginInputAttribute(slot.vertexDesc());
+            imnodes::BeginInputAttribute(slot.id());
             slot.draw();
             imnodes::EndInputAttribute();
         }
@@ -32,7 +32,7 @@ namespace gui::df
 
         for (auto &slot : outputs_)
         {
-            imnodes::BeginOutputAttribute(slot.vertexDesc());
+            imnodes::BeginOutputAttribute(slot.id());
             slot.draw();
             imnodes::EndOutputAttribute();
         }

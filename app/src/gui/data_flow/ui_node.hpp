@@ -12,7 +12,7 @@ namespace gui::df
         using Slots = std::vector<BaseSlot>;
 
     public:
-        explicit UiNode(const int vertex_desc,
+        explicit UiNode(const int vertex_id,
                         const std::string &title,
                         const Slots &inputs,
                         const Slots &outputs);
@@ -21,7 +21,7 @@ namespace gui::df
         Slots &outputs();
 
     private:
-        const int vertex_desc_;
+        const int vertex_id_;
         const std::string title_;
         Slots inputs_;
         Slots outputs_;

@@ -12,14 +12,14 @@ namespace gui::df
     {
     }
 
-    void BaseSlot::vertexDesc(const int vertex_desc)
+    void BaseSlot::id(const int id)
     {
-        vertex_desc_ = vertex_desc;
+        id_ = id;
     }
 
-    int BaseSlot::vertexDesc() const
+    int BaseSlot::id() const
     {
-        return vertex_desc_;
+        return id_;
     }
 
     void BaseSlot::draw()
