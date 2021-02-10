@@ -28,6 +28,7 @@ if(BUILD_TESTING)
 endif()
 
 add_subdirectory(nmea)
+add_subdirectory(data-flow)
 add_subdirectory(plugins)
 add_subdirectory(app)
 
