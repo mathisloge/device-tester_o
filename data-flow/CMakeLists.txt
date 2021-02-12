@@ -9,11 +9,12 @@ set_directory_properties(PROPERTIES CORRADE_USE_PEDANTIC_FLAGS ON)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
-add_library(DataFlow STATIC
+add_library(DataFlow SHARED
     src/gui.cpp
     src/data_flow_graph.cpp
     src/data_flow_editor.cpp
     src/graph_impl.cpp
+    src/id_generator.cpp
     src/priv_types.cpp
     
     src/slots/core/base_slot.cpp

@@ -13,13 +13,13 @@ namespace dt::df
     void DataFlowGraph::registerBuildinNodes()
     {
         registerNode(TimerNode::kNodeKey, [](NodeIdGenerator &node_id, SlotIdGenerator &slot_id) {
-            return std::make_shared<TimerNode>(node_id++, slot_id++, slot_id++);
+            return std::make_shared<TimerNode>(node_id(), slot_id(), slot_id());
         });
         registerNode(ColorNode::kNodeKey, [](NodeIdGenerator &node_id, SlotIdGenerator &slot_id) {
-            return std::make_shared<ColorNode>(node_id++, slot_id++, slot_id++, slot_id++, slot_id++);
+            return std::make_shared<ColorNode>(node_id(), slot_id(), slot_id(), slot_id(), slot_id());
         });
         registerNode(operators::Division::kNodeKey, [](NodeIdGenerator &node_id, SlotIdGenerator &slot_id) {
-            return std::make_shared<operators::Division>(node_id++, slot_id++, slot_id++, slot_id++);
+            return std::make_shared<operators::Division>(node_id(), slot_id(), slot_id(), slot_id());
         });
     }
 

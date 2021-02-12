@@ -28,8 +28,8 @@ namespace dt::df
         void reevaluateSlot(SlotId slot);
     private:
         Graph graph_;
-        std::atomic_int link_id_counter_;
-        std::atomic_int vertex_id_counter_;
+        IdGenerator link_id_counter_;
+        IdGenerator vertex_id_counter_;
         std::unordered_map<NodeKey, NodeFactory> node_factories_;
         std::unordered_map<NodeId, NodePtr> nodes_;
 

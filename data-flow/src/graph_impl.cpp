@@ -71,7 +71,7 @@ namespace dt::df
         const auto vertex_desc = boost::add_vertex(std::move(info), graph_);
         if (type != VertexType::node)
         {
-            EdgeInfo edge_info{link_id_counter_++, nullptr};
+            EdgeInfo edge_info{link_id_counter_(), nullptr};
             if (type == VertexType::input)
                 boost::add_edge(vertex_desc, node_desc, std::move(edge_info), graph_);
             else if (type == VertexType::output)
@@ -110,7 +110,7 @@ namespace dt::df
             BaseSlot::ValueChangedSignal::slot_type(std::bind(&BaseSlot::accept, input_slot.get(), std::placeholders::_1))
                 .track_foreign(input_slot));
 
-        const EdgeInfo egde_prop{link_id_counter_++, std::make_shared<RefCon>(std::move(connection))};
+        const EdgeInfo egde_prop{link_id_counter_(), std::make_shared<RefCon>(std::move(connection))};
         boost::add_edge(from, to, std::move(egde_prop), graph_);
     }
 
