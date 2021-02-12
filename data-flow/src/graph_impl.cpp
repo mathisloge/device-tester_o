@@ -188,16 +188,28 @@ namespace dt::df
     {
         while (run_evaluation_)
         {
-            SlotPtr slot;
-            evaluation_queue_.pop_back(&slot);
-            if (slot)
+            SlotId slot_id;
+            evaluation_queue_.pop_back(&slot_id);
+            auto vertex = findVertexById(slot_id);
+            const auto &info = graph_[vertex];
+            if (auto it = nodes_.find(graph_[vertex].parent_id); it != nodes_.end())
             {
-                slot->valueChanged();
+                SlotPtr slot = nullptr;
+                if (info.type == VertexType::input)
+                {
+                    slot = it->second->inputs(slot_id);
+                }
+                else if (info.type == VertexType::output)
+                {
+                    slot = it->second->outputs(slot_id);
+                }
+                if (slot)
+                    slot->valueChanged();
             }
         }
     }
 
-    void GraphImpl::reevaluateSlot(SlotPtr slot)
+    void GraphImpl::reevaluateSlot(SlotId slot)
     {
         //! \todo we need to detect circles!
         evaluation_queue_.push_front(slot);

@@ -5,11 +5,11 @@
 #include "dataflow_export.h"
 namespace dt::df
 {
-    class DATAFLOW_EXPORT BaseSlot : public std::enable_shared_from_this<BaseSlot>
+    class DATAFLOW_EXPORT BaseSlot
     {
     public:
         using ValueChangedSignal = boost::signals2::signal<void()>;
-        using EvaluationSignal = boost::signals2::signal<void(std::shared_ptr<BaseSlot>)>;
+        using EvaluationSignal = boost::signals2::signal<void(SlotId)>;
 
     public:
         explicit BaseSlot(const SlotId id, const SlotType type, SlotFieldVisibility visibility_rule = SlotFieldVisibility::without_connection);

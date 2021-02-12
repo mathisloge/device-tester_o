@@ -80,7 +80,7 @@ namespace dt::df
 
     void BaseSlot::needsReevaluation()
     {
-        impl_->evaluation_changed_sig_(shared_from_this());
+        impl_->evaluation_changed_sig_(impl_->id_);
     }
 
     BaseSlot::~BaseSlot()

@@ -26,7 +26,7 @@ namespace dt::df
         VertexDesc addVertex(const VertexDesc node_desc, const int id, const int parent_id, VertexType type);
         void removeNodeSlots(const Slots &slots);
         void evaluationTask();
-        void reevaluateSlot(SlotPtr slot);
+        void reevaluateSlot(SlotId slot);
     private:
         Graph graph_;
         std::atomic_int link_id_counter_;
@@ -37,6 +37,6 @@ namespace dt::df
 
         bool run_evaluation_;
         std::thread evaluation_thread_;
-        bounded_buffer<SlotPtr> evaluation_queue_;
+        bounded_buffer<SlotId> evaluation_queue_;
     };
 } // namespace dt::df
