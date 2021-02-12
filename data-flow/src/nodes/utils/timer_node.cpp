@@ -1,5 +1,5 @@
 #pragma once
-#include "data-flow/nodes/timer_node.hpp"
+#include "data-flow/nodes/utils/timer_node.hpp"
 #include "data-flow/slots/trigger_slot.hpp"
 #include "data-flow/slots/int_slot.hpp"
 #include <thread>
@@ -12,15 +12,14 @@ namespace dt::df
     public:
         explicit Impl(std::shared_ptr<IntSlot> int_slot,
                       std::shared_ptr<TriggerSlot> trigger_slot)
-            : key_{kNodeKey},
-              int_slot_{int_slot},
+            : int_slot_{int_slot},
               trigger_slot_{trigger_slot},
               timer_freq_{100},
               running_{true},
               timer_thread_{std::bind(&Impl::timerThreadFnc, this)}
         {
-            int_slot_->subscribe([this]() {
-                timer_freq_ = int_slot_->value();
+            int_slot_->subscribe([this](const BaseSlot *) {
+                timer_freq_ = int_slot_->valueInt();
             });
         }
         ~Impl()
@@ -39,7 +38,7 @@ namespace dt::df
             {
                 auto now = std::chrono::system_clock::now();
                 std::this_thread::sleep_until(now + std::chrono::milliseconds(timer_freq_));
-                trigger_slot_->valueChanged();
+                trigger_slot_->trigger();
             }
         }
 
@@ -57,23 +56,13 @@ namespace dt::df
     TimerNode::TimerNode(const NodeId id,
                          const SlotId input_timer_id,
                          const SlotId output_trigger_id)
-        : BaseNode{id, "Timer",
-                   Slots{std::make_shared<IntSlot>(input_timer_id, SlotType::input)},
-                   Slots{std::make_shared<TriggerSlot>(output_trigger_id, SlotType::output)}},
+        : BaseNode{id, "Timer", kNodeKey,
+                   Slots{std::make_shared<IntSlot>(input_timer_id, SlotType::input, "milliseconds")},
+                   Slots{std::make_shared<TriggerSlot>(output_trigger_id, SlotType::output, "trigger", SlotFieldVisibility::never)}},
           impl_{new TimerNode::Impl{
               std::dynamic_pointer_cast<IntSlot>(inputs()[0]),
               std::dynamic_pointer_cast<TriggerSlot>(outputs()[0])}}
     {
-    }
-
-    const NodeKey &TimerNode::key() const
-    {
-        return impl_->key_;
-    }
-
-    void TimerNode::renderCustomContent()
-    {
-        ImGui::Text("in milliseconds");
     }
 
     TimerNode::~TimerNode()

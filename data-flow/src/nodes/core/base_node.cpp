@@ -1,4 +1,4 @@
-#include "data-flow/nodes/base_node.hpp"
+#include "data-flow/nodes/core/base_node.hpp"
 #include <imgui.h>
 #include <imnodes.h>
 namespace dt::df
@@ -8,10 +8,12 @@ namespace dt::df
     {
     public:
         explicit Impl(const NodeId id,
+                      const NodeKey &key,
                       const std::string &title,
                       Slots &&inputs,
                       Slots &&outputs)
             : id_{id},
+              key_{key},
               title_{title},
               inputs_{std::move(inputs)},
               outputs_{std::move(outputs)}
@@ -20,6 +22,7 @@ namespace dt::df
 
     private:
         const NodeId id_;
+        const NodeKey key_;
         const std::string title_;
         const Slots inputs_;
         const Slots outputs_;
@@ -28,11 +31,17 @@ namespace dt::df
     };
 
     BaseNode::BaseNode(const NodeId id,
+                       const NodeKey &key,
                        const std::string &title,
                        Slots &&inputs,
                        Slots &&outputs)
-        : impl_{new BaseNode::Impl{id, title, std::forward<Slots>(inputs), std::forward<Slots>(outputs)}}
+        : impl_{new BaseNode::Impl{id, key, title, std::forward<Slots>(inputs), std::forward<Slots>(outputs)}}
     {
+    }
+
+    const NodeKey &BaseNode::key() const
+    {
+        return impl_->key_;
     }
 
     void BaseNode::render()
@@ -78,7 +87,7 @@ namespace dt::df
         return impl_->outputs_;
     }
 
-    const SlotPtr &BaseNode::inputs(const SlotId id) const
+    SlotPtr BaseNode::inputs(const SlotId id) const
     {
         auto slot_it = std::find_if(impl_->inputs_.begin(), impl_->inputs_.end(), [id](const auto &slot) {
             return slot->id() == id;
@@ -88,7 +97,7 @@ namespace dt::df
             return nullptr;
         return *slot_it;
     }
-    const SlotPtr &BaseNode::outputs(const SlotId id) const
+    SlotPtr BaseNode::outputs(const SlotId id) const
     {
         auto slot_it = std::find_if(impl_->outputs_.begin(), impl_->outputs_.end(), [id](const auto &slot) {
             return slot->id() == id;

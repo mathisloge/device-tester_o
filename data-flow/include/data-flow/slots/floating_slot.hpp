@@ -3,20 +3,19 @@
 #include "dataflow_export.h"
 namespace dt::df
 {
-    class DATAFLOW_EXPORT IntSlot final : public NumberSlot
+    class DATAFLOW_EXPORT FloatingSlot final : public NumberSlot
     {
     public:
         using NumberSlot::NumberSlot;
         double value() const override;
-        int valueInt() const;
-        ~IntSlot() = default;
+        void accept(double value) override;
+        ~FloatingSlot() = default;
 
     private:
-        void accept(double value) override;
         bool renderField() override;
         void renderValue() override;
 
     private:
-        int value_ = 0;
+        double value_ = 0;
     };
 } // namespace dt::df

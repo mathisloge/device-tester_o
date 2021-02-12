@@ -1,8 +1,9 @@
 #pragma once
+#include <string>
 namespace dt::df
 {
     using SlotId = int;
-
+    using SlotName = std::string;
     enum class SlotType
     {
         input,

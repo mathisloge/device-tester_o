@@ -106,10 +106,11 @@ namespace dt::df
         if (!output_slot->canConnect(input_slot.get()))
             return;
 
-        const auto egde_prop = EdgeInfo{link_id_counter_++,
-                                        std::make_shared<RefCon>(output_slot->subscribe([output_slot, input_slot]() {
-                                            input_slot->accept(output_slot.get());
-                                        }))};
+        auto connection = output_slot->subscribe(
+            BaseSlot::ValueChangedSignal::slot_type(std::bind(&BaseSlot::accept, input_slot.get(), std::placeholders::_1))
+                .track_foreign(input_slot));
+
+        const EdgeInfo egde_prop{link_id_counter_++, std::make_shared<RefCon>(std::move(connection))};
         boost::add_edge(from, to, std::move(egde_prop), graph_);
     }
 

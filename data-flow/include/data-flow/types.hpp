@@ -3,7 +3,7 @@
 #include <memory>
 #include <atomic>
 
-#include "nodes/base_node.hpp"
+#include "nodes/core/base_node.hpp"
 namespace dt::df
 {
     using EdgeId = int;

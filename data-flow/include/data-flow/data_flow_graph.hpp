@@ -1,6 +1,5 @@
 #pragma once
 #include <functional>
-#include "nodes/base_node.hpp"
 #include "types.hpp"
 #include "dataflow_export.h"
 namespace dt::df

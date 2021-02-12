@@ -1,6 +1,8 @@
 #include "data-flow/data_flow_graph.hpp"
 #include "graph_impl.hpp"
-#include "data-flow/nodes/timer_node.hpp"
+#include "data-flow/nodes/utils/timer_node.hpp"
+#include "data-flow/nodes/interaction/color_node.hpp"
+#include "data-flow/nodes/operators/division.hpp"
 namespace dt::df
 {
     DataFlowGraph::DataFlowGraph()
@@ -12,6 +14,12 @@ namespace dt::df
     {
         registerNode(TimerNode::kNodeKey, [](NodeIdGenerator &node_id, SlotIdGenerator &slot_id) {
             return std::make_shared<TimerNode>(node_id++, slot_id++, slot_id++);
+        });
+        registerNode(ColorNode::kNodeKey, [](NodeIdGenerator &node_id, SlotIdGenerator &slot_id) {
+            return std::make_shared<ColorNode>(node_id++, slot_id++, slot_id++, slot_id++, slot_id++);
+        });
+        registerNode(operators::Division::kNodeKey, [](NodeIdGenerator &node_id, SlotIdGenerator &slot_id) {
+            return std::make_shared<operators::Division>(node_id++, slot_id++, slot_id++, slot_id++);
         });
     }
 

@@ -4,43 +4,27 @@
 
 namespace dt::df
 {
-    IntSlot::IntSlot(const SlotId id, const SlotType type, SlotFieldVisibility visibility_rule)
-        : BaseSlot{id, type, visibility_rule},
-          value_{0}
-    {
-    }
 
-    void IntSlot::accept(const BaseSlot *slot)
-    {
-        auto input_slot = dynamic_cast<const IntSlot *>(slot);
-        if (input_slot)
-        {
-            value_ = input_slot->value();
-            needsReevaluation();
-        }
-    }
-
-    bool IntSlot::canConnect(const BaseSlot *const slot) const
-    {
-        return dynamic_cast<const IntSlot *const>(slot);
-    }
-
-    int IntSlot::value() const
+    double IntSlot::value() const
     {
         return value_;
     }
 
-    void IntSlot::render()
+    int IntSlot::valueInt() const
     {
-        if (showField())
-        {
-            ImGui::SetNextItemWidth(100);
-            if (ImGui::InputInt("Value", &value_))
-            {
-                needsReevaluation();
-            }
-        } else {
-            ImGui::Value("Value", value_);
-        }
+        return value_;
+    }
+
+    void IntSlot::accept(double value)
+    {
+        value_ = static_cast<int>(value);
+    }
+    bool IntSlot::renderField()
+    {
+        return ImGui::InputInt(name().c_str(), &value_);
+    }
+    void IntSlot::renderValue()
+    {
+        ImGui::Value(name().c_str(), value_);
     }
 } // namespace dt::df

@@ -1,12 +1,12 @@
-#include "data-flow/slots/base_slot.hpp"
-
+#include "data-flow/slots/core/base_slot.hpp"
+#include <iostream>
 namespace dt::df
 {
     class BaseSlot::Impl final
     {
     public:
-        explicit Impl(const SlotId id, const SlotType type, SlotFieldVisibility visibility_rule)
-            : id_{id}, type_{type}, visibility_rule_{visibility_rule}
+        explicit Impl(const SlotId id, const SlotType type, const SlotName &name, SlotFieldVisibility visibility_rule)
+            : id_{id}, type_{type}, name_{name}, visibility_rule_{visibility_rule}
         {
         }
         ~Impl()
@@ -16,6 +16,7 @@ namespace dt::df
     private:
         const SlotId id_;
         const SlotType type_;
+        const SlotName name_;
         SlotFieldVisibility visibility_rule_;
         ValueChangedSignal value_changed_sig_;
         EvaluationSignal evaluation_changed_sig_;
@@ -23,8 +24,8 @@ namespace dt::df
         friend BaseSlot;
     };
 
-    BaseSlot::BaseSlot(const SlotId id, const SlotType type, SlotFieldVisibility visibility_rule)
-        : impl_{new BaseSlot::Impl{id, type, visibility_rule}}
+    BaseSlot::BaseSlot(const SlotId id, const SlotType type, const SlotName &name, SlotFieldVisibility visibility_rule)
+        : impl_{new BaseSlot::Impl{id, type, name, visibility_rule}}
     {
     }
 
@@ -38,6 +39,11 @@ namespace dt::df
         return impl_->type_;
     }
 
+    const SlotName &BaseSlot::name() const
+    {
+        return impl_->name_;
+    }
+
     boost::signals2::connection BaseSlot::subscribe(const ValueChangedSignal::slot_type &sub)
     {
         return impl_->value_changed_sig_.connect(sub);
@@ -45,13 +51,12 @@ namespace dt::df
 
     void BaseSlot::valueChanged()
     {
-        impl_->value_changed_sig_();
+        impl_->value_changed_sig_(this);
     }
 
     bool BaseSlot::hasConnection() const
     {
-        // when type_ == input, we got one connection to the node vertex
-        return impl_->value_changed_sig_.num_slots() > 1;
+        return impl_->value_changed_sig_.num_slots() > 0;
     }
 
     void BaseSlot::render()
@@ -69,8 +74,8 @@ namespace dt::df
 
     bool BaseSlot::showField() const
     {
-        return impl_->visibility_rule_ == SlotFieldVisibility::always ||
-               !(hasConnection() && impl_->visibility_rule_ == SlotFieldVisibility::without_connection);
+        return impl_->visibility_rule_ != SlotFieldVisibility::never && (impl_->visibility_rule_ == SlotFieldVisibility::always ||
+                                                                           !(hasConnection() && impl_->visibility_rule_ == SlotFieldVisibility::without_connection));
     }
 
     boost::signals2::connection BaseSlot::connectEvaluation(const EvaluationSignal::slot_type &sub)

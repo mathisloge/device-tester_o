@@ -1,8 +1,8 @@
 #include "data_flow_editor.hpp"
 #include <spdlog/spdlog.h>
 #include <imgui.h>
-#include <data-flow/nodes/timer_node.hpp>
-#include <data-flow/nodes/slot_node.hpp>
+#include <data-flow/nodes/utils/timer_node.hpp>
+#include <data-flow/nodes/core/base_node.hpp>
 #include <data-flow/slots/int_slot.hpp>
 #include "../data-flow/led.hpp"
 namespace gui
@@ -18,11 +18,13 @@ namespace gui
         df_editor_.graph().registerBuildinNodes();
 
         df_editor_.graph().registerNode("int-node", [](dt::df::NodeIdGenerator &node_id, dt::df::SlotIdGenerator &slot_id) {
-            return std::make_shared<dt::df::SlotNode>(node_id++, "int-node", "INT", dt::df::Slots{std::make_shared<dt::df::IntSlot>(slot_id++, dt::df::SlotType::output, dt::df::SlotFieldVisibility::always)});
+            return std::make_shared<dt::df::BaseNode>(node_id++, "int-node", "INT",
+                                                      dt::df::Slots{},
+                                                      dt::df::Slots{std::make_shared<dt::df::IntSlot>(slot_id++, dt::df::SlotType::output, "int", dt::df::SlotFieldVisibility::always)});
         });
 
         df_editor_.graph().registerNode(LED::kNodeKey, [](dt::df::NodeIdGenerator &node_id, dt::df::SlotIdGenerator &slot_id) {
-            return std::make_shared<LED>(node_id++, slot_id++);
+            return std::make_shared<LED>(node_id++, slot_id++, slot_id++, slot_id++, slot_id++, slot_id++, slot_id++);
         });
     }
 
@@ -38,6 +40,12 @@ namespace gui
             {
                 df_editor_.graph().addNode(dt::df::TimerNode::kNodeKey);
             }
+            if (ImGui::Button("ADD COLOR NODE"))
+            {
+                df_editor_.graph().addNode("color-node");
+            }
+            if (ImGui::Button("ADD DIV NODE"))
+                df_editor_.graph().addNode("division-op-node");
 
             if (ImGui::Button("ADD INT NODE"))
             {

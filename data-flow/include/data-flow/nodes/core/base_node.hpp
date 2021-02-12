@@ -7,19 +7,22 @@ namespace dt::df
     {
     public:
         explicit BaseNode(const NodeId id,
+                          const NodeKey &key,
                           const std::string &title,
                           Slots &&inputs,
                           Slots &&outputs);
 
+        NodeId id() const;
+        const NodeKey &key() const;
         virtual void render();
 
-        virtual const NodeKey &key() const = 0;
-        NodeId id() const;
         const Slots &inputs() const;
         const Slots &outputs() const;
-        const SlotPtr &inputs(const SlotId id) const;
-        const SlotPtr &outputs(const SlotId id) const;
+        SlotPtr inputs(const SlotId id) const;
+        SlotPtr outputs(const SlotId id) const;
         virtual ~BaseNode();
+        BaseNode(const BaseNode &) = delete;
+        BaseNode &operator=(const BaseNode &) = delete;
 
     protected:
         virtual void renderCustomContent();

@@ -9,20 +9,23 @@ set_directory_properties(PROPERTIES CORRADE_USE_PEDANTIC_FLAGS ON)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
-add_library(DataFlow SHARED
+add_library(DataFlow STATIC
     src/gui.cpp
     src/data_flow_graph.cpp
     src/data_flow_editor.cpp
     src/graph_impl.cpp
     src/priv_types.cpp
     
-    src/slots/base_slot.cpp
+    src/slots/core/base_slot.cpp
+    src/slots/core/number_slot.cpp
     src/slots/int_slot.cpp
+    src/slots/floating_slot.cpp
     src/slots/trigger_slot.cpp
 
-    src/nodes/base_node.cpp
-    src/nodes/timer_node.cpp
-    src/nodes/slot_node.cpp
+    src/nodes/core/base_node.cpp
+    src/nodes/utils/timer_node.cpp
+    src/nodes/interaction/color_node.cpp
+    src/nodes/operators/division.cpp
 )
 add_library(devicetester::dataflow ALIAS DataFlow)
 generate_export_header(DataFlow)

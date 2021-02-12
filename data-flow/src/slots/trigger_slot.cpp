@@ -3,9 +3,17 @@
 #include <imgui.h>
 namespace dt::df
 {
-    TriggerSlot::TriggerSlot(const SlotId id, const SlotType type, SlotFieldVisibility visibility_rule)
-        : BaseSlot{id, type, visibility_rule}
+    TriggerSlot::TriggerSlot(const SlotId id,
+                             const SlotType type,
+                             const SlotName &name,
+                             SlotFieldVisibility visibility_rule)
+        : BaseSlot{id, type, name, visibility_rule}
     {
+    }
+
+    void TriggerSlot::trigger()
+    {
+        needsReevaluation();
     }
 
     void TriggerSlot::accept(const BaseSlot *slot)
@@ -13,7 +21,7 @@ namespace dt::df
         auto input_slot = dynamic_cast<const TriggerSlot *>(slot);
         if (input_slot)
         {
-            valueChanged();
+            needsReevaluation();
         }
     }
 
@@ -26,12 +34,12 @@ namespace dt::df
     {
         if (showField())
         {
-            if (ImGui::SmallButton("trigger"))
+            if (ImGui::SmallButton(name().c_str()))
                 needsReevaluation();
         }
         else
         {
-            ImGui::Text("trigger");
+            ImGui::Text(name().c_str());
         }
     }
 } // namespace dt::df
