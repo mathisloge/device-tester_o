@@ -53,7 +53,6 @@ LED::LED(const dt::df::NodeId id,
 void LED::renderCustomContent()
 {
     const auto expired = std::chrono::system_clock::now() - tp_;
-    const ImU32 col = color_;
     const ImVec2 p = ImGui::GetCursorScreenPos();
     const float size = 36.f;
     ImDrawList *draw_list = ImGui::GetWindowDrawList();
