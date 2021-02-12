@@ -2,9 +2,18 @@
 #include "graph_impl.hpp"
 #include "data-flow/nodes/utils/timer_node.hpp"
 #include "data-flow/nodes/interaction/color_node.hpp"
-#include "data-flow/nodes/operators/division.hpp"
+#include "data-flow/nodes/operators/standard_ops.hpp"
 namespace dt::df
 {
+
+    template <typename TSimpleOp>
+    void registerSimpleOp(DataFlowGraph &fg)
+    {
+        fg.registerNode(TSimpleOp::kNodeKey, [](NodeIdGenerator &node_id, SlotIdGenerator &slot_id) {
+            return std::make_shared<TSimpleOp>(node_id(), slot_id(), slot_id(), slot_id());
+        });
+    }
+
     DataFlowGraph::DataFlowGraph()
         : impl_{new GraphImpl()}
     {
@@ -18,9 +27,11 @@ namespace dt::df
         registerNode(ColorNode::kNodeKey, [](NodeIdGenerator &node_id, SlotIdGenerator &slot_id) {
             return std::make_shared<ColorNode>(node_id(), slot_id(), slot_id(), slot_id(), slot_id());
         });
-        registerNode(operators::Division::kNodeKey, [](NodeIdGenerator &node_id, SlotIdGenerator &slot_id) {
-            return std::make_shared<operators::Division>(node_id(), slot_id(), slot_id(), slot_id());
-        });
+
+        registerSimpleOp<operators::Division>(*this);
+        registerSimpleOp<operators::Multiplication>(*this);
+        registerSimpleOp<operators::Addition>(*this);
+        registerSimpleOp<operators::Subtraction>(*this);
     }
 
     void DataFlowGraph::registerNode(const NodeKey &key, NodeFactory &&factory)

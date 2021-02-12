@@ -1,8 +1,8 @@
-#include "data-flow/nodes/operators/division.hpp"
+#include "data-flow/nodes/operators/simple_op.hpp"
 #include "data-flow/slots/floating_slot.hpp"
 namespace dt::df::operators
 {
-    class Division::Impl final
+    class SimpleOp::Impl final
     {
     public:
         Impl()
@@ -10,13 +10,8 @@ namespace dt::df::operators
         {
         }
 
-        void calc()
+        void setResult(const double res)
         {
-            if (std::abs(in_b) < std::numeric_limits<double>::epsilon())
-            {
-               result_slot->setValue(std::numeric_limits<double>::infinity());
-            }
-            const double res = in_a / in_b;
             result_slot->setValue(res);
         }
 
@@ -25,15 +20,17 @@ namespace dt::df::operators
         std::shared_ptr<NumberSlot> result_slot;
     };
 
-    Division::Division(const NodeId id,
-                       const SlotId in_a,
-                       const SlotId in_b,
-                       const SlotId out_res)
-        : BaseNode{id, kNodeKey, "division",
+    SimpleOp::SimpleOp(const NodeId id,
+                       const NodeKey &key,
+                       const std::string &title,
+                       const SlotId in_a, const std::string &in_a_name,
+                       const SlotId in_b, const std::string &in_b_name,
+                       const SlotId out_res, const std::string &result_name)
+        : BaseNode{id, key, title,
                    Slots{
-                       std::make_shared<FloatingSlot>(in_a, SlotType::input, "dividend"),
-                       std::make_shared<FloatingSlot>(in_b, SlotType::input, "divisor")},
-                   Slots{std::make_shared<FloatingSlot>(out_res, SlotType::output, "result")}},
+                       std::make_shared<FloatingSlot>(in_a, SlotType::input, in_a_name),
+                       std::make_shared<FloatingSlot>(in_b, SlotType::input, in_b_name)},
+                   Slots{std::make_shared<FloatingSlot>(out_res, SlotType::output, result_name)}},
           impl_{new Impl{}}
     {
         impl_->result_slot = std::dynamic_pointer_cast<NumberSlot>(outputs()[0]);
@@ -43,7 +40,7 @@ namespace dt::df::operators
             if (in_slot)
             {
                 impl_->in_a = in_slot->value();
-                impl_->calc();
+                impl_->setResult(calc(impl_->in_a, impl_->in_b));
             }
         });
         inputs()[1]->subscribe([this](const BaseSlot *slot) {
@@ -51,12 +48,12 @@ namespace dt::df::operators
             if (in_slot)
             {
                 impl_->in_b = in_slot->value();
-                impl_->calc();
+                impl_->setResult(calc(impl_->in_a, impl_->in_b));
             }
         });
     }
 
-    Division::~Division()
+    SimpleOp::~SimpleOp()
     {
         delete impl_;
     }

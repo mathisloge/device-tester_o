@@ -45,7 +45,7 @@ namespace gui
                 df_editor_.graph().addNode("color-node");
             }
             if (ImGui::Button("ADD DIV NODE"))
-                df_editor_.graph().addNode("division-op-node");
+                df_editor_.graph().addNode("Division-op-node");
 
             if (ImGui::Button("ADD INT NODE"))
             {
