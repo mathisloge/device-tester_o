@@ -16,7 +16,7 @@ namespace dt::df
         if (input_slot)
         {
             value_ = input_slot->value();
-            valueChanged();
+            needsReevaluation();
         }
     }
 
@@ -37,7 +37,7 @@ namespace dt::df
             ImGui::SetNextItemWidth(100);
             if (ImGui::InputInt("Value", &value_))
             {
-                valueChanged();
+                needsReevaluation();
             }
         } else {
             ImGui::Value("Value", value_);

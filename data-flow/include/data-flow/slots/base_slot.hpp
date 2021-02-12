@@ -1,13 +1,15 @@
 #pragma once
 #include "slot_types.hpp"
+#include <memory>
 #include <boost/signals2.hpp>
 #include "dataflow_export.h"
 namespace dt::df
 {
-    class DATAFLOW_EXPORT BaseSlot
+    class DATAFLOW_EXPORT BaseSlot : public std::enable_shared_from_this<BaseSlot>
     {
     public:
         using ValueChangedSignal = boost::signals2::signal<void()>;
+        using EvaluationSignal = boost::signals2::signal<void(std::shared_ptr<BaseSlot>)>;
 
     public:
         explicit BaseSlot(const SlotId id, const SlotType type, SlotFieldVisibility visibility_rule = SlotFieldVisibility::without_connection);
@@ -26,7 +28,10 @@ namespace dt::df
         void visibility_rule(SlotFieldVisibility visibility_rule);
         virtual ~BaseSlot();
 
+        boost::signals2::connection connectEvaluation(const EvaluationSignal::slot_type &sub);
+
     protected:
+        void needsReevaluation();
         bool showField() const;
 
     private:

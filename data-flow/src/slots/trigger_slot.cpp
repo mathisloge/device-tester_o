@@ -27,7 +27,7 @@ namespace dt::df
         if (showField())
         {
             if (ImGui::SmallButton("trigger"))
-                valueChanged();
+                needsReevaluation();
         }
         else
         {

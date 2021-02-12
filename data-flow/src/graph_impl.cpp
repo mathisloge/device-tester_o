@@ -4,6 +4,12 @@
 namespace dt::df
 {
 
+    GraphImpl::GraphImpl()
+        : run_evaluation_{true},
+          evaluation_thread_{std::bind(&GraphImpl::evaluationTask, this)},
+          evaluation_queue_{200}
+    {
+    }
     void GraphImpl::registerNodeFactory(const NodeKey &key, NodeFactory &&factory)
     {
         node_factories_.emplace(key, std::forward<NodeFactory>(factory));
@@ -17,6 +23,15 @@ namespace dt::df
 
         auto node = factory_fnc_it->second(vertex_id_counter_, vertex_id_counter_);
         nodes_.emplace(node->id(), node);
+
+        for (auto &slot : node->inputs())
+        {
+            slot->connectEvaluation(std::bind(&GraphImpl::reevaluateSlot, this, std::placeholders::_1));
+        }
+        for (auto &slot : node->outputs())
+        {
+            slot->connectEvaluation(std::bind(&GraphImpl::reevaluateSlot, this, std::placeholders::_1));
+        }
 
         const auto node_vertex = addVertex(0, node->id(), -1, VertexType::node);
 
@@ -91,7 +106,8 @@ namespace dt::df
         if (!output_slot->canConnect(input_slot.get()))
             return;
 
-        const auto egde_prop = EdgeInfo{link_id_counter_++, std::make_shared<RefCon>(output_slot->subscribe([output_slot, input_slot]() {
+        const auto egde_prop = EdgeInfo{link_id_counter_++,
+                                        std::make_shared<RefCon>(output_slot->subscribe([output_slot, input_slot]() {
                                             input_slot->accept(output_slot.get());
                                         }))};
         boost::add_edge(from, to, std::move(egde_prop), graph_);
@@ -166,5 +182,31 @@ namespace dt::df
                 }
             }
         }
+    }
+
+    void GraphImpl::evaluationTask()
+    {
+        while (run_evaluation_)
+        {
+            SlotPtr slot;
+            evaluation_queue_.pop_back(&slot);
+            if (slot)
+            {
+                slot->valueChanged();
+            }
+        }
+    }
+
+    void GraphImpl::reevaluateSlot(SlotPtr slot)
+    {
+        //! \todo we need to detect circles!
+        evaluation_queue_.push_front(slot);
+    }
+
+    GraphImpl::~GraphImpl()
+    {
+        run_evaluation_ = false;
+        if (evaluation_thread_.joinable())
+            evaluation_thread_.join();
     }
 } // namespace dt::df
