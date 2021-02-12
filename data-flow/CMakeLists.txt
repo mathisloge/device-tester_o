@@ -9,11 +9,12 @@ set_directory_properties(PROPERTIES CORRADE_USE_PEDANTIC_FLAGS ON)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
-add_library(DataFlow STATIC
+add_library(DataFlow SHARED
     src/gui.cpp
     src/data_flow_graph.cpp
+    src/data_flow_editor.cpp
     src/graph_impl.cpp
-    src/types.cpp
+    src/priv_types.cpp
     
     src/slots/base_slot.cpp
     src/slots/int_slot.cpp
@@ -28,10 +29,10 @@ generate_export_header(DataFlow)
 target_link_libraries(DataFlow PUBLIC 
     Boost::headers
     Boost::graph
+    imgui::imgui
 )
 
 target_link_libraries(DataFlow PRIVATE
-    imgui::imgui
     imgui::imnodes
 )
 

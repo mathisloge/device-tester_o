@@ -1,5 +1,5 @@
 #pragma once
-#include "data-flow/types.hpp"
+#include "priv_types.hpp"
 #include "data-flow/nodes/node_types.hpp"
 #include <unordered_map>
 #include <atomic>
@@ -17,6 +17,7 @@ namespace dt::df
 
         void renderNodes();
         void renderLinks();
+
     private:
         VertexDesc addVertex(const VertexDesc node_desc, const int id, const int parent_id, VertexType type);
         void removeNodeSlots(const Slots &slots);

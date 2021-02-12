@@ -1,4 +1,4 @@
-#include "data-flow/types.hpp"
+#include "priv_types.hpp"
 
 namespace dt::df
 {

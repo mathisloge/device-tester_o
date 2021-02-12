@@ -3,7 +3,7 @@
 #include <ImNodes.h>
 #include "base_window.hpp"
 #include "../../protocols/protocol_loader.hpp"
-#include <data-flow/data_flow_graph.hpp>
+#include <data-flow/data_flow_editor.hpp>
 
 namespace gui
 {
@@ -21,6 +21,6 @@ namespace gui
     private:
         protocol::ProtocolLoader &proto_loader_;
         std::vector<std::string> protocol_names_;
-        dt::df::DataFlowGraph data_flow_graph_;
+        dt::df::DataFlowEditor df_editor_;
     };
 } // namespace gui

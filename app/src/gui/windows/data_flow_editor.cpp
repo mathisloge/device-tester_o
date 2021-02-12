@@ -12,7 +12,7 @@ namespace gui
         flags_ = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
         refreshProtocols();
 
-        data_flow_graph_.registerBuildinNodes();
+        df_editor_.graph().registerBuildinNodes();
     }
 
     void DataFlowEditor::drawContent()
@@ -25,7 +25,7 @@ namespace gui
 
             if (ImGui::Button("ADD TIMER NDOE"))
             {
-                data_flow_graph_.addNode(dt::df::TimerNode::kNodeKey);
+                df_editor_.graph().addNode(dt::df::TimerNode::kNodeKey);
             }
 
             if (ImGui::TreeNode("Protocols"))
@@ -39,41 +39,8 @@ namespace gui
         // content window
         {
             ImGui::BeginChild("data flow canvas view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()));
-            imnodes::BeginNodeEditor();
-            handleDnD();
 
-            data_flow_graph_.render();
-
-            imnodes::EndNodeEditor();
-            { // add pending connections
-                int started_at_attribute_id;
-                int ended_at_attribute_id;
-                if (imnodes::IsLinkCreated(&started_at_attribute_id, &ended_at_attribute_id))
-                {
-                    data_flow_graph_.addEdge(started_at_attribute_id, ended_at_attribute_id);
-                }
-            }
-            { // delete connection
-                int link_id;
-                if (imnodes::IsLinkDestroyed(&link_id))
-                {
-                    data_flow_graph_.removeEdge(link_id);
-                }
-            }
-
-            {
-                const int num_selected = imnodes::NumSelectedNodes();
-                if (num_selected > 0 && ImGui::IsKeyReleased(ImGuiKey_Delete))
-                {
-                    static std::vector<int> selected_nodes;
-                    selected_nodes.resize(static_cast<size_t>(num_selected));
-                    imnodes::GetSelectedNodes(selected_nodes.data());
-                    for (const int node_id : selected_nodes)
-                    {
-                        data_flow_graph_.removeNode(node_id);
-                    }
-                }
-            }
+            df_editor_.render();
 
             ImGui::EndChild();
         }

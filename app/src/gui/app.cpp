@@ -169,5 +169,6 @@ namespace gui
     {
         ImPlot::DestroyContext();
         imnodes::Shutdown();
+        dt::df::ShutdownDataflow();
     }
 } // namespace gui

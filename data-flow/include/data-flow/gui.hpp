@@ -7,4 +7,5 @@
 namespace dt::df
 {
     void DATAFLOW_EXPORT InitDataflow(ImGuiContext *imgui_ctx);
+    void DATAFLOW_EXPORT ShutdownDataflow();
 } // namespace dt::df

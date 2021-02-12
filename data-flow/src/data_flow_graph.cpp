@@ -33,17 +33,14 @@ namespace dt::df
         {
             auto from_vert = impl_->findVertexById(from);
             auto to_vert = impl_->findVertexById(to);
-            addEdge(from_vert, to_vert);
+            impl_->addEdge(from_vert, to_vert);
         }
         catch (const std::out_of_range &)
         {
             //! \todo we need to log the error
         }
     }
-    void DataFlowGraph::addEdge(const VertexDesc from, const VertexDesc to)
-    {
-        impl_->addEdge(from, to);
-    }
+
     void DataFlowGraph::removeEdge(const EdgeId id)
     {
         impl_->removeEdge(id);
