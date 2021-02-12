@@ -10,7 +10,7 @@ namespace dt::df
         using ValueChangedSignal = boost::signals2::signal<void()>;
 
     public:
-        explicit BaseSlot(const SlotId id, const SlotType type);
+        explicit BaseSlot(const SlotId id, const SlotType type, SlotFieldVisibility visibility_rule = SlotFieldVisibility::without_connection);
         SlotId id() const;
         SlotType type() const;
         // will be called as an input
@@ -22,7 +22,12 @@ namespace dt::df
         void valueChanged();
         boost::signals2::connection subscribe(const ValueChangedSignal::slot_type &sub);
         bool hasConnection() const;
+        SlotFieldVisibility visibility_rule() const;
+        void visibility_rule(SlotFieldVisibility visibility_rule);
         virtual ~BaseSlot();
+
+    protected:
+        bool showField() const;
 
     private:
         class Impl;

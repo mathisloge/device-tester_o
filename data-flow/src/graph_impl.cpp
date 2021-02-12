@@ -56,7 +56,7 @@ namespace dt::df
         const auto vertex_desc = boost::add_vertex(std::move(info), graph_);
         if (type != VertexType::node)
         {
-            EdgeInfo edge_info{link_id_counter_++};
+            EdgeInfo edge_info{link_id_counter_++, nullptr};
             if (type == VertexType::input)
                 boost::add_edge(vertex_desc, node_desc, std::move(edge_info), graph_);
             else if (type == VertexType::output)
@@ -91,9 +91,9 @@ namespace dt::df
         if (!output_slot->canConnect(input_slot.get()))
             return;
 
-        const auto egde_prop = EdgeInfo{link_id_counter_++, output_slot->subscribe([output_slot, input_slot]() {
+        const auto egde_prop = EdgeInfo{link_id_counter_++, std::make_shared<RefCon>(output_slot->subscribe([output_slot, input_slot]() {
                                             input_slot->accept(output_slot.get());
-                                        })};
+                                        }))};
         boost::add_edge(from, to, std::move(egde_prop), graph_);
     }
 
@@ -107,7 +107,7 @@ namespace dt::df
                 auto edges = boost::out_edges(*vi, graph_);
                 for (auto eeit = edges.first; eeit != edges.second; ++eeit)
                 {
-                    const auto edge_prop = boost::get(EdgeInfo_t(), graph_, *eeit);
+                    const auto &edge_prop = boost::get(EdgeInfo_t(), graph_, *eeit);
                     if (edge_prop.id == id)
                     {
                         boost::remove_edge(*eeit, graph_);
@@ -161,7 +161,7 @@ namespace dt::df
                 const auto output_it = boost::out_edges(*vi, graph_);
                 for (auto eeit = output_it.first; eeit != output_it.second; ++eeit)
                 {
-                    const auto edge_prop = boost::get(EdgeInfo_t(), graph_, *eeit);
+                    const auto &edge_prop = boost::get(EdgeInfo_t(), graph_, *eeit);
                     imnodes::Link(edge_prop.id, graph_[*vi].id, graph_[boost::target(*eeit, graph_)].id);
                 }
             }

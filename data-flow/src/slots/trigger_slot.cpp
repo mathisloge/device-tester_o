@@ -3,8 +3,8 @@
 #include <imgui.h>
 namespace dt::df
 {
-    TriggerSlot::TriggerSlot(const SlotId id, const SlotType type)
-        : BaseSlot{id, type}
+    TriggerSlot::TriggerSlot(const SlotId id, const SlotType type, SlotFieldVisibility visibility_rule)
+        : BaseSlot{id, type, visibility_rule}
     {
     }
 
@@ -24,6 +24,14 @@ namespace dt::df
 
     void TriggerSlot::render()
     {
-        ImGui::Text("trigger");
+        if (showField())
+        {
+            if (ImGui::SmallButton("trigger"))
+                valueChanged();
+        }
+        else
+        {
+            ImGui::Text("trigger");
+        }
     }
 } // namespace dt::df

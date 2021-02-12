@@ -2,6 +2,8 @@
 #include <spdlog/spdlog.h>
 #include <imgui.h>
 #include <data-flow/nodes/timer_node.hpp>
+#include <data-flow/nodes/slot_node.hpp>
+#include <data-flow/slots/int_slot.hpp>
 namespace gui
 {
 
@@ -13,6 +15,10 @@ namespace gui
         refreshProtocols();
 
         df_editor_.graph().registerBuildinNodes();
+
+        df_editor_.graph().registerNode("int-node", [](dt::df::NodeIdGenerator &node_id, dt::df::SlotIdGenerator &slot_id) {
+            return std::make_shared<dt::df::SlotNode>(node_id++, "int-node", "INT", dt::df::Slots{std::make_shared<dt::df::IntSlot>(slot_id++, dt::df::SlotType::output, dt::df::SlotFieldVisibility::always)});
+        });
     }
 
     void DataFlowEditor::drawContent()
@@ -26,6 +32,11 @@ namespace gui
             if (ImGui::Button("ADD TIMER NDOE"))
             {
                 df_editor_.graph().addNode(dt::df::TimerNode::kNodeKey);
+            }
+
+            if (ImGui::Button("ADD INT NDOE"))
+            {
+                df_editor_.graph().addNode("int-node");
             }
 
             if (ImGui::TreeNode("Protocols"))

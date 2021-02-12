@@ -8,4 +8,11 @@ namespace dt::df
         input,
         output
     };
+
+    enum class SlotFieldVisibility
+    {
+        never,
+        without_connection,
+        always
+    };
 } // namespace dt::df

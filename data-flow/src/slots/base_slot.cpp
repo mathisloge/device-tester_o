@@ -2,11 +2,11 @@
 
 namespace dt::df
 {
-    class BaseSlot::Impl
+    class BaseSlot::Impl final
     {
     public:
-        explicit Impl(const SlotId id, const SlotType type)
-            : id_{id}, type_{type}
+        explicit Impl(const SlotId id, const SlotType type, SlotFieldVisibility visibility_rule)
+            : id_{id}, type_{type}, visibility_rule_{visibility_rule}
         {
         }
         ~Impl()
@@ -16,13 +16,14 @@ namespace dt::df
     private:
         const SlotId id_;
         const SlotType type_;
+        SlotFieldVisibility visibility_rule_;
         ValueChangedSignal value_changed_sig_;
 
         friend BaseSlot;
     };
 
-    BaseSlot::BaseSlot(const SlotId id, const SlotType type)
-        : impl_{new BaseSlot::Impl{id, type}}
+    BaseSlot::BaseSlot(const SlotId id, const SlotType type, SlotFieldVisibility visibility_rule)
+        : impl_{new BaseSlot::Impl{id, type, visibility_rule}}
     {
     }
 
@@ -49,11 +50,26 @@ namespace dt::df
     bool BaseSlot::hasConnection() const
     {
         // when type_ == input, we got one connection to the node vertex
-        return impl_->value_changed_sig_.num_slots() > (impl_->type_ == SlotType::input ? 1 : 0);
+        return impl_->value_changed_sig_.num_slots() > 0;
     }
 
     void BaseSlot::render()
     {
+    }
+
+    SlotFieldVisibility BaseSlot::visibility_rule() const
+    {
+        return impl_->visibility_rule_;
+    }
+    void BaseSlot::visibility_rule(SlotFieldVisibility visibility_rule)
+    {
+        impl_->visibility_rule_ = visibility_rule;
+    }
+
+    bool BaseSlot::showField() const
+    {
+        return impl_->visibility_rule_ == SlotFieldVisibility::always ||
+               !(hasConnection() && impl_->visibility_rule_ == SlotFieldVisibility::without_connection);
     }
 
     BaseSlot::~BaseSlot()

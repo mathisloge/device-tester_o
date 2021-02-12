@@ -2,8 +2,9 @@
 
 namespace dt::df
 {
-    EdgeInfo::~EdgeInfo()
+    RefCon::~RefCon()
     {
         connection.disconnect();
     }
+
 } // namespace dt::df

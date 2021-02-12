@@ -6,7 +6,7 @@ namespace dt::df
     class DATAFLOW_EXPORT IntSlot final : public BaseSlot
     {
     public:
-        explicit IntSlot(const SlotId id, const SlotType type);
+        explicit IntSlot(const SlotId id, const SlotType type, SlotFieldVisibility visibility_rule = SlotFieldVisibility::without_connection);
         void accept(const BaseSlot *slot) override;
         bool canConnect(const BaseSlot *const slot) const override;
         int value() const;

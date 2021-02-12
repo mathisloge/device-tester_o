@@ -4,8 +4,8 @@
 
 namespace dt::df
 {
-    IntSlot::IntSlot(const SlotId id, const SlotType type)
-        : BaseSlot{id, type},
+    IntSlot::IntSlot(const SlotId id, const SlotType type, SlotFieldVisibility visibility_rule)
+        : BaseSlot{id, type, visibility_rule},
           value_{0}
     {
     }
@@ -32,14 +32,15 @@ namespace dt::df
 
     void IntSlot::render()
     {
-        
-        if (!hasConnection())
+        if (showField())
         {
             ImGui::SetNextItemWidth(100);
             if (ImGui::InputInt("Value", &value_))
             {
                 valueChanged();
             }
+        } else {
+            ImGui::Value("Value", value_);
         }
     }
 } // namespace dt::df

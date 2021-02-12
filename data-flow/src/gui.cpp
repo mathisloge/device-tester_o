@@ -18,6 +18,7 @@ namespace dt::df
 #ifndef DATAFLOW_STATIC_DEFINE
 #ifdef WIN32
         imnodes::Shutdown();
+        ImGui::SetCurrentContext(nullptr);
 #endif
 #endif
     }

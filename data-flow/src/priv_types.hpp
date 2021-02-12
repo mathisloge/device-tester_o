@@ -1,4 +1,7 @@
 #pragma once
+#include <shared_mutex>
+#include <atomic>
+#include <memory>
 #include "data-flow/types.hpp"
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/signals2.hpp>
@@ -18,16 +21,29 @@ namespace dt::df
         VertexType type;
     };
 
+    struct RefCon
+    {
+        boost::signals2::connection connection;
+        ~RefCon();
+    };
     struct EdgeInfo
     {
         EdgeId id;
-        boost::signals2::connection connection;
-        //! \todo we need to make sure if the destructor is really only called when the edge gets destroyed. if not look at scoped_connection
-        ~EdgeInfo();
+        std::shared_ptr<RefCon> connection;
     };
     struct EdgeInfo_t
     {
         typedef boost::edge_property_tag kind;
+    };
+
+    template <class Tag, class T, class Base = boost::no_property>
+    struct M_property : public boost::property<Tag, T, Base>
+    {
+        using PropBase = boost::property<Tag, T, Base>;
+        M_property(T &&v)
+        {
+            PropBase::m_value = std::move(v);
+        }
     };
 
     using EdgeProperty = boost::property<EdgeInfo_t, EdgeInfo>;
