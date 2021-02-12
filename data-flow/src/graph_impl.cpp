@@ -190,21 +190,29 @@ namespace dt::df
         {
             SlotId slot_id;
             evaluation_queue_.pop_back(&slot_id);
-            auto vertex = findVertexById(slot_id);
-            const auto &info = graph_[vertex];
-            if (auto it = nodes_.find(graph_[vertex].parent_id); it != nodes_.end())
+            if (slot_id < 0)
+                continue;
+            try
             {
-                SlotPtr slot = nullptr;
-                if (info.type == VertexType::input)
+                auto vertex = findVertexById(slot_id);
+                const auto &info = graph_[vertex];
+                if (auto it = nodes_.find(graph_[vertex].parent_id); it != nodes_.end())
                 {
-                    slot = it->second->inputs(slot_id);
+                    SlotPtr slot = nullptr;
+                    if (info.type == VertexType::input)
+                    {
+                        slot = it->second->inputs(slot_id);
+                    }
+                    else if (info.type == VertexType::output)
+                    {
+                        slot = it->second->outputs(slot_id);
+                    }
+                    if (slot)
+                        slot->valueChanged();
                 }
-                else if (info.type == VertexType::output)
-                {
-                    slot = it->second->outputs(slot_id);
-                }
-                if (slot)
-                    slot->valueChanged();
+            }
+            catch (...)
+            { // node was erased before this run. just ignore it.
             }
         }
     }
@@ -217,6 +225,7 @@ namespace dt::df
 
     GraphImpl::~GraphImpl()
     {
+        evaluation_queue_.push_front(-1); // wake up
         run_evaluation_ = false;
         if (evaluation_thread_.joinable())
             evaluation_thread_.join();
