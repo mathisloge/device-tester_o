@@ -1,6 +1,9 @@
 #include "graph_impl.hpp"
 #include <cassert>
 #include <imnodes.h>
+#include <nlohmann/json.hpp>
+#include <fstream>
+#include "nodes/core/json.hpp"
 namespace dt::df
 {
 
@@ -243,7 +246,7 @@ namespace dt::df
             evaluation_queue_.pop_back(&slot_id);
             if (slot_id < 0)
                 continue;
-                
+
             auto slot = findSlotById(slot_id);
             if (slot)
                 slot->valueChanged();
@@ -254,6 +257,45 @@ namespace dt::df
     {
         //! \todo we need to detect circles!
         evaluation_queue_.push_front(slot);
+    }
+
+    void GraphImpl::save(const std::filesystem::path &file)
+    {
+        using json = nlohmann::json;
+
+        json all_json;
+        json nodes_json = json::array();
+        for (const auto &node : nodes_)
+        {
+            nodes_json.push_back(*node.second);
+        }
+        all_json["nodes"] = std::move(nodes_json);
+
+        json edges_json = json::array();
+        boost::graph_traits<Graph>::edge_iterator ei, ei_end;
+        for (boost::tie(ei, ei_end) = boost::edges(graph_); ei != ei_end; ++ei)
+        {
+            const auto &source_info = graph_[boost::source(*ei, graph_)];
+            const auto &target_info = graph_[boost::target(*ei, graph_)];
+            // only save outside linkage
+            if (source_info.type != VertexType::node && target_info.type != VertexType::node)
+                edges_json.emplace_back(json{graph_[boost::source(*ei, graph_)].id, graph_[boost::target(*ei, graph_)].id});
+        }
+        all_json["links"] = std::move(edges_json);
+
+        std::ofstream o(file);
+        o << all_json << std::endl;
+    }
+
+    void GraphImpl::clearAndLoad(const std::filesystem::path &file)
+    {
+        clear();
+    }
+
+    void GraphImpl::clear()
+    {
+        graph_.clear();
+        nodes_.clear();
     }
 
     GraphImpl::~GraphImpl()

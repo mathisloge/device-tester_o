@@ -71,6 +71,16 @@ namespace dt::df
         impl_->renderLinks();
     }
 
+    void DataFlowGraph::save(const std::filesystem::path &file)
+    {
+        impl_->save(file);
+    }
+
+    void DataFlowGraph::clearAndLoad(const std::filesystem::path &file)
+    {
+        impl_->clearAndLoad(file);
+    }
+
     DataFlowGraph::~DataFlowGraph()
     {
         delete impl_;

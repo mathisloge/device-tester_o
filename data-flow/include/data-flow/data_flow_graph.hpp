@@ -1,5 +1,6 @@
 #pragma once
 #include <functional>
+#include <filesystem>
 #include "types.hpp"
 #include "dataflow_export.h"
 namespace dt::df
@@ -20,6 +21,8 @@ namespace dt::df
         void removeEdge(const EdgeId id);
 
         void render();
+        void save(const std::filesystem::path &file);
+        void clearAndLoad(const std::filesystem::path &file);
 
         virtual ~DataFlowGraph();
 

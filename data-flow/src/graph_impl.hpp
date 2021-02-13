@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <atomic>
 #include <thread>
+#include <filesystem>
 #include "bounded_buffer.hpp"
 namespace dt::df
 {
@@ -19,6 +20,10 @@ namespace dt::df
 
         void renderNodes();
         void renderLinks();
+
+        void save(const std::filesystem::path& file);
+        void clearAndLoad(const std::filesystem::path& file);
+        void clear();
         ~GraphImpl();
 
     private:

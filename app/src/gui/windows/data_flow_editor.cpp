@@ -57,6 +57,11 @@ namespace gui
                 df_editor_.graph().addNode(LED::kNodeKey);
             }
 
+            if (ImGui::Button("SAVE"))
+            {
+                df_editor_.graph().save("test.json");
+            }
+
             if (ImGui::TreeNode("Protocols"))
             {
                 drawProtocols();

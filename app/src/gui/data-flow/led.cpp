@@ -50,6 +50,17 @@ LED::LED(const dt::df::NodeId id,
     });
 }
 
+void LED::to_json(nlohmann::json &j) const
+{
+    BaseNode::to_json(j);
+    j["color"] = {
+        {"r", color_.Value.x},
+        {"g", color_.Value.y},
+        {"b", color_.Value.z},
+        {"a", color_.Value.w},
+    };
+}
+
 void LED::renderCustomContent()
 {
     const auto expired = std::chrono::system_clock::now() - tp_;

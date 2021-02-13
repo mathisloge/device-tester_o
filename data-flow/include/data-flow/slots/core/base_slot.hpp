@@ -2,7 +2,9 @@
 #include "slot_types.hpp"
 #include <memory>
 #include <boost/signals2.hpp>
+#include <nlohmann/json.hpp>
 #include "dataflow_export.h"
+
 namespace dt::df
 {
     class DATAFLOW_EXPORT BaseSlot
@@ -31,9 +33,11 @@ namespace dt::df
         bool hasConnection() const;
         SlotFieldVisibility visibility_rule() const;
         void visibility_rule(SlotFieldVisibility visibility_rule);
-        virtual ~BaseSlot();
-
         boost::signals2::connection connectEvaluation(const EvaluationSignal::slot_type &sub);
+
+        virtual void to_json(nlohmann::json &j) const;
+
+        virtual ~BaseSlot();
 
     protected:
         void needsReevaluation();

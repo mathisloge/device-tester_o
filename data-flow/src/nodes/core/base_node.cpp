@@ -1,6 +1,9 @@
 #include "data-flow/nodes/core/base_node.hpp"
 #include <imgui.h>
 #include <imnodes.h>
+#include "json.hpp"
+
+using json = nlohmann::json;
 namespace dt::df
 {
 
@@ -18,6 +21,32 @@ namespace dt::df
               inputs_{std::move(inputs)},
               outputs_{std::move(outputs)}
         {
+        }
+
+        void to_json(nlohmann::json &j) const
+        {
+            j["id"] = id_;
+            j["key"] = key_;
+            j["title"] = title_;
+            json input_slots = json::array();
+            json output_slots = json::array();
+            for (const auto &slot : inputs_)
+            {
+                json slot_val;
+                slot->to_json(slot_val);
+                input_slots.emplace_back(std::move(slot_val));
+            }
+            for (const auto &slot : outputs_)
+            {
+                json slot_val;
+                slot->to_json(slot_val);
+                output_slots.emplace_back(std::move(slot_val));
+            }
+            j["inputs"] = std::move(input_slots);
+            j["outputs"] = std::move(output_slots);
+
+            const auto position = imnodes::GetNodeEditorSpacePos(id_);
+            j["position"] = {{"x", position.x}, {"y", position.y}};
         }
 
     private:
@@ -57,7 +86,7 @@ namespace dt::df
             slot->render();
             imnodes::EndInputAttribute();
         }
-
+        
         renderCustomContent();
 
         for (auto &slot : impl_->outputs_)
@@ -108,8 +137,14 @@ namespace dt::df
         return *slot_it;
     }
 
+    void BaseNode::to_json(nlohmann::json &j) const
+    {
+        impl_->to_json(j);
+    }
+
     BaseNode::~BaseNode()
     {
         delete impl_;
     }
+
 } // namespace dt::df

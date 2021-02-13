@@ -15,6 +15,7 @@ public:
                  const dt::df::SlotId g_id,
                  const dt::df::SlotId b_id,
                  const dt::df::SlotId a_id);
+    void to_json(nlohmann::json &j) const override;
     ~LED();
 
 private:

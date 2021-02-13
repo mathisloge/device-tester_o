@@ -1,6 +1,8 @@
 project(DataFlow)
 
+find_package(imgui CONFIG REQUIRED)
 find_package(Boost REQUIRED COMPONENTS graph)
+find_package(nlohmann_json CONFIG REQUIRED)
 
 include(GenerateExportHeader)
 
@@ -24,6 +26,7 @@ add_library(DataFlow STATIC
     src/slots/trigger_slot.cpp
 
     src/nodes/core/base_node.cpp
+    src/nodes/core/json.cpp
     src/nodes/utils/timer_node.cpp
     src/nodes/interaction/color_node.cpp
     src/nodes/operators/simple_op.cpp
@@ -36,6 +39,7 @@ target_link_libraries(DataFlow PUBLIC
     Boost::headers
     Boost::graph
     imgui::imgui
+    nlohmann_json::nlohmann_json
 )
 
 target_link_libraries(DataFlow PRIVATE

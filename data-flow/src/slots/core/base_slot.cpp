@@ -9,6 +9,15 @@ namespace dt::df
             : id_{id}, type_{type}, name_{name}, visibility_rule_{visibility_rule}, connection_counter_(0)
         {
         }
+
+        void to_json(nlohmann::json &j) const
+        {
+            j["id"] = id_;
+            j["name"] = name_;
+            j["type"] = type_;
+            j["visibility"] = visibility_rule_;
+        }
+
         ~Impl()
         {
         }
@@ -95,6 +104,11 @@ namespace dt::df
     void BaseSlot::disconnectEvent()
     {
         impl_->connection_counter_--;
+    }
+
+    void BaseSlot::to_json(nlohmann::json &j) const
+    {
+        impl_->to_json(j);
     }
 
     BaseSlot::~BaseSlot()
