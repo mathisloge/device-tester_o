@@ -191,15 +191,22 @@ namespace dt::df
 
     SlotPtr GraphImpl::findSlotById(const SlotId id) const
     {
-        const auto slot_desc = findVertexById(id);
-        assert(("id is not an slot id", graph_[slot_desc].type != VertexType::node));
-        assert(("parent isn't set", graph_[slot_desc].parent_id >= 0));
-        if (auto nit = nodes_.find(graph_[slot_desc].parent_id); nit != nodes_.end())
+        try
         {
-            if (graph_[slot_desc].type == VertexType::input)
-                return nit->second->inputs(id);
-            else if (graph_[slot_desc].type == VertexType::output)
-                return nit->second->outputs(id);
+            const auto slot_desc = findVertexById(id);
+            assert(("id is not an slot id", graph_[slot_desc].type != VertexType::node));
+            assert(("parent isn't set", graph_[slot_desc].parent_id >= 0));
+            if (auto nit = nodes_.find(graph_[slot_desc].parent_id); nit != nodes_.end())
+            {
+                if (graph_[slot_desc].type == VertexType::input)
+                    return nit->second->inputs(id);
+                else if (graph_[slot_desc].type == VertexType::output)
+                    return nit->second->outputs(id);
+            }
+        }
+        catch (...)
+        {
+            //! \todo log
         }
         return nullptr;
     }
@@ -236,28 +243,10 @@ namespace dt::df
             evaluation_queue_.pop_back(&slot_id);
             if (slot_id < 0)
                 continue;
-            try
-            {
-                auto vertex = findVertexById(slot_id);
-                const auto &info = graph_[vertex];
-                if (auto it = nodes_.find(graph_[vertex].parent_id); it != nodes_.end())
-                {
-                    SlotPtr slot = nullptr;
-                    if (info.type == VertexType::input)
-                    {
-                        slot = it->second->inputs(slot_id);
-                    }
-                    else if (info.type == VertexType::output)
-                    {
-                        slot = it->second->outputs(slot_id);
-                    }
-                    if (slot)
-                        slot->valueChanged();
-                }
-            }
-            catch (...)
-            { // node was erased before this run. just ignore it.
-            }
+                
+            auto slot = findSlotById(slot_id);
+            if (slot)
+                slot->valueChanged();
         }
     }
 
