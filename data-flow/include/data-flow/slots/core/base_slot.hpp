@@ -19,6 +19,8 @@ namespace dt::df
         SlotId id() const;
         SlotType type() const;
         const SlotName &name() const;
+        virtual void connectEvent();
+        virtual void disconnectEvent();
         // will be called as an input
         virtual void accept(const BaseSlot *slot) = 0;
         virtual bool canConnect(const BaseSlot *const slot) const = 0;

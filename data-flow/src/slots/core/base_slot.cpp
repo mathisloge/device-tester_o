@@ -1,12 +1,12 @@
 #include "data-flow/slots/core/base_slot.hpp"
-#include <iostream>
+#include <atomic>
 namespace dt::df
 {
     class BaseSlot::Impl final
     {
     public:
         explicit Impl(const SlotId id, const SlotType type, const SlotName &name, SlotFieldVisibility visibility_rule)
-            : id_{id}, type_{type}, name_{name}, visibility_rule_{visibility_rule}
+            : id_{id}, type_{type}, name_{name}, visibility_rule_{visibility_rule}, connection_counter_(0)
         {
         }
         ~Impl()
@@ -20,7 +20,7 @@ namespace dt::df
         SlotFieldVisibility visibility_rule_;
         ValueChangedSignal value_changed_sig_;
         EvaluationSignal evaluation_changed_sig_;
-
+        std::atomic_int connection_counter_;
         friend BaseSlot;
     };
 
@@ -56,7 +56,7 @@ namespace dt::df
 
     bool BaseSlot::hasConnection() const
     {
-        return impl_->value_changed_sig_.num_slots() > 0;
+        return impl_->connection_counter_ > 0;
     }
 
     void BaseSlot::render()
@@ -75,7 +75,7 @@ namespace dt::df
     bool BaseSlot::showField() const
     {
         return impl_->visibility_rule_ != SlotFieldVisibility::never && (impl_->visibility_rule_ == SlotFieldVisibility::always ||
-                                                                           !(hasConnection() && impl_->visibility_rule_ == SlotFieldVisibility::without_connection));
+                                                                         !(hasConnection() && impl_->visibility_rule_ == SlotFieldVisibility::without_connection));
     }
 
     boost::signals2::connection BaseSlot::connectEvaluation(const EvaluationSignal::slot_type &sub)
@@ -86,6 +86,15 @@ namespace dt::df
     void BaseSlot::needsReevaluation()
     {
         impl_->evaluation_changed_sig_(impl_->id_);
+    }
+
+    void BaseSlot::connectEvent()
+    {
+        impl_->connection_counter_++;
+    }
+    void BaseSlot::disconnectEvent()
+    {
+        impl_->connection_counter_--;
     }
 
     BaseSlot::~BaseSlot()

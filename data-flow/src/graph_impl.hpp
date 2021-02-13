@@ -26,6 +26,7 @@ namespace dt::df
         void removeNodeSlots(const Slots &slots);
         void evaluationTask();
         void reevaluateSlot(SlotId slot);
+        SlotPtr findSlotById(const SlotId) const;
     private:
         Graph graph_;
         IdGenerator link_id_counter_;

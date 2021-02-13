@@ -112,6 +112,8 @@ namespace dt::df
 
         const EdgeInfo egde_prop{link_id_counter_(), std::make_shared<RefCon>(std::move(connection))};
         boost::add_edge(from, to, std::move(egde_prop), graph_);
+        output_slot->connectEvent();
+        input_slot->connectEvent();
     }
 
     void GraphImpl::removeEdge(const EdgeId id)
@@ -127,6 +129,12 @@ namespace dt::df
                     const auto &edge_prop = boost::get(EdgeInfo_t(), graph_, *eeit);
                     if (edge_prop.id == id)
                     {
+                        const auto edge_source = boost::source(*eeit, graph_);
+                        const auto edge_target = boost::target(*eeit, graph_);
+                        auto slot_source = findSlotById(graph_[edge_source].id);
+                        slot_source->disconnectEvent();
+                        auto slot_target = findSlotById(graph_[edge_target].id);
+                        slot_target->disconnectEvent();
                         boost::remove_edge(*eeit, graph_);
                         break;
                     }
@@ -156,9 +164,44 @@ namespace dt::df
             {
                 ++next;
                 if (graph_[*vi].id == slot->id())
+                {
+                    if (graph_[*vi].type == VertexType::input)
+                    {
+                        const auto in_edges = boost::in_edges(*vi, graph_);
+                        for (auto it = in_edges.first; it != in_edges.second; it++)
+                        {
+                            auto slot_in = findSlotById(graph_[boost::source(*it, graph_)].id);
+                            slot_in->disconnectEvent();
+                        }
+                    }
+                    else if (graph_[*vi].type == VertexType::output)
+                    {
+                        const auto out_edges = boost::out_edges(*vi, graph_);
+                        for (auto it = out_edges.first; it != out_edges.second; it++)
+                        {
+                            auto slot_in = findSlotById(graph_[boost::target(*it, graph_)].id);
+                            slot_in->disconnectEvent();
+                        }
+                    }
                     boost::clear_vertex(*vi, graph_);
+                }
             }
         }
+    }
+
+    SlotPtr GraphImpl::findSlotById(const SlotId id) const
+    {
+        const auto slot_desc = findVertexById(id);
+        assert(("id is not an slot id", graph_[slot_desc].type != VertexType::node));
+        assert(("parent isn't set", graph_[slot_desc].parent_id >= 0));
+        if (auto nit = nodes_.find(graph_[slot_desc].parent_id); nit != nodes_.end())
+        {
+            if (graph_[slot_desc].type == VertexType::input)
+                return nit->second->inputs(id);
+            else if (graph_[slot_desc].type == VertexType::output)
+                return nit->second->outputs(id);
+        }
+        return nullptr;
     }
 
     void GraphImpl::renderNodes()

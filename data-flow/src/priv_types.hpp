@@ -36,20 +36,10 @@ namespace dt::df
         typedef boost::edge_property_tag kind;
     };
 
-    template <class Tag, class T, class Base = boost::no_property>
-    struct M_property : public boost::property<Tag, T, Base>
-    {
-        using PropBase = boost::property<Tag, T, Base>;
-        M_property(T &&v)
-        {
-            PropBase::m_value = std::move(v);
-        }
-    };
-
     using EdgeProperty = boost::property<EdgeInfo_t, EdgeInfo>;
     using Graph = boost::adjacency_list<boost::vecS,
                                         boost::vecS,
-                                        boost::directedS,
+                                        boost::bidirectionalS,
                                         VertexInfo,
                                         EdgeProperty>;
 
