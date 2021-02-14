@@ -88,8 +88,27 @@ namespace dt::df::operators
         return slots;
     }
     SimpleOp::SimpleOp(const nlohmann::json &json)
-        : BaseNode(json, makeInputs(json), makeOutput(json))
+        : BaseNode(json, makeInputs(json), makeOutput(json)),
+          impl_{new Impl{}}
     {
+        impl_->result_slot = std::dynamic_pointer_cast<NumberSlot>(outputs()[0]);
+
+        inputs()[0]->subscribe([this](const BaseSlot *slot) {
+            auto in_slot = dynamic_cast<const NumberSlot *>(slot);
+            if (in_slot)
+            {
+                impl_->in_a = in_slot->value();
+                impl_->setResult(calc(impl_->in_a, impl_->in_b));
+            }
+        });
+        inputs()[1]->subscribe([this](const BaseSlot *slot) {
+            auto in_slot = dynamic_cast<const NumberSlot *>(slot);
+            if (in_slot)
+            {
+                impl_->in_b = in_slot->value();
+                impl_->setResult(calc(impl_->in_a, impl_->in_b));
+            }
+        });
     }
 
     SimpleOp::~SimpleOp()

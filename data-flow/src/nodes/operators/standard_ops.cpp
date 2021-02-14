@@ -22,4 +22,8 @@ namespace dt::df::operators
     return a - b;
     DT_DF_IMPL_SIMPLE_OP_END
 
+    DT_DF_IMPL_SIMPLE_OP_BEGIN(Modulo, modulo, a, n, result)
+    return std::remainder(a, b);
+    DT_DF_IMPL_SIMPLE_OP_END
+
 } // namespace dt::df::operators
