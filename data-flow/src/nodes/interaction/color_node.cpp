@@ -34,6 +34,23 @@ namespace dt::df
         std::shared_ptr<IntSlot> a_slot_;
     };
 
+    static Slots makeOutputSlotsFromJson(const nlohmann::json &json)
+    {
+        Slots output_slots;
+        try
+        {
+            auto &ojson = json.at("outputs");
+            for (const auto &j_output : ojson)
+            {
+                output_slots.push_back(std::make_shared<IntSlot>(j_output));
+            }
+        }
+        catch (...)
+        {
+        }
+        return output_slots;
+    }
+
     ColorNode::ColorNode(const NodeId id,
                          const SlotId output_r,
                          const SlotId output_g,
@@ -46,6 +63,16 @@ namespace dt::df
                        std::make_shared<IntSlot>(output_g, SlotType::output, "g", SlotFieldVisibility::never),
                        std::make_shared<IntSlot>(output_b, SlotType::output, "b", SlotFieldVisibility::never),
                        std::make_shared<IntSlot>(output_a, SlotType::output, "a", SlotFieldVisibility::never)}},
+          impl_{new Impl{}}
+    {
+        impl_->r_slot_ = std::dynamic_pointer_cast<IntSlot>(outputs()[0]);
+        impl_->g_slot_ = std::dynamic_pointer_cast<IntSlot>(outputs()[1]);
+        impl_->b_slot_ = std::dynamic_pointer_cast<IntSlot>(outputs()[2]);
+        impl_->a_slot_ = std::dynamic_pointer_cast<IntSlot>(outputs()[3]);
+    }
+
+    ColorNode::ColorNode(const nlohmann::json &json)
+        : BaseNode{json, Slots{}, makeOutputSlotsFromJson(json)},
           impl_{new Impl{}}
     {
         impl_->r_slot_ = std::dynamic_pointer_cast<IntSlot>(outputs()[0]);

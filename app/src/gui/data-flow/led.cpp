@@ -50,6 +50,79 @@ LED::LED(const dt::df::NodeId id,
     });
 }
 
+static dt::df::Slots makeInputs(const nlohmann::json &json)
+{
+    dt::df::Slots slots;
+    try
+    {
+        const auto &inputs = json.at("inputs");
+        for (const auto &in : inputs)
+        {
+            if (in.at("name") == "trigger")
+                slots.emplace_back(std::make_shared<dt::df::TriggerSlot>(in));
+            else if (in.at("name") == "duration (ms)")
+                slots.emplace_back(std::make_shared<dt::df::IntSlot>(in));
+            else
+                slots.emplace_back(std::make_shared<dt::df::FloatingSlot>(in));
+        }
+    }
+    catch (...)
+    {
+    }
+    return slots;
+}
+LED::LED(const nlohmann::json &json)
+    : BaseNode(json, makeInputs(json), dt::df::Slots{}),
+      color_{colorFrom(json)},
+      dur_{50ms}
+{
+    for (const auto &in_slot : inputs())
+    {
+        const auto &name = in_slot->name();
+        if (name == "trigger")
+        {
+            in_slot->subscribe([this](const dt::df::BaseSlot *) {
+                tp_ = std::chrono::system_clock::now();
+            });
+        }
+        else if (name == "duration (ms)")
+        {
+            in_slot->subscribe([this](const dt::df::BaseSlot *slot) {
+                auto int_slot = static_cast<const dt::df::IntSlot *>(slot);
+                dur_ = std::chrono::milliseconds(int_slot->valueInt());
+            });
+        }
+        else if (name == "r")
+        {
+            in_slot->subscribe([this](const dt::df::BaseSlot *slot) {
+                auto in_slot = static_cast<const dt::df::FloatingSlot *>(slot);
+                color_.Value.x = in_slot->value();
+            });
+        }
+        else if (name == "g")
+        {
+            in_slot->subscribe([this](const dt::df::BaseSlot *slot) {
+                auto in_slot = static_cast<const dt::df::FloatingSlot *>(slot);
+                color_.Value.y = in_slot->value();
+            });
+        }
+        else if (name == "b")
+        {
+            in_slot->subscribe([this](const dt::df::BaseSlot *slot) {
+                auto in_slot = static_cast<const dt::df::FloatingSlot *>(slot);
+                color_.Value.z = in_slot->value();
+            });
+        }
+        else if (name == "a")
+        {
+            in_slot->subscribe([this](const dt::df::BaseSlot *slot) {
+                auto in_slot = static_cast<const dt::df::FloatingSlot *>(slot);
+                color_.Value.w = in_slot->value();
+            });
+        }
+    }
+}
+
 void LED::to_json(nlohmann::json &j) const
 {
     BaseNode::to_json(j);
@@ -81,4 +154,21 @@ void LED::renderCustomContent()
 
 LED::~LED()
 {
+}
+
+ImColor LED::colorFrom(const nlohmann::json &j)
+{
+    ImColor color;
+    try
+    {
+        const auto &color_j = j.at("color");
+        color = ImColor(color_j.at("r").get<float>(),
+                        color_j.at("g").get<float>(),
+                        color_j.at("b").get<float>(),
+                        color_j.at("a").get<float>());
+    }
+    catch (...)
+    {
+    }
+    return color;
 }

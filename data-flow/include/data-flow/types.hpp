@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <memory>
+#include <nlohmann/json.hpp>
 
 #include "nodes/core/base_node.hpp"
 #include "id_generator.hpp"
@@ -11,4 +12,5 @@ namespace dt::df
     using NodeIdGenerator = IdGenerator;
     using SlotIdGenerator = IdGenerator;
     using NodeFactory = std::function<NodePtr(NodeIdGenerator &, SlotIdGenerator &)>;
+    using NodeDeserializationFactory = std::function<NodePtr(const nlohmann::json&)>;
 } // namespace dt::df

@@ -4,10 +4,11 @@
     {                                                                \
     public:                                                          \
         static constexpr const char *kNodeKey = #OP_NAME "-op-node"; \
-        explicit OP_NAME(const NodeId id,                            \
-                         const SlotId in_a,                          \
-                         const SlotId in_b,                          \
-                         const SlotId out_res);                      \
+        OP_NAME(const NodeId id,                                     \
+                const SlotId in_a,                                   \
+                const SlotId in_b,                                   \
+                const SlotId out_res);                               \
+        OP_NAME(const nlohmann::json &);                             \
         ~##OP_NAME();                                                \
                                                                      \
     private:                                                         \

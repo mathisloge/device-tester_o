@@ -10,16 +10,17 @@ namespace dt::df
     class BaseNode::Impl
     {
     public:
-        explicit Impl(const NodeId id,
-                      const NodeKey &key,
-                      const std::string &title,
-                      Slots &&inputs,
-                      Slots &&outputs)
+        Impl(const NodeId id,
+             const NodeKey &key,
+             const std::string &title,
+             Slots &&inputs,
+             Slots &&outputs)
             : id_{id},
               key_{key},
               title_{title},
               inputs_{std::move(inputs)},
-              outputs_{std::move(outputs)}
+              outputs_{std::move(outputs)},
+              position_was_updated_{false}
         {
         }
 
@@ -49,12 +50,30 @@ namespace dt::df
             j["position"] = {{"x", position.x}, {"y", position.y}};
         }
 
+        void setPosition(int x, int y)
+        {
+            position_ = {static_cast<float>(x), static_cast<float>(y)};
+            position_was_updated_ = true;
+        }
+
+        void updatePosIfNeeded()
+        {
+            if (position_was_updated_)
+            {
+                imnodes::SetNodeEditorSpacePos(id_, position_);
+                position_was_updated_ = false;
+            }
+        }
+
     private:
         const NodeId id_;
         const NodeKey key_;
         const std::string title_;
         const Slots inputs_;
         const Slots outputs_;
+
+        bool position_was_updated_;
+        ImVec2 position_;
 
         friend BaseNode;
     };
@@ -66,6 +85,20 @@ namespace dt::df
                        Slots &&outputs)
         : impl_{new BaseNode::Impl{id, key, title, std::forward<Slots>(inputs), std::forward<Slots>(outputs)}}
     {
+    }
+
+    BaseNode::BaseNode(const nlohmann::json &json, Slots &&inputs, Slots &&outputs)
+    {
+        // i know, this is UB. But since the constructor shouldn't throw anything, we need to make sure, that these keys exist before the construction. aka. in GraphImpl
+        impl_ = new BaseNode::Impl{json["id"], json["key"], json["title"], std::forward<Slots>(inputs), std::forward<Slots>(outputs)};
+        try
+        {
+            const auto &pos = json.at("position");
+            impl_->setPosition(pos.at("x"), pos.at("y"));
+        }
+        catch (...)
+        {
+        }
     }
 
     const NodeKey &BaseNode::key() const
@@ -86,7 +119,7 @@ namespace dt::df
             slot->render();
             imnodes::EndInputAttribute();
         }
-        
+
         renderCustomContent();
 
         for (auto &slot : impl_->outputs_)
@@ -96,6 +129,13 @@ namespace dt::df
             imnodes::EndOutputAttribute();
         }
         imnodes::EndNode();
+
+        impl_->updatePosIfNeeded();
+    }
+
+    void BaseNode::setPosition(int x, int y)
+    {
+        impl_->setPosition(x, y);
     }
 
     void BaseNode::renderCustomContent()

@@ -13,20 +13,37 @@ namespace dt::df
           evaluation_queue_{200}
     {
     }
-    void GraphImpl::registerNodeFactory(const NodeKey &key, NodeFactory &&factory)
+    void GraphImpl::registerNodeFactory(const NodeKey &key, NodeFactory &&factory, NodeDeserializationFactory &&deser_factory)
     {
         node_factories_.emplace(key, std::forward<NodeFactory>(factory));
+        node_deser_factories_.emplace(key, std::forward<NodeDeserializationFactory>(deser_factory));
     }
 
-    void GraphImpl::createNode(const NodeKey &key)
+    const NodeFactory &GraphImpl::getNodeFactory(const NodeKey &key) const
     {
         auto factory_fnc_it = node_factories_.find(key);
         if (factory_fnc_it == node_factories_.end())
             throw std::out_of_range("node factory not found");
+        return factory_fnc_it->second;
+    }
 
-        auto node = factory_fnc_it->second(vertex_id_counter_, vertex_id_counter_);
+    const NodeDeserializationFactory &GraphImpl::getNodeDeserializationFactory(const NodeKey &key) const
+    {
+        auto factory_fnc_it = node_deser_factories_.find(key);
+        if (factory_fnc_it == node_deser_factories_.end())
+            throw std::out_of_range("node deserialization factory not found");
+        return factory_fnc_it->second;
+    }
+
+    void GraphImpl::createNode(const NodeKey &key)
+    {
+        auto node = getNodeFactory(key)(vertex_id_counter_, vertex_id_counter_);
+        addNode(node);
+    }
+
+    void GraphImpl::addNode(const NodePtr &node)
+    {
         nodes_.emplace(node->id(), node);
-
         for (auto &slot : node->inputs())
         {
             slot->connectEvaluation(std::bind(&GraphImpl::reevaluateSlot, this, std::placeholders::_1));
@@ -289,7 +306,44 @@ namespace dt::df
 
     void GraphImpl::clearAndLoad(const std::filesystem::path &file)
     {
-        clear();
+        using nlohmann::json;
+        if (!std::filesystem::exists(file) && std::filesystem::is_regular_file(file))
+        {
+            return;
+        }
+        json j;
+        {
+            std::ifstream file_input{file};
+            file_input >> j;
+        }
+
+        const json &node_arr = j["nodes"];
+        for (const auto &node_j : node_arr)
+        {
+            auto node_factory = getNodeDeserializationFactory(node_j["key"]);
+            addNode(node_factory(node_j));
+        }
+        const json &link_arr = j["links"];
+        for (const auto &link_j : link_arr)
+        {
+            if (link_j.size() == 2)
+            {
+                try
+                {
+                    addEdge(findVertexById(link_j.at(0)), findVertexById(link_j.at(1)));
+                }
+                catch (...)
+                {
+                }
+            }
+        }
+        for (const auto &link_j : link_arr)
+        {
+            if (link_j.size() == 2)
+            {
+                auto source = findSlotById(link_j.at(0));
+            }
+        }
     }
 
     void GraphImpl::clear()

@@ -14,10 +14,11 @@ namespace dt::df
         using EvaluationSignal = boost::signals2::signal<void(SlotId)>;
 
     public:
-        explicit BaseSlot(const SlotId id,
-                          const SlotType type,
-                          const SlotName &name,
-                          SlotFieldVisibility visibility_rule = SlotFieldVisibility::without_connection);
+        BaseSlot(const SlotId id,
+                 const SlotType type,
+                 const SlotName &name,
+                 SlotFieldVisibility visibility_rule = SlotFieldVisibility::without_connection);
+        BaseSlot(const nlohmann::json &json);
         SlotId id() const;
         SlotType type() const;
         const SlotName &name() const;
@@ -29,6 +30,7 @@ namespace dt::df
         virtual void render();
 
         void valueChanged();
+        void needsReevaluation();
         boost::signals2::connection subscribe(const ValueChangedSignal::slot_type &sub);
         bool hasConnection() const;
         SlotFieldVisibility visibility_rule() const;
@@ -40,7 +42,6 @@ namespace dt::df
         virtual ~BaseSlot();
 
     protected:
-        void needsReevaluation();
         bool showField() const;
 
     private:

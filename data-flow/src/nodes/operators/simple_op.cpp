@@ -53,6 +53,45 @@ namespace dt::df::operators
         });
     }
 
+    static Slots makeInputs(const nlohmann::json &json)
+    {
+        Slots slots;
+        try
+        {
+            const auto &in_json = json["inputs"];
+            for (const auto &in_slot_j : in_json)
+            {
+                slots.emplace_back(std::make_shared<FloatingSlot>(in_slot_j));
+            }
+        }
+        catch (...)
+        {
+        }
+        return slots;
+    }
+    static Slots makeOutput(const nlohmann::json &json)
+    {
+        Slots slots;
+        try
+        {
+            const auto &out_json = json["outputs"];
+            if (out_json.size() != 1)
+            {
+                //! \todo log warn
+            }
+            if (out_json.size() > 0)
+                slots.emplace_back(std::make_shared<FloatingSlot>(out_json[0]));
+        }
+        catch (...)
+        {
+        }
+        return slots;
+    }
+    SimpleOp::SimpleOp(const nlohmann::json &json)
+        : BaseNode(json, makeInputs(json), makeOutput(json))
+    {
+    }
+
     SimpleOp::~SimpleOp()
     {
         delete impl_;

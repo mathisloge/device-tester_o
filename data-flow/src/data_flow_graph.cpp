@@ -9,9 +9,10 @@ namespace dt::df
     template <typename TSimpleOp>
     void registerSimpleOp(DataFlowGraph &fg)
     {
-        fg.registerNode(TSimpleOp::kNodeKey, [](NodeIdGenerator &node_id, SlotIdGenerator &slot_id) {
-            return std::make_shared<TSimpleOp>(node_id(), slot_id(), slot_id(), slot_id());
-        });
+        fg.registerNode(
+            TSimpleOp::kNodeKey,
+            [](NodeIdGenerator &node_id, SlotIdGenerator &slot_id) { return std::make_shared<TSimpleOp>(node_id(), slot_id(), slot_id(), slot_id()); },
+            [](const nlohmann::json &j) { return std::make_shared<TSimpleOp>(j); });
     }
 
     DataFlowGraph::DataFlowGraph()
@@ -21,12 +22,22 @@ namespace dt::df
 
     void DataFlowGraph::registerBuildinNodes()
     {
-        registerNode(TimerNode::kNodeKey, [](NodeIdGenerator &node_id, SlotIdGenerator &slot_id) {
-            return std::make_shared<TimerNode>(node_id(), slot_id(), slot_id());
-        });
-        registerNode(ColorNode::kNodeKey, [](NodeIdGenerator &node_id, SlotIdGenerator &slot_id) {
-            return std::make_shared<ColorNode>(node_id(), slot_id(), slot_id(), slot_id(), slot_id());
-        });
+        registerNode(
+            TimerNode::kNodeKey,
+            [](NodeIdGenerator &node_id, SlotIdGenerator &slot_id) {
+                return std::make_shared<TimerNode>(node_id(), slot_id(), slot_id());
+            },
+            [](const nlohmann::json &j) {
+                return std::make_shared<TimerNode>(j);
+            });
+        registerNode(
+            ColorNode::kNodeKey,
+            [](NodeIdGenerator &node_id, SlotIdGenerator &slot_id) {
+                return std::make_shared<ColorNode>(node_id(), slot_id(), slot_id(), slot_id(), slot_id());
+            },
+            [](const nlohmann::json &j) {
+                return std::make_shared<ColorNode>(j);
+            });
 
         registerSimpleOp<operators::Division>(*this);
         registerSimpleOp<operators::Multiplication>(*this);
@@ -34,9 +45,9 @@ namespace dt::df
         registerSimpleOp<operators::Subtraction>(*this);
     }
 
-    void DataFlowGraph::registerNode(const NodeKey &key, NodeFactory &&factory)
+    void DataFlowGraph::registerNode(const NodeKey &key, NodeFactory &&factory, NodeDeserializationFactory &&deser_factory)
     {
-        impl_->registerNodeFactory(key, std::forward<NodeFactory>(factory));
+        impl_->registerNodeFactory(key, std::forward<NodeFactory>(factory), std::forward<NodeDeserializationFactory>(deser_factory));
     }
     void DataFlowGraph::addNode(const NodeKey &key)
     {

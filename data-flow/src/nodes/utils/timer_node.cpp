@@ -7,6 +7,10 @@
 #include <imgui.h>
 namespace dt::df
 {
+
+    static Slots makeInput(const nlohmann::json &json);
+    static Slots makeOutput(const nlohmann::json &json);
+
     class TimerNode::Impl final
     {
     public:
@@ -56,9 +60,17 @@ namespace dt::df
     TimerNode::TimerNode(const NodeId id,
                          const SlotId input_timer_id,
                          const SlotId output_trigger_id)
-        : BaseNode{id, "Timer", kNodeKey,
+        : BaseNode{id, kNodeKey, "Timer",
                    Slots{std::make_shared<IntSlot>(input_timer_id, SlotType::input, "milliseconds")},
                    Slots{std::make_shared<TriggerSlot>(output_trigger_id, SlotType::output, "trigger", SlotFieldVisibility::never)}},
+          impl_{new TimerNode::Impl{
+              std::dynamic_pointer_cast<IntSlot>(inputs()[0]),
+              std::dynamic_pointer_cast<TriggerSlot>(outputs()[0])}}
+    {
+    }
+
+    TimerNode::TimerNode(const nlohmann::json &json)
+        : BaseNode(json, makeInput(json), makeOutput(json)),
           impl_{new TimerNode::Impl{
               std::dynamic_pointer_cast<IntSlot>(inputs()[0]),
               std::dynamic_pointer_cast<TriggerSlot>(outputs()[0])}}
@@ -68,5 +80,34 @@ namespace dt::df
     TimerNode::~TimerNode()
     {
         delete impl_;
+    }
+
+    static Slots makeInput(const nlohmann::json &json)
+    {
+        Slots slots;
+        try
+        {
+            const auto &input = json.at("inputs");
+            if (input.size() > 0)
+                slots.emplace_back(std::make_shared<IntSlot>(input[0]));
+        }
+        catch (...)
+        {
+        }
+        return slots;
+    }
+    static Slots makeOutput(const nlohmann::json &json)
+    {
+        Slots slots;
+        try
+        {
+            const auto &output = json.at("outputs");
+            if (output.size() > 0)
+                slots.emplace_back(std::make_shared<TriggerSlot>(output[0]));
+        }
+        catch (...)
+        {
+        }
+        return slots;
     }
 } // namespace dt::df

@@ -9,11 +9,12 @@ namespace dt::df
         static constexpr const char *kNodeKey = "color-node";
 
     public:
-        explicit ColorNode(const NodeId id,
+        ColorNode(const NodeId id,
                            const SlotId output_r,
                            const SlotId output_g,
                            const SlotId output_b,
                            const SlotId output_a);
+        ColorNode(const nlohmann::json &json);
         ~ColorNode();
 
     private:

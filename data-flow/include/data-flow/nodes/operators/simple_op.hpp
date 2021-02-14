@@ -6,12 +6,13 @@ namespace dt::df::operators
     class DATAFLOW_EXPORT SimpleOp : public BaseNode
     {
     public:
-        explicit SimpleOp(const NodeId id,
-                          const NodeKey &key,
-                          const std::string &title,
-                          const SlotId in_a, const std::string &in_a_name,
-                          const SlotId in_b, const std::string &in_b_name,
-                          const SlotId out_res, const std::string &result_name = "result");
+        SimpleOp(const NodeId id,
+                 const NodeKey &key,
+                 const std::string &title,
+                 const SlotId in_a, const std::string &in_a_name,
+                 const SlotId in_b, const std::string &in_b_name,
+                 const SlotId out_res, const std::string &result_name = "result");
+        SimpleOp(const nlohmann::json &json);
         virtual ~SimpleOp();
 
     protected:

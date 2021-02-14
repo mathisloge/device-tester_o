@@ -9,9 +9,10 @@ namespace dt::df
         static constexpr const char *kNodeKey = "timer-node";
 
     public:
-        explicit TimerNode(const NodeId id,
+        TimerNode(const NodeId id,
                            const SlotId input_timer_id,
                            const SlotId output_trigger_id);
+        TimerNode(const nlohmann::json &json);
         ~TimerNode();
 
     private:

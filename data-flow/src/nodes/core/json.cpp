@@ -8,8 +8,5 @@ namespace dt::df
     {
         p.to_json(j);
     }
-
-    void from_json(const json &j, BaseNode &p)
-    {
-    }
+    
 } // namespace dt::df

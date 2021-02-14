@@ -8,15 +8,17 @@ namespace dt::df
     class DATAFLOW_EXPORT BaseNode
     {
     public:
-        explicit BaseNode(const NodeId id,
-                          const NodeKey &key,
-                          const std::string &title,
-                          Slots &&inputs,
-                          Slots &&outputs);
+        BaseNode(const NodeId id,
+                 const NodeKey &key,
+                 const std::string &title,
+                 Slots &&inputs,
+                 Slots &&outputs);
+        BaseNode(const nlohmann::json &, Slots &&inputs, Slots &&outputs);
 
         NodeId id() const;
         const NodeKey &key() const;
         virtual void render();
+        void setPosition(int x, int y);
 
         const Slots &inputs() const;
         const Slots &outputs() const;

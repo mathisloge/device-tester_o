@@ -11,10 +11,15 @@
     {                                                                         \
     }                                                                         \
                                                                               \
-    OP_NAME::~##OP_NAME()                                                   \
+    OP_NAME::##OP_NAME(const nlohmann::json &json)                                       \
+        : SimpleOp{json}                                                      \
     {                                                                         \
     }                                                                         \
-    double OP_NAME::calc(const double a, const double b) const               \
+                                                                              \
+    OP_NAME::~##OP_NAME()                                                     \
+    {                                                                         \
+    }                                                                         \
+    double OP_NAME::calc(const double a, const double b) const                \
     {
 
 #define DT_DF_IMPL_SIMPLE_OP_END }

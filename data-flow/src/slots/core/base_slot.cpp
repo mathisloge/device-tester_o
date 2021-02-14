@@ -12,10 +12,11 @@ namespace dt::df
 
         void to_json(nlohmann::json &j) const
         {
-            j["id"] = id_;
-            j["name"] = name_;
-            j["type"] = type_;
-            j["visibility"] = visibility_rule_;
+            j = nlohmann::json{
+                {"id", id_},
+                {"name", name_},
+                {"type", type_},
+                {"visibility", visibility_rule_}};
         }
 
         ~Impl()
@@ -36,6 +37,11 @@ namespace dt::df
     BaseSlot::BaseSlot(const SlotId id, const SlotType type, const SlotName &name, SlotFieldVisibility visibility_rule)
         : impl_{new BaseSlot::Impl{id, type, name, visibility_rule}}
     {
+    }
+
+    BaseSlot::BaseSlot(const nlohmann::json &json)
+    {
+        impl_ = new BaseSlot::Impl{json["id"], json["type"], json["name"], json["visibility"]};
     }
 
     SlotId BaseSlot::id() const

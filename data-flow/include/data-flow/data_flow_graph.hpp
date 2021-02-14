@@ -14,7 +14,7 @@ namespace dt::df
         DataFlowGraph &operator=(const DataFlowGraph &) = delete;
 
         void registerBuildinNodes();
-        void registerNode(const NodeKey &key, NodeFactory &&factory);
+        void registerNode(const NodeKey &key, NodeFactory &&factory, NodeDeserializationFactory &&deser_factory);
         void addNode(const NodeKey &key);
         void removeNode(const NodeId id);
         void addEdge(const NodeId from, const NodeId to);

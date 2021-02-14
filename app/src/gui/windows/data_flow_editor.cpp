@@ -17,15 +17,29 @@ namespace gui
 
         df_editor_.graph().registerBuildinNodes();
 
-        df_editor_.graph().registerNode("int-node", [](dt::df::NodeIdGenerator &node_id, dt::df::SlotIdGenerator &slot_id) {
-            return std::make_shared<dt::df::BaseNode>(node_id(), "int-node", "INT",
-                                                      dt::df::Slots{},
-                                                      dt::df::Slots{std::make_shared<dt::df::IntSlot>(slot_id(), dt::df::SlotType::output, "int", dt::df::SlotFieldVisibility::always)});
-        });
+        df_editor_.graph().registerNode(
+            "int-node",
+            [](dt::df::NodeIdGenerator &node_id, dt::df::SlotIdGenerator &slot_id) {
+                return std::make_shared<dt::df::BaseNode>(node_id(), "int-node", "INT",
+                                                          dt::df::Slots{},
+                                                          dt::df::Slots{std::make_shared<dt::df::IntSlot>(slot_id(), dt::df::SlotType::output, "int", dt::df::SlotFieldVisibility::always)});
+            },
+            [](const nlohmann::json &j) {
+                return std::make_shared<dt::df::BaseNode>(j,
+                                                          dt::df::Slots{},
+                                                          dt::df::Slots{std::make_shared<dt::df::IntSlot>(j["outputs"][0])});
+            });
 
-        df_editor_.graph().registerNode(LED::kNodeKey, [](dt::df::NodeIdGenerator &node_id, dt::df::SlotIdGenerator &slot_id) {
-            return std::make_shared<LED>(node_id(), slot_id(), slot_id(), slot_id(), slot_id(), slot_id(), slot_id());
-        });
+        df_editor_.graph().registerNode(
+            LED::kNodeKey,
+            [](dt::df::NodeIdGenerator &node_id, dt::df::SlotIdGenerator &slot_id) {
+                return std::make_shared<LED>(node_id(), slot_id(), slot_id(), slot_id(), slot_id(), slot_id(), slot_id());
+            },
+            [](const nlohmann::json &j) {
+                return std::make_shared<LED>(j);
+            });
+
+        df_editor_.graph().clearAndLoad("test.json");
     }
 
     void DataFlowEditor::drawContent()
