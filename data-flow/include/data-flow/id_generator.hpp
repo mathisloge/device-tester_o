@@ -13,7 +13,12 @@ namespace dt::df
         IdGenerator &operator=(const IdGenerator &) = delete;
 
     private:
+        void reset(int value = 0);
+
+    private:
         class Impl;
         Impl *impl_;
+
+        friend class GraphImpl;
     };
 } // namespace dt::df

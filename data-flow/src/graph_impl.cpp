@@ -344,12 +344,31 @@ namespace dt::df
                 auto source = findSlotById(link_j.at(0));
             }
         }
+        int highest_vertex_id = 0;
+        for (const auto &node : nodes_)
+        {
+            if (node.second->id() > highest_vertex_id)
+                highest_vertex_id = node.second->id();
+            for (const auto &slot : node.second->inputs())
+            {
+                if (slot->id() > highest_vertex_id)
+                    highest_vertex_id = slot->id();
+            }
+            for (const auto &slot : node.second->outputs())
+            {
+                if (slot->id() > highest_vertex_id)
+                    highest_vertex_id = slot->id();
+            }
+        }
+        vertex_id_counter_.reset(highest_vertex_id + 1);
     }
 
     void GraphImpl::clear()
     {
         graph_.clear();
         nodes_.clear();
+        link_id_counter_.reset(0);
+        vertex_id_counter_.reset(0);
     }
 
     GraphImpl::~GraphImpl()

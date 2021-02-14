@@ -10,6 +10,10 @@ namespace dt::df
             : id_{0}
         {
         }
+        void reset(int value)
+        {
+            id_ = value;
+        }
         int operator()()
         {
             return id_++;
@@ -22,6 +26,12 @@ namespace dt::df
         : impl_{new Impl{}}
     {
     }
+
+    void IdGenerator::reset(int value)
+    {
+        impl_->reset(value);
+    }
+
     int IdGenerator::operator()()
     {
         return (*impl_)();
