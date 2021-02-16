@@ -6,8 +6,9 @@ namespace dt::df
     TriggerSlot::TriggerSlot(const SlotId id,
                              const SlotType type,
                              const SlotName &name,
+                             const SlotId local_id,
                              SlotFieldVisibility visibility_rule)
-        : BaseSlot{id, type, name, visibility_rule}
+        : BaseSlot{kKey, id, type, name, local_id, visibility_rule}
     {
     }
 

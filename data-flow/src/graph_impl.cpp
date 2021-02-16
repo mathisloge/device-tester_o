@@ -238,6 +238,7 @@ namespace dt::df
             node.second->render();
         }
     }
+    
     void GraphImpl::renderLinks()
     {
         boost::graph_traits<Graph>::vertex_iterator vi, vi_end;

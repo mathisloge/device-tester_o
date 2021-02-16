@@ -65,6 +65,16 @@ namespace dt::df
             }
         }
 
+        template <class Predicate>
+        static SlotPtr find(const Slots &slots, Predicate pred)
+        {
+            auto slot_it = std::find_if(slots.begin(), slots.end(), pred);
+
+            if (slot_it == slots.end())
+                return nullptr;
+            return *slot_it;
+        }
+
     private:
         const NodeId id_;
         const NodeKey key_;
@@ -158,23 +168,28 @@ namespace dt::df
 
     SlotPtr BaseNode::inputs(const SlotId id) const
     {
-        auto slot_it = std::find_if(impl_->inputs_.begin(), impl_->inputs_.end(), [id](const auto &slot) {
+        return impl_->find(impl_->inputs_, [id](const auto &slot) {
             return slot->id() == id;
         });
-
-        if (slot_it == impl_->inputs_.end())
-            return nullptr;
-        return *slot_it;
     }
     SlotPtr BaseNode::outputs(const SlotId id) const
     {
-        auto slot_it = std::find_if(impl_->outputs_.begin(), impl_->outputs_.end(), [id](const auto &slot) {
+        return impl_->find(impl_->outputs_, [id](const auto &slot) {
             return slot->id() == id;
         });
+    }
 
-        if (slot_it == impl_->outputs_.end())
-            return nullptr;
-        return *slot_it;
+    SlotPtr BaseNode::inputByLocalId(const SlotId id) const
+    {
+        return impl_->find(impl_->inputs_, [id](const auto &slot) {
+            return slot->localId() == id;
+        });
+    }
+    SlotPtr BaseNode::outputByLocalId(const SlotId id) const
+    {
+        return impl_->find(impl_->outputs_, [id](const auto &slot) {
+            return slot->localId() == id;
+        });
     }
 
     void BaseNode::to_json(nlohmann::json &j) const

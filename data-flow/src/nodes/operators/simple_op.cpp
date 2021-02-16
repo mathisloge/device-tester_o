@@ -28,9 +28,9 @@ namespace dt::df::operators
                        const SlotId out_res, const std::string &result_name)
         : BaseNode{id, key, title,
                    Slots{
-                       std::make_shared<FloatingSlot>(in_a, SlotType::input, in_a_name),
-                       std::make_shared<FloatingSlot>(in_b, SlotType::input, in_b_name)},
-                   Slots{std::make_shared<FloatingSlot>(out_res, SlotType::output, result_name)}},
+                       std::make_shared<FloatingSlot>(FloatingSlot::kKey, in_a, SlotType::input, in_a_name),
+                       std::make_shared<FloatingSlot>(FloatingSlot::kKey, in_b, SlotType::input, in_b_name)},
+                   Slots{std::make_shared<FloatingSlot>(FloatingSlot::kKey, out_res, SlotType::output, result_name)}},
           impl_{new Impl{}}
     {
         impl_->result_slot = std::dynamic_pointer_cast<NumberSlot>(outputs()[0]);

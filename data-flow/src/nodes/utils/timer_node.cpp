@@ -61,8 +61,8 @@ namespace dt::df
                          const SlotId input_timer_id,
                          const SlotId output_trigger_id)
         : BaseNode{id, kNodeKey, "Timer",
-                   Slots{std::make_shared<IntSlot>(input_timer_id, SlotType::input, "milliseconds")},
-                   Slots{std::make_shared<TriggerSlot>(output_trigger_id, SlotType::output, "trigger", SlotFieldVisibility::never)}},
+                   Slots{std::make_shared<IntSlot>(IntSlot::kKey, input_timer_id, SlotType::input, "milliseconds")},
+                   Slots{std::make_shared<TriggerSlot>(output_trigger_id, SlotType::output, "trigger",0, SlotFieldVisibility::never)}},
           impl_{new TimerNode::Impl{
               std::dynamic_pointer_cast<IntSlot>(inputs()[0]),
               std::dynamic_pointer_cast<TriggerSlot>(outputs()[0])}}

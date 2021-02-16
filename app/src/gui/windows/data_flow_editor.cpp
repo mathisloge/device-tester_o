@@ -22,7 +22,7 @@ namespace gui
             [](dt::df::NodeIdGenerator &node_id, dt::df::SlotIdGenerator &slot_id) {
                 return std::make_shared<dt::df::BaseNode>(node_id(), "int-node", "INT",
                                                           dt::df::Slots{},
-                                                          dt::df::Slots{std::make_shared<dt::df::IntSlot>(slot_id(), dt::df::SlotType::output, "int", dt::df::SlotFieldVisibility::always)});
+                                                          dt::df::Slots{std::make_shared<dt::df::IntSlot>(dt::df::IntSlot::kKey, slot_id(), dt::df::SlotType::output, "int", 0, dt::df::SlotFieldVisibility::always)});
             },
             [](const nlohmann::json &j) {
                 return std::make_shared<dt::df::BaseNode>(j,

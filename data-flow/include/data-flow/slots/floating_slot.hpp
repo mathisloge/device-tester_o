@@ -6,6 +6,9 @@ namespace dt::df
     class DATAFLOW_EXPORT FloatingSlot final : public NumberSlot
     {
     public:
+        static constexpr std::string_view kKey = "FloatingSlot";
+
+    public:
         using NumberSlot::NumberSlot;
         double value() const override;
         void accept(double value) override;

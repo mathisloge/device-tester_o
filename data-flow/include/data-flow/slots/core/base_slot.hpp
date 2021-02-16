@@ -14,12 +14,18 @@ namespace dt::df
         using EvaluationSignal = boost::signals2::signal<void(SlotId)>;
 
     public:
-        BaseSlot(const SlotId id,
+        BaseSlot(const SlotKey &key,
+                 const SlotId id,
                  const SlotType type,
                  const SlotName &name,
+                 const SlotId local_id = 0,
                  SlotFieldVisibility visibility_rule = SlotFieldVisibility::without_connection);
         BaseSlot(const nlohmann::json &json);
+        const SlotKey &key() const;
         SlotId id() const;
+        SlotId localId() const;
+        void localId(const SlotId id);
+
         SlotType type() const;
         const SlotName &name() const;
         virtual void connectEvent();
@@ -39,6 +45,8 @@ namespace dt::df
 
         virtual void to_json(nlohmann::json &j) const;
 
+        BaseSlot(const BaseSlot &) = delete;
+        BaseSlot &operator=(const BaseSlot &) = delete;
         virtual ~BaseSlot();
 
     protected:

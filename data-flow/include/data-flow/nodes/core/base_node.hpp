@@ -24,6 +24,8 @@ namespace dt::df
         const Slots &outputs() const;
         SlotPtr inputs(const SlotId id) const;
         SlotPtr outputs(const SlotId id) const;
+        SlotPtr inputByLocalId(const SlotId id) const;
+        SlotPtr outputByLocalId(const SlotId id) const;
 
         virtual void to_json(nlohmann::json &j) const;
 

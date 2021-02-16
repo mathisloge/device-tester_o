@@ -15,39 +15,17 @@ LED::LED(const dt::df::NodeId id,
          const dt::df::SlotId a_id)
     : BaseNode(id, kNodeKey, "LED",
                dt::df::Slots{
-                   std::make_shared<dt::df::TriggerSlot>(trigger_id, dt::df::SlotType::input),
-                   std::make_shared<dt::df::IntSlot>(light_dur_id, dt::df::SlotType::input, "duration (ms)"),
-                   std::make_shared<dt::df::FloatingSlot>(r_id, dt::df::SlotType::input, "r"),
-                   std::make_shared<dt::df::FloatingSlot>(g_id, dt::df::SlotType::input, "g"),
-                   std::make_shared<dt::df::FloatingSlot>(b_id, dt::df::SlotType::input, "b"),
-                   std::make_shared<dt::df::FloatingSlot>(a_id, dt::df::SlotType::input, "a")},
+                   std::make_shared<dt::df::TriggerSlot>(trigger_id, dt::df::SlotType::input, "trigger", 0),
+                   std::make_shared<dt::df::IntSlot>(dt::df::IntSlot::kKey, light_dur_id, dt::df::SlotType::input, "duration (ms)", 1),
+                   std::make_shared<dt::df::FloatingSlot>(dt::df::FloatingSlot::kKey, r_id, dt::df::SlotType::input, "r", 2),
+                   std::make_shared<dt::df::FloatingSlot>(dt::df::FloatingSlot::kKey, g_id, dt::df::SlotType::input, "g", 3),
+                   std::make_shared<dt::df::FloatingSlot>(dt::df::FloatingSlot::kKey, b_id, dt::df::SlotType::input, "b", 4),
+                   std::make_shared<dt::df::FloatingSlot>(dt::df::FloatingSlot::kKey, a_id, dt::df::SlotType::input, "a", 5)},
                dt::df::Slots{}),
       color_{0.f, 1.f, 0.f, 1.f},
       dur_{50ms}
 {
-    inputs()[0]->subscribe([this](const dt::df::BaseSlot *) {
-        tp_ = std::chrono::system_clock::now();
-    });
-    inputs()[1]->subscribe([this](const dt::df::BaseSlot *slot) {
-        auto int_slot = static_cast<const dt::df::IntSlot *>(slot);
-        dur_ = std::chrono::milliseconds(int_slot->valueInt());
-    });
-    inputs()[2]->subscribe([this](const dt::df::BaseSlot *slot) {
-        auto in_slot = static_cast<const dt::df::FloatingSlot *>(slot);
-        color_.Value.x = in_slot->value();
-    });
-    inputs()[3]->subscribe([this](const dt::df::BaseSlot *slot) {
-        auto in_slot = static_cast<const dt::df::FloatingSlot *>(slot);
-        color_.Value.y = in_slot->value();
-    });
-    inputs()[4]->subscribe([this](const dt::df::BaseSlot *slot) {
-        auto in_slot = static_cast<const dt::df::FloatingSlot *>(slot);
-        color_.Value.z = in_slot->value();
-    });
-    inputs()[5]->subscribe([this](const dt::df::BaseSlot *slot) {
-        auto in_slot = static_cast<const dt::df::FloatingSlot *>(slot);
-        color_.Value.w = in_slot->value();
-    });
+    initInputs();
 }
 
 static dt::df::Slots makeInputs(const nlohmann::json &json)
@@ -58,9 +36,10 @@ static dt::df::Slots makeInputs(const nlohmann::json &json)
         const auto &inputs = json.at("inputs");
         for (const auto &in : inputs)
         {
-            if (in.at("name") == "trigger")
+            const int local_id = in.at("localid");
+            if (local_id == 0)
                 slots.emplace_back(std::make_shared<dt::df::TriggerSlot>(in));
-            else if (in.at("name") == "duration (ms)")
+            else if (local_id == 1)
                 slots.emplace_back(std::make_shared<dt::df::IntSlot>(in));
             else
                 slots.emplace_back(std::make_shared<dt::df::FloatingSlot>(in));
@@ -76,51 +55,34 @@ LED::LED(const nlohmann::json &json)
       color_{colorFrom(json)},
       dur_{50ms}
 {
-    for (const auto &in_slot : inputs())
-    {
-        const auto &name = in_slot->name();
-        if (name == "trigger")
-        {
-            in_slot->subscribe([this](const dt::df::BaseSlot *) {
-                tp_ = std::chrono::system_clock::now();
-            });
-        }
-        else if (name == "duration (ms)")
-        {
-            in_slot->subscribe([this](const dt::df::BaseSlot *slot) {
-                auto int_slot = static_cast<const dt::df::IntSlot *>(slot);
-                dur_ = std::chrono::milliseconds(int_slot->valueInt());
-            });
-        }
-        else if (name == "r")
-        {
-            in_slot->subscribe([this](const dt::df::BaseSlot *slot) {
-                auto in_slot = static_cast<const dt::df::FloatingSlot *>(slot);
-                color_.Value.x = in_slot->value();
-            });
-        }
-        else if (name == "g")
-        {
-            in_slot->subscribe([this](const dt::df::BaseSlot *slot) {
-                auto in_slot = static_cast<const dt::df::FloatingSlot *>(slot);
-                color_.Value.y = in_slot->value();
-            });
-        }
-        else if (name == "b")
-        {
-            in_slot->subscribe([this](const dt::df::BaseSlot *slot) {
-                auto in_slot = static_cast<const dt::df::FloatingSlot *>(slot);
-                color_.Value.z = in_slot->value();
-            });
-        }
-        else if (name == "a")
-        {
-            in_slot->subscribe([this](const dt::df::BaseSlot *slot) {
-                auto in_slot = static_cast<const dt::df::FloatingSlot *>(slot);
-                color_.Value.w = in_slot->value();
-            });
-        }
-    }
+    initInputs();
+}
+
+void LED::initInputs()
+{
+    inputByLocalId(0)->subscribe([this](const dt::df::BaseSlot *) {
+        tp_ = std::chrono::system_clock::now();
+    });
+    inputByLocalId(1)->subscribe([this](const dt::df::BaseSlot *slot) {
+        auto int_slot = static_cast<const dt::df::IntSlot *>(slot);
+        dur_ = std::chrono::milliseconds(int_slot->valueInt());
+    });
+    inputByLocalId(2)->subscribe([this](const dt::df::BaseSlot *slot) {
+        auto in_slot = static_cast<const dt::df::FloatingSlot *>(slot);
+        color_.Value.x = in_slot->value();
+    });
+    inputByLocalId(3)->subscribe([this](const dt::df::BaseSlot *slot) {
+        auto in_slot = static_cast<const dt::df::FloatingSlot *>(slot);
+        color_.Value.y = in_slot->value();
+    });
+    inputByLocalId(4)->subscribe([this](const dt::df::BaseSlot *slot) {
+        auto in_slot = static_cast<const dt::df::FloatingSlot *>(slot);
+        color_.Value.z = in_slot->value();
+    });
+    inputByLocalId(5)->subscribe([this](const dt::df::BaseSlot *slot) {
+        auto in_slot = static_cast<const dt::df::FloatingSlot *>(slot);
+        color_.Value.w = in_slot->value();
+    });
 }
 
 void LED::to_json(nlohmann::json &j) const

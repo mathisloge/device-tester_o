@@ -20,6 +20,7 @@ public:
     ~LED();
 
 private:
+    void initInputs();
     void renderCustomContent() override;
     static ImColor colorFrom(const nlohmann::json &j);
 
