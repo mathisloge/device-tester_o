@@ -33,11 +33,11 @@ namespace dt::df::operators
     return a <= b;
     DT_DF_IMPL_SIMPLE_CMP_END
 
-    DT_DF_IMPL_SIMPLE_CMP_BEGIN(EQ, leq, a, b, result)
+    DT_DF_IMPL_SIMPLE_CMP_BEGIN(EQ, eq, a, b, result)
     return std::abs(a - b) < std::numeric_limits<double>::epsilon();
     DT_DF_IMPL_SIMPLE_CMP_END
 
-    DT_DF_IMPL_SIMPLE_CMP_BEGIN(NEQ, leq, a, b, result)
+    DT_DF_IMPL_SIMPLE_CMP_BEGIN(NEQ, neq, a, b, result)
     return std::abs(a - b) > std::numeric_limits<double>::epsilon();
     DT_DF_IMPL_SIMPLE_CMP_END
 
