@@ -25,6 +25,7 @@ add_library(DataFlow STATIC
     src/slots/int_slot.cpp
     src/slots/floating_slot.cpp
     src/slots/trigger_slot.cpp
+    src/slots/bool_slot.cpp
 
     src/nodes/core/base_node.cpp
     src/nodes/core/json.cpp
@@ -32,6 +33,7 @@ add_library(DataFlow STATIC
     src/nodes/interaction/color_node.cpp
     src/nodes/operators/simple_op.cpp
     src/nodes/operators/standard_ops.cpp
+    src/nodes/operators/simple_cmp.cpp
 )
 add_library(devicetester::dataflow ALIAS DataFlow)
 generate_export_header(DataFlow)

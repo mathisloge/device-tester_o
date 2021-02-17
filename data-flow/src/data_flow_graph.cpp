@@ -7,11 +7,11 @@ namespace dt::df
 {
 
     template <typename TSimpleOp>
-    void registerSimpleOp(DataFlowGraph &fg)
+    void registerSimpleOp(DataFlowGraph &fg, const std::string &group)
     {
         fg.registerNode(
             TSimpleOp::kNodeKey,
-            std::string("operators/") + TSimpleOp::kNodeName,
+            group + TSimpleOp::kNodeName,
             [](NodeIdGenerator &node_id, SlotIdGenerator &slot_id) { return std::make_shared<TSimpleOp>(node_id(), slot_id(), slot_id(), slot_id()); },
             [](const nlohmann::json &j) { return std::make_shared<TSimpleOp>(j); });
     }
@@ -42,11 +42,17 @@ namespace dt::df
                 return std::make_shared<ColorNode>(j);
             });
 
-        registerSimpleOp<operators::Division>(*this);
-        registerSimpleOp<operators::Multiplication>(*this);
-        registerSimpleOp<operators::Addition>(*this);
-        registerSimpleOp<operators::Subtraction>(*this);
-        registerSimpleOp<operators::Modulo>(*this);
+        registerSimpleOp<operators::Division>(*this, "operators/math/");
+        registerSimpleOp<operators::Multiplication>(*this, "operators/math/");
+        registerSimpleOp<operators::Addition>(*this, "operators/math/");
+        registerSimpleOp<operators::Subtraction>(*this, "operators/math/");
+        registerSimpleOp<operators::Modulo>(*this, "operators/math/");
+        registerSimpleOp<operators::Less>(*this, "operators/cmp/");
+        registerSimpleOp<operators::LEQ>(*this, "operators/cmp/");
+        registerSimpleOp<operators::EQ>(*this, "operators/cmp/");
+        registerSimpleOp<operators::NEQ>(*this, "operators/cmp/");
+        registerSimpleOp<operators::GEQ>(*this, "operators/cmp/");
+        registerSimpleOp<operators::Greater>(*this, "operators/cmp/");
     }
 
     void DataFlowGraph::registerNode(const NodeKey &key, const std::string &node_display_name, NodeFactory &&factory, NodeDeserializationFactory &&deser_factory)

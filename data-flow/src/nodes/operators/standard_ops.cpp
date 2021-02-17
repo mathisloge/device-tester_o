@@ -1,6 +1,5 @@
 #include "data-flow/nodes/operators/standard_ops.hpp"
 #include "simple_op_builder_impl.hpp"
-
 namespace dt::df::operators
 {
 
@@ -25,5 +24,29 @@ namespace dt::df::operators
     DT_DF_IMPL_SIMPLE_OP_BEGIN(Modulo, modulo, a, n, result)
     return std::fmod(a, b);
     DT_DF_IMPL_SIMPLE_OP_END
+
+    DT_DF_IMPL_SIMPLE_CMP_BEGIN(Less, less, a, b, result)
+    return a < b;
+    DT_DF_IMPL_SIMPLE_CMP_END
+
+    DT_DF_IMPL_SIMPLE_CMP_BEGIN(LEQ, leq, a, b, result)
+    return a <= b;
+    DT_DF_IMPL_SIMPLE_CMP_END
+
+    DT_DF_IMPL_SIMPLE_CMP_BEGIN(EQ, leq, a, b, result)
+    return std::abs(a - b) < std::numeric_limits<double>::epsilon();
+    DT_DF_IMPL_SIMPLE_CMP_END
+
+    DT_DF_IMPL_SIMPLE_CMP_BEGIN(NEQ, leq, a, b, result)
+    return std::abs(a - b) > std::numeric_limits<double>::epsilon();
+    DT_DF_IMPL_SIMPLE_CMP_END
+
+    DT_DF_IMPL_SIMPLE_CMP_BEGIN(GEQ, geq, a, b, result)
+    return a >= b;
+    DT_DF_IMPL_SIMPLE_CMP_END
+
+    DT_DF_IMPL_SIMPLE_CMP_BEGIN(Greater, greater, a, b, result)
+    return a > b;
+    DT_DF_IMPL_SIMPLE_CMP_END
 
 } // namespace dt::df::operators
