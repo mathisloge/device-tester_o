@@ -123,7 +123,9 @@ namespace dt::df
 
     void BaseNode::render()
     {
+        impl_->updatePosIfNeeded();
         imnodes::BeginNode(impl_->id_);
+
         imnodes::BeginNodeTitleBar();
         ImGui::TextUnformatted(impl_->title_.c_str());
         imnodes::EndNodeTitleBar();
@@ -144,8 +146,6 @@ namespace dt::df
             imnodes::EndOutputAttribute();
         }
         imnodes::EndNode();
-
-        impl_->updatePosIfNeeded();
     }
 
     void BaseNode::setPosition(int x, int y, bool is_screen_coords)
