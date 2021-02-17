@@ -6,13 +6,17 @@ namespace dt::df
     class DATAFLOW_EXPORT DataFlowEditor
     {
     public:
+        static constexpr std::string_view kDndTarget = "DND_DATAFLOW";
+
+    public:
         DataFlowEditor();
-        DataFlowEditor(const DataFlowEditor&) = delete;
-        DataFlowEditor& operator=(const DataFlowEditor&) = delete;
-        
+        DataFlowEditor(const DataFlowEditor &) = delete;
+        DataFlowEditor &operator=(const DataFlowEditor &) = delete;
+
         void render();
-        DataFlowGraph& graph();
-        const DataFlowGraph& graph() const;
+        void renderNodeDisplayTree(const NodeDisplayDrawFnc &draw_fnc) const;
+        DataFlowGraph &graph();
+        const DataFlowGraph &graph() const;
 
         virtual ~DataFlowEditor();
 

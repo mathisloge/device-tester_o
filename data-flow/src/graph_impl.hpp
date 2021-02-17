@@ -5,14 +5,15 @@
 #include <thread>
 #include <filesystem>
 #include "bounded_buffer.hpp"
+#include "node_display_tree.hpp"
 namespace dt::df
 {
     class GraphImpl final
     {
     public:
         GraphImpl();
-        void registerNodeFactory(const NodeKey &key, NodeFactory &&factory, NodeDeserializationFactory &&deser_factory);
-        void createNode(const NodeKey &key);
+        void registerNodeFactory(const NodeKey &key, const std::string &node_display_name, NodeFactory &&factory, NodeDeserializationFactory &&deser_factory);
+        void createNode(const NodeKey &key, int preferred_x, int preferred_y, bool screen_space);
         void removeNode(const NodeId id);
         void addEdge(const VertexDesc from, const VertexDesc to);
         void removeEdge(const EdgeId id);
@@ -24,6 +25,7 @@ namespace dt::df
         void save(const std::filesystem::path &file);
         void clearAndLoad(const std::filesystem::path &file);
         void clear();
+        const NodeDisplayGraph &nodeDisplayNames() const;
         ~GraphImpl();
 
     private:
@@ -42,6 +44,7 @@ namespace dt::df
         IdGenerator vertex_id_counter_;
         std::unordered_map<NodeKey, NodeFactory> node_factories_;
         std::unordered_map<NodeKey, NodeDeserializationFactory> node_deser_factories_;
+        NodeDisplayGraph node_display_names_;
         std::unordered_map<NodeId, NodePtr> nodes_;
 
         bool run_evaluation_;

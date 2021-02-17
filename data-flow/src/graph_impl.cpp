@@ -13,10 +13,12 @@ namespace dt::df
           evaluation_queue_{200}
     {
     }
-    void GraphImpl::registerNodeFactory(const NodeKey &key, NodeFactory &&factory, NodeDeserializationFactory &&deser_factory)
+    void GraphImpl::registerNodeFactory(const NodeKey &key, const std::string &node_display_name, NodeFactory &&factory, NodeDeserializationFactory &&deser_factory)
     {
         node_factories_.emplace(key, std::forward<NodeFactory>(factory));
         node_deser_factories_.emplace(key, std::forward<NodeDeserializationFactory>(deser_factory));
+
+        node_display_names_.addNode(key, node_display_name);
     }
 
     const NodeFactory &GraphImpl::getNodeFactory(const NodeKey &key) const
@@ -35,10 +37,11 @@ namespace dt::df
         return factory_fnc_it->second;
     }
 
-    void GraphImpl::createNode(const NodeKey &key)
+    void GraphImpl::createNode(const NodeKey &key, int preferred_x, int preferred_y, bool screen_space)
     {
         auto node = getNodeFactory(key)(vertex_id_counter_, vertex_id_counter_);
         addNode(node);
+        node->setPosition(preferred_x, preferred_y, screen_space);
     }
 
     void GraphImpl::addNode(const NodePtr &node)
@@ -238,7 +241,7 @@ namespace dt::df
             node.second->render();
         }
     }
-    
+
     void GraphImpl::renderLinks()
     {
         boost::graph_traits<Graph>::vertex_iterator vi, vi_end;
@@ -308,7 +311,7 @@ namespace dt::df
     void GraphImpl::clearAndLoad(const std::filesystem::path &file)
     {
         using nlohmann::json;
-        if (!std::filesystem::exists(file) && std::filesystem::is_regular_file(file))
+        if (!std::filesystem::exists(file) || !std::filesystem::is_regular_file(file))
         {
             return;
         }
@@ -370,6 +373,11 @@ namespace dt::df
         nodes_.clear();
         link_id_counter_.reset(0);
         vertex_id_counter_.reset(0);
+    }
+
+    const NodeDisplayGraph &GraphImpl::nodeDisplayNames() const
+    {
+        return node_display_names_;
     }
 
     GraphImpl::~GraphImpl()

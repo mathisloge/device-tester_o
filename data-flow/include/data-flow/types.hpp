@@ -12,5 +12,7 @@ namespace dt::df
     using NodeIdGenerator = IdGenerator;
     using SlotIdGenerator = IdGenerator;
     using NodeFactory = std::function<NodePtr(NodeIdGenerator &, SlotIdGenerator &)>;
-    using NodeDeserializationFactory = std::function<NodePtr(const nlohmann::json&)>;
+    using NodeDeserializationFactory = std::function<NodePtr(const nlohmann::json &)>;
+    using NodeDisplayDrawFnc = std::function<void(int prev_level, int level, bool is_leaf, const std::string &node_key, const std::string &node_name)>;
+
 } // namespace dt::df

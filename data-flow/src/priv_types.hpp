@@ -45,4 +45,14 @@ namespace dt::df
 
     using VertexDesc = Graph::vertex_descriptor;
     using EdgeDesc = Graph::edge_descriptor;
+
+    struct NodeDisplayVertex
+    {
+        std::string node_key; //! might be empty if a group
+        std::string display_name;
+    };
+    using NodeTree = boost::adjacency_list<boost::vecS,
+                                           boost::vecS,
+                                           boost::directedS,
+                                           NodeDisplayVertex>;
 } // namespace dt::df

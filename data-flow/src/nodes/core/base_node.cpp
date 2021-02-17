@@ -50,9 +50,10 @@ namespace dt::df
             j["position"] = {{"x", position.x}, {"y", position.y}};
         }
 
-        void setPosition(int x, int y)
+        void setPosition(int x, int y, bool is_screen_coords = false)
         {
             position_ = {static_cast<float>(x), static_cast<float>(y)};
+            is_screen_coords_ = is_screen_coords;
             position_was_updated_ = true;
         }
 
@@ -60,7 +61,10 @@ namespace dt::df
         {
             if (position_was_updated_)
             {
-                imnodes::SetNodeEditorSpacePos(id_, position_);
+                if (is_screen_coords_)
+                    imnodes::SetNodeEditorSpacePos(id_, position_);
+                else
+                    imnodes::SetNodeScreenSpacePos(id_, position_);
                 position_was_updated_ = false;
             }
         }
@@ -83,6 +87,7 @@ namespace dt::df
         const Slots outputs_;
 
         bool position_was_updated_;
+        bool is_screen_coords_;
         ImVec2 position_;
 
         friend BaseNode;
@@ -143,9 +148,9 @@ namespace dt::df
         impl_->updatePosIfNeeded();
     }
 
-    void BaseNode::setPosition(int x, int y)
+    void BaseNode::setPosition(int x, int y, bool is_screen_coords)
     {
-        impl_->setPosition(x, y);
+        impl_->setPosition(x, y, is_screen_coords);
     }
 
     void BaseNode::renderCustomContent()

@@ -18,7 +18,7 @@ namespace dt::df
         NodeId id() const;
         const NodeKey &key() const;
         virtual void render();
-        void setPosition(int x, int y);
+        void setPosition(int x, int y, bool is_screen_coords = false);
 
         const Slots &inputs() const;
         const Slots &outputs() const;

@@ -16,6 +16,7 @@ add_library(DataFlow STATIC
     src/data_flow_graph.cpp
     src/data_flow_editor.cpp
     src/graph_impl.cpp
+    src/node_display_tree.cpp
     src/id_generator.cpp
     src/priv_types.cpp
     
@@ -44,6 +45,7 @@ target_link_libraries(DataFlow PUBLIC
 
 target_link_libraries(DataFlow PRIVATE
     imgui::imnodes
+    spdlog::spdlog
 )
 
 set_property(TARGET DataFlow PROPERTY CXX_STANDARD 20)

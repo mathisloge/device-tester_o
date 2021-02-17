@@ -11,6 +11,7 @@ namespace dt::df
     {
         fg.registerNode(
             TSimpleOp::kNodeKey,
+            std::string("operators/") + TSimpleOp::kNodeName,
             [](NodeIdGenerator &node_id, SlotIdGenerator &slot_id) { return std::make_shared<TSimpleOp>(node_id(), slot_id(), slot_id(), slot_id()); },
             [](const nlohmann::json &j) { return std::make_shared<TSimpleOp>(j); });
     }
@@ -24,6 +25,7 @@ namespace dt::df
     {
         registerNode(
             TimerNode::kNodeKey,
+            "utils/Timer Node",
             [](NodeIdGenerator &node_id, SlotIdGenerator &slot_id) {
                 return std::make_shared<TimerNode>(node_id(), slot_id(), slot_id());
             },
@@ -32,6 +34,7 @@ namespace dt::df
             });
         registerNode(
             ColorNode::kNodeKey,
+            "interaction/Color Node",
             [](NodeIdGenerator &node_id, SlotIdGenerator &slot_id) {
                 return std::make_shared<ColorNode>(node_id(), slot_id(), slot_id(), slot_id(), slot_id());
             },
@@ -43,15 +46,16 @@ namespace dt::df
         registerSimpleOp<operators::Multiplication>(*this);
         registerSimpleOp<operators::Addition>(*this);
         registerSimpleOp<operators::Subtraction>(*this);
+        registerSimpleOp<operators::Modulo>(*this);
     }
 
-    void DataFlowGraph::registerNode(const NodeKey &key, NodeFactory &&factory, NodeDeserializationFactory &&deser_factory)
+    void DataFlowGraph::registerNode(const NodeKey &key, const std::string &node_display_name, NodeFactory &&factory, NodeDeserializationFactory &&deser_factory)
     {
-        impl_->registerNodeFactory(key, std::forward<NodeFactory>(factory), std::forward<NodeDeserializationFactory>(deser_factory));
+        impl_->registerNodeFactory(key, node_display_name, std::forward<NodeFactory>(factory), std::forward<NodeDeserializationFactory>(deser_factory));
     }
-    void DataFlowGraph::addNode(const NodeKey &key)
+    void DataFlowGraph::addNode(const NodeKey &key, int preferred_x, int preferred_y, bool screen_space)
     {
-        impl_->createNode(key);
+        impl_->createNode(key, preferred_x, preferred_y, screen_space);
     }
     void DataFlowGraph::removeNode(const NodeId id)
     {
@@ -87,9 +91,19 @@ namespace dt::df
         impl_->save(file);
     }
 
+    void DataFlowGraph::clear()
+    {
+        impl_->clear();
+    }
+
     void DataFlowGraph::clearAndLoad(const std::filesystem::path &file)
     {
         impl_->clearAndLoad(file);
+    }
+
+    void DataFlowGraph::renderNodeDisplayTree(const NodeDisplayDrawFnc &draw_fnc) const
+    {
+        impl_->nodeDisplayNames().drawTree(draw_fnc);
     }
 
     DataFlowGraph::~DataFlowGraph()

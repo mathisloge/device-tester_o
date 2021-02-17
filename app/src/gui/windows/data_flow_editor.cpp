@@ -19,6 +19,7 @@ namespace gui
 
         df_editor_.graph().registerNode(
             "int-node",
+            "utils/Int Node",
             [](dt::df::NodeIdGenerator &node_id, dt::df::SlotIdGenerator &slot_id) {
                 return std::make_shared<dt::df::BaseNode>(node_id(), "int-node", "INT",
                                                           dt::df::Slots{},
@@ -32,14 +33,13 @@ namespace gui
 
         df_editor_.graph().registerNode(
             LED::kNodeKey,
+            "interaction/LED",
             [](dt::df::NodeIdGenerator &node_id, dt::df::SlotIdGenerator &slot_id) {
                 return std::make_shared<LED>(node_id(), slot_id(), slot_id(), slot_id(), slot_id(), slot_id(), slot_id());
             },
             [](const nlohmann::json &j) {
                 return std::make_shared<LED>(j);
             });
-
-        df_editor_.graph().clearAndLoad("test.json");
     }
 
     void DataFlowEditor::drawContent()
@@ -49,33 +49,45 @@ namespace gui
             ImGui::BeginChild("sidbar_data_flow", ImVec2{kSidebarWidth, 0}, true);
             if (ImGui::Button("Refresh protocols", ImVec2{kSidebarWidth, 0}))
                 refreshProtocols();
+            if (ImGui::Button("Clear graph", ImVec2{kSidebarWidth, 0}))
+                df_editor_.graph().clear();
 
-            if (ImGui::Button("ADD TIMER NODE"))
-            {
-                df_editor_.graph().addNode(dt::df::TimerNode::kNodeKey);
-            }
-            if (ImGui::Button("ADD COLOR NODE"))
-            {
-                df_editor_.graph().addNode("color-node");
-            }
-            if (ImGui::Button("ADD DIV NODE"))
-                df_editor_.graph().addNode("Division-op-node");
-
-            if (ImGui::Button("ADD INT NODE"))
-            {
-                df_editor_.graph().addNode("int-node");
-            }
-
-            if (ImGui::Button("ADD LED NODE"))
-            {
-                df_editor_.graph().addNode(LED::kNodeKey);
-            }
-
-            if (ImGui::Button("SAVE"))
-            {
+            if (ImGui::Button("Save current", ImVec2{kSidebarWidth, 0}))
                 df_editor_.graph().save("test.json");
-            }
 
+            if (ImGui::Button("Load", ImVec2{kSidebarWidth, 0}))
+                df_editor_.graph().clearAndLoad("test.json");
+
+            {
+                bool need_next_draw = true;
+                int level_draw = -1;
+                df_editor_.renderNodeDisplayTree([&need_next_draw, &level_draw](int prev_level, int level, bool is_leaf, const std::string &node_key, const std::string &node_name) {
+                    if (!need_next_draw && level_draw < level)
+                        return;
+                    if (!is_leaf && prev_level < level)
+                    {
+                        need_next_draw = ImGui::TreeNode(node_name.c_str());
+                        level_draw = level;
+                    }
+                    else if (!is_leaf && prev_level == level)
+                    {
+                        if (need_next_draw)
+                            ImGui::TreePop();
+                        need_next_draw = true;
+                        level_draw = 0;
+                    }
+                    else if (is_leaf && prev_level < level)
+                    {
+                        ImGui::SmallButton(node_name.c_str());
+                        if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+                        {
+                            ImGui::SetDragDropPayload(kDndTarget, node_key.c_str(), node_key.size());
+                            ImGui::Text(node_name.c_str());
+                            ImGui::EndDragDropSource();
+                        }
+                    }
+                });
+            }
             if (ImGui::TreeNode("Protocols"))
             {
                 drawProtocols();

@@ -4,6 +4,7 @@
     {                                                                \
     public:                                                          \
         static constexpr const char *kNodeKey = #OP_NAME "-op-node"; \
+        static constexpr const char *kNodeName = #OP_NAME " Node";   \
         OP_NAME(const NodeId id,                                     \
                 const SlotId in_a,                                   \
                 const SlotId in_b,                                   \
