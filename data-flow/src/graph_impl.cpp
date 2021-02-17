@@ -315,6 +315,8 @@ namespace dt::df
         {
             return;
         }
+        clear();
+
         json j;
         {
             std::ifstream file_input{file};

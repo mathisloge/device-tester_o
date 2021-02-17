@@ -104,10 +104,9 @@ namespace dt::df
 
     BaseNode::BaseNode(const nlohmann::json &json, Slots &&inputs, Slots &&outputs)
     {
-        // i know, this is UB. But since the constructor shouldn't throw anything, we need to make sure, that these keys exist before the construction. aka. in GraphImpl
-        impl_ = new BaseNode::Impl{json["id"], json["key"], json["title"], std::forward<Slots>(inputs), std::forward<Slots>(outputs)};
         try
         {
+            impl_ = new BaseNode::Impl{json.at("id"), json.at("key"), json.at("title"), std::forward<Slots>(inputs), std::forward<Slots>(outputs)};
             const auto &pos = json.at("position");
             impl_->setPosition(pos.at("x"), pos.at("y"));
         }
@@ -124,8 +123,8 @@ namespace dt::df
     void BaseNode::render()
     {
         impl_->updatePosIfNeeded();
-        imnodes::BeginNode(impl_->id_);
 
+        imnodes::BeginNode(impl_->id_);
         imnodes::BeginNodeTitleBar();
         ImGui::TextUnformatted(impl_->title_.c_str());
         imnodes::EndNodeTitleBar();

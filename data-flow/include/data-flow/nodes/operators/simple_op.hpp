@@ -19,6 +19,9 @@ namespace dt::df::operators
         virtual double calc(const double a, const double b) const = 0;
 
     private:
+        void initSlots();
+
+    private:
         class Impl;
         Impl *impl_;
     };
