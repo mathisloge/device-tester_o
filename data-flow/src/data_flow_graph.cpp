@@ -16,6 +16,18 @@ namespace dt::df
             [](const nlohmann::json &j) { return std::make_shared<TSimpleOp>(j); });
     }
 
+    template <typename TSimpleCmp>
+    void registerSimpleCmp(DataFlowGraph &fg, const std::string &group)
+    {
+        fg.registerNode(
+            TSimpleCmp::kNodeKey,
+            group + TSimpleCmp::kNodeName,
+            [](NodeIdGenerator &node_id, SlotIdGenerator &slot_id) {
+                return std::make_shared<TSimpleCmp>(node_id(), slot_id(), slot_id(), slot_id(), slot_id(), slot_id());
+            },
+            [](const nlohmann::json &j) { return std::make_shared<TSimpleCmp>(j); });
+    }
+
     DataFlowGraph::DataFlowGraph()
         : impl_{new GraphImpl()}
     {
@@ -47,12 +59,13 @@ namespace dt::df
         registerSimpleOp<operators::Addition>(*this, "operators/math/");
         registerSimpleOp<operators::Subtraction>(*this, "operators/math/");
         registerSimpleOp<operators::Modulo>(*this, "operators/math/");
-        registerSimpleOp<operators::Less>(*this, "operators/cmp/");
-        registerSimpleOp<operators::LEQ>(*this, "operators/cmp/");
-        registerSimpleOp<operators::EQ>(*this, "operators/cmp/");
-        registerSimpleOp<operators::NEQ>(*this, "operators/cmp/");
-        registerSimpleOp<operators::GEQ>(*this, "operators/cmp/");
-        registerSimpleOp<operators::Greater>(*this, "operators/cmp/");
+        registerSimpleOp<operators::Pow>(*this, "operators/math/");
+        registerSimpleCmp<operators::Less>(*this, "operators/cmp/");
+        registerSimpleCmp<operators::LEQ>(*this, "operators/cmp/");
+        registerSimpleCmp<operators::EQ>(*this, "operators/cmp/");
+        registerSimpleCmp<operators::NEQ>(*this, "operators/cmp/");
+        registerSimpleCmp<operators::GEQ>(*this, "operators/cmp/");
+        registerSimpleCmp<operators::Greater>(*this, "operators/cmp/");
     }
 
     void DataFlowGraph::registerNode(const NodeKey &key, const std::string &node_display_name, NodeFactory &&factory, NodeDeserializationFactory &&deser_factory)

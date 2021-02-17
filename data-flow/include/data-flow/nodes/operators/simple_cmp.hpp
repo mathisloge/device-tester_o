@@ -7,11 +7,13 @@ namespace dt::df::operators
     {
     public:
         SimpleCmp(const NodeId id,
-                 const NodeKey &key,
-                 const std::string &title,
-                 const SlotId in_a, const std::string &in_a_name,
-                 const SlotId in_b, const std::string &in_b_name,
-                 const SlotId out_res, const std::string &result_name = "result");
+                  const NodeKey &key,
+                  const std::string &title,
+                  const SlotId in_a, const std::string &in_a_name,
+                  const SlotId in_b, const std::string &in_b_name,
+                  const SlotId out_res, const std::string &result_name,
+                  const SlotId true_res,
+                  const SlotId false_res);
         SimpleCmp(const nlohmann::json &json);
         virtual ~SimpleCmp();
 

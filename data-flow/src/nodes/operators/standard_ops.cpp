@@ -25,6 +25,10 @@ namespace dt::df::operators
     return std::fmod(a, b);
     DT_DF_IMPL_SIMPLE_OP_END
 
+    DT_DF_IMPL_SIMPLE_OP_BEGIN(Pow, power, a, x, result)
+    return std::pow(a, b);
+    DT_DF_IMPL_SIMPLE_OP_END
+
     DT_DF_IMPL_SIMPLE_CMP_BEGIN(Less, less, a, b, result)
     return a < b;
     DT_DF_IMPL_SIMPLE_CMP_END

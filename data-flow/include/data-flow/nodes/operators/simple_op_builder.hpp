@@ -25,7 +25,9 @@
         OP_NAME(const NodeId id,                                      \
                 const SlotId in_a,                                    \
                 const SlotId in_b,                                    \
-                const SlotId out_res);                                \
+                const SlotId out_res,                                 \
+                const SlotId true_res,                                \
+                const SlotId false_res);                               \
         OP_NAME(const nlohmann::json &);                              \
         ~##OP_NAME();                                                 \
                                                                       \
