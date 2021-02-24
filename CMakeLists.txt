@@ -29,7 +29,6 @@ endif()
 
 add_subdirectory(dt-dataflow)
 add_subdirectory(nmea)
-#add_subdirectory(data-flow)
 add_subdirectory(plugins)
 add_subdirectory(app)
 
