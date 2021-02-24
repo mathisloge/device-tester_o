@@ -1,7 +1,8 @@
 #include "app.hpp"
-#include <implot.h>
+#include <dt/df/core/gui.hpp>
+#include <dt/df/editor/gui.hpp>
 #include <imnodes.h>
-#include <data-flow/gui.hpp>
+#include <implot.h>
 using namespace Magnum;
 
 namespace gui
@@ -15,16 +16,17 @@ namespace gui
         ImGui::CreateContext();
         ImPlot::CreateContext();
 
-        dt::df::InitDataflow(ImGui::GetCurrentContext());
         auto &imgui_io = ImGui::GetIO();
         {
             imnodes::Initialize();
             imnodes::IO &imnodes_io = imnodes::GetIO();
             imnodes_io.link_detach_with_modifier_click.modifier = &imgui_io.KeyCtrl;
         }
-
+        dt::df::core::InitGui(ImGui::GetCurrentContext(), imnodes::GetCurrentContext());
+        dt::df::editor::InitGui(ImGui::GetCurrentContext(), imnodes::GetCurrentContext());
+#if IMGUI_HAS_DOCK
         imgui_io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-
+#endif
         imgui_io.Fonts->Clear();
 
         const Vector2 size = Vector2{windowSize()} / dpiScaling();
@@ -73,8 +75,9 @@ namespace gui
             startTextInput();
         else if (!ImGui::GetIO().WantTextInput && isTextInputActive())
             stopTextInput();
-
+#if IMGUI_HAS_DOCK
         ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
+#endif
         showMainMenu();
         device_create_modal_.draw();
         device_manager_.draw();
@@ -169,6 +172,7 @@ namespace gui
     {
         ImPlot::DestroyContext();
         imnodes::Shutdown();
-        dt::df::ShutdownDataflow();
+        dt::df::core::ShutdownGui();
+        dt::df::editor::ShutdownGui();
     }
 } // namespace gui

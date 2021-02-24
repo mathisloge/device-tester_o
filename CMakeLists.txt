@@ -27,8 +27,9 @@ if(BUILD_TESTING)
     find_package(Catch2 REQUIRED)
 endif()
 
+add_subdirectory(dt-dataflow)
 add_subdirectory(nmea)
-add_subdirectory(data-flow)
+#add_subdirectory(data-flow)
 add_subdirectory(plugins)
 add_subdirectory(app)
 
@@ -48,3 +49,5 @@ endif()
 
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Mathis Logemann")
 include (CPack)
+
+#todo: "docking-experimental"

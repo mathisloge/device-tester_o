@@ -1,10 +1,7 @@
 #include "data_flow_editor.hpp"
 #include <spdlog/spdlog.h>
 #include <imgui.h>
-#include <data-flow/nodes/utils/timer_node.hpp>
-#include <data-flow/nodes/core/base_node.hpp>
-#include <data-flow/slots/int_slot.hpp>
-#include "../data-flow/led.hpp"
+
 namespace gui
 {
 
@@ -14,32 +11,8 @@ namespace gui
     {
         flags_ = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
         refreshProtocols();
-
-        df_editor_.graph().registerBuildinNodes();
-
-        df_editor_.graph().registerNode(
-            "int-node",
-            "utils/Int Node",
-            [](dt::df::NodeIdGenerator &node_id, dt::df::SlotIdGenerator &slot_id) {
-                return std::make_shared<dt::df::BaseNode>(node_id(), "int-node", "INT",
-                                                          dt::df::Slots{},
-                                                          dt::df::Slots{std::make_shared<dt::df::IntSlot>(dt::df::IntSlot::kKey, slot_id(), dt::df::SlotType::output, "int", 0, dt::df::SlotFieldVisibility::always)});
-            },
-            [](const nlohmann::json &j) {
-                return std::make_shared<dt::df::BaseNode>(j,
-                                                          dt::df::Slots{},
-                                                          dt::df::Slots{std::make_shared<dt::df::IntSlot>(j["outputs"][0])});
-            });
-
-        df_editor_.graph().registerNode(
-            LED::kNodeKey,
-            "interaction/LED",
-            [](dt::df::NodeIdGenerator &node_id, dt::df::SlotIdGenerator &slot_id) {
-                return std::make_shared<LED>(node_id(), slot_id(), slot_id(), slot_id(), slot_id(), slot_id(), slot_id());
-            },
-            [](const nlohmann::json &j) {
-                return std::make_shared<LED>(j);
-            });
+        df_editor_.init();
+        
     }
 
     void DataFlowEditor::drawContent()

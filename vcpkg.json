@@ -11,12 +11,13 @@
         "boost-circular-buffer",
         "boost-spirit",
         "boost-graph",
+        "sol2",
         "nlohmann-json",
         "corrade",
         {
             "name": "imgui",
             "features": [
-                "docking-experimental"
+                
             ]
         },
         "implot",
@@ -33,7 +34,6 @@
             "features": [
                 "imgui"
             ]
-        },
-        "nlohmann-json"
+        }
     ]
 }

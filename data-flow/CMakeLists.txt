@@ -3,7 +3,7 @@ project(DataFlow)
 find_package(imgui CONFIG REQUIRED)
 find_package(Boost REQUIRED COMPONENTS graph)
 find_package(nlohmann_json CONFIG REQUIRED)
-
+find_package(sol2 CONFIG REQUIRED)
 include(GenerateExportHeader)
 
 set_directory_properties(PROPERTIES CORRADE_USE_PEDANTIC_FLAGS ON)
@@ -43,6 +43,7 @@ target_link_libraries(DataFlow PUBLIC
     Boost::graph
     imgui::imgui
     nlohmann_json::nlohmann_json
+    sol2::sol2
 )
 
 target_link_libraries(DataFlow PRIVATE
