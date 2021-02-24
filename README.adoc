@@ -38,7 +38,7 @@ Thanks to https://github.com/ocornut[omar,role=external,window=_blank] for the a
 
 Thanks to https://github.com/epezent[epezent,role=external,window=_blank] for creating the great graph library https://github.com/epezent/implot[ImPlot,role=external,window=_blank]
 
-
+Thanks to https://github.com/Nelarius[Nelarius,role=external,window=_blank] for the great visual node graph implementation https://github.com/Nelarius/imnodes[imnodes,role=external,window=_blank]
 
 == Screenshots
 
