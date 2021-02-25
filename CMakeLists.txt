@@ -14,8 +14,6 @@ add_library(imgui-club INTERFACE)
 target_include_directories(imgui-club INTERFACE imgui_club/imgui_memory_editor)
 add_library(imgui::club ALIAS imgui-club)
 
-add_subdirectory(imnodes)
-
 option(ENABLE_TESTS ON)
 
 set(ENABLE_TESTS ON)
@@ -27,7 +25,8 @@ if(BUILD_TESTING)
     find_package(Catch2 REQUIRED)
 endif()
 
-add_subdirectory(dt-dataflow)
+set(BUILD_SHARED_LIBS ON)
+add_subdirectory(dt-dataflow-editor)
 add_subdirectory(nmea)
 add_subdirectory(plugins)
 add_subdirectory(app)

@@ -96,8 +96,8 @@ target_link_libraries(gps-tester PUBLIC
     MagnumIntegration::ImGui
     nlohmann_json nlohmann_json::nlohmann_json
     plugin::protocol
-    dt::DtDfCore
-    dt::DtDfEditor
+    dt::DtDataflowCore
+    dt::DtDataflowEditor
 )
 
 add_executable(gps-tester-app 
