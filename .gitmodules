@@ -7,9 +7,3 @@
 [submodule "nmea"]
 	path = nmea
 	url = https://github.com/mathisloge/nmea
-[submodule "imnodes/imnodes"]
-	path = imnodes/imnodes
-	url = https://github.com/mathisloge/imnodes
-[submodule "dt-dataflow"]
-	path = dt-dataflow
-	url = https://github.com/mathisloge/dt-dataflow
