@@ -23,7 +23,7 @@ namespace gui
             imnodes_io.link_detach_with_modifier_click.modifier = &imgui_io.KeyCtrl;
         }
         dt::df::core::InitGui(ImGui::GetCurrentContext(), imnodes::GetCurrentContext());
-        dt::df::editor::InitGui(ImGui::GetCurrentContext(), imnodes::GetCurrentContext());
+        dt::df::editor::InitGui(Magnum::GL::Context::current(), ImGui::GetCurrentContext(), imnodes::GetCurrentContext());
 #if IMGUI_HAS_DOCK
         imgui_io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 #endif
