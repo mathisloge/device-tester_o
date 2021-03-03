@@ -24,7 +24,7 @@ namespace gui
         }
         dt::df::core::InitGui(ImGui::GetCurrentContext(), imnodes::GetCurrentContext());
         dt::df::editor::InitGui(Magnum::GL::Context::current(), ImGui::GetCurrentContext(), imnodes::GetCurrentContext());
-#if IMGUI_HAS_DOCK
+#ifdef IMGUI_HAS_DOCK
         imgui_io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 #endif
         imgui_io.Fonts->Clear();
@@ -75,7 +75,7 @@ namespace gui
             startTextInput();
         else if (!ImGui::GetIO().WantTextInput && isTextInputActive())
             stopTextInput();
-#if IMGUI_HAS_DOCK
+#ifdef IMGUI_HAS_DOCK
         ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
 #endif
         showMainMenu();

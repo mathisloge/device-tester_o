@@ -88,8 +88,9 @@ target_link_libraries(gps-tester PUBLIC
     imgui::imgui
     implot::implot
     imgui::club
-    imgui::imnodes
+    dt::imnodes
     Corrade::Main
+    Corrade::PluginManager
     Magnum::Application
     Magnum::GL
     Magnum::Magnum

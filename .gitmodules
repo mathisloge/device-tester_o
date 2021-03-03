@@ -7,6 +7,3 @@
 [submodule "nmea"]
 	path = nmea
 	url = https://github.com/mathisloge/nmea
-[submodule "dt-dataflow-editor"]
-	path = dt-dataflow-editor
-	url = https://github.com/mathisloge/dt-dataflow-editor
