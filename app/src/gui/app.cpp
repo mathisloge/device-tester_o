@@ -8,7 +8,7 @@ using namespace Magnum;
 namespace gui
 {
     App::App(const Arguments &arguments)
-        : Platform::Application{arguments, Configuration{}.setTitle("GNSS Tester").setWindowFlags(Configuration::WindowFlag::Resizable)},
+        : Platform::Application{arguments, Configuration{}.setTitle("Device Tester").setWindowFlags(Configuration::WindowFlag::Resizable)},
           device_create_modal_{device_manager_},
           test_data_flow_editor_{nullptr}
     {
