@@ -14,9 +14,21 @@ v0.1.0
 This program can be used to view the output of serial ports, display GNSS output or view protocol contents.
 
 == Plugins
-NOTE: Plugins are currently not implemented, but are on the roadmap.
+Plugins for protocols and data flow are currently in alpha stage.
 
-Load plugins with menu:Plugins[Load]. You should now be able to add the loaded devices to a established connection.
+=== Dataflow
+
+* https://github.com/mathisloge/dt-dataflow-plugin-default
+* https://github.com/mathisloge/dt-dataflow-opencv
+
+
+A quickstart template: https://github.com/mathisloge/dt-dataflow-plugin-template
+
+
+=== Protocols
+
+Currently under plugins/protocol. 
+Will be pulled out into an own repository.
 
 == Build
 [source,shell]
