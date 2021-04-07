@@ -18,7 +18,7 @@ namespace gui
 
         auto &imgui_io = ImGui::GetIO();
         {
-            imnodes::Initialize();
+            imnodes::CreateContext();
             imnodes::IO &imnodes_io = imnodes::GetIO();
             imnodes_io.link_detach_with_modifier_click.modifier = &imgui_io.KeyCtrl;
         }
@@ -171,7 +171,7 @@ namespace gui
     App::~App()
     {
         ImPlot::DestroyContext();
-        imnodes::Shutdown();
+        imnodes::DestroyContext();
         dt::df::core::ShutdownGui();
         dt::df::editor::ShutdownGui();
     }
