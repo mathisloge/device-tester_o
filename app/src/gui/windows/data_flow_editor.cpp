@@ -5,12 +5,10 @@
 namespace gui
 {
 
-    DataFlowEditor::DataFlowEditor(const std::string &win_name, protocol::ProtocolLoader &proto_loader)
-        : BaseWindow(win_name),
-          proto_loader_{proto_loader}
+    DataFlowEditor::DataFlowEditor(const std::string &win_name)
+        : BaseWindow(win_name)
     {
         flags_ = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
-        refreshProtocols();
         df_editor_.init();
         
     }
@@ -20,8 +18,6 @@ namespace gui
         constexpr int kSidebarWidth = 250;
         { // sidebar
             ImGui::BeginChild("sidbar_data_flow", ImVec2{kSidebarWidth, 0}, true);
-            if (ImGui::Button("Refresh protocols", ImVec2{kSidebarWidth, 0}))
-                refreshProtocols();
             if (ImGui::Button("Clear graph", ImVec2{kSidebarWidth, 0}))
                 df_editor_.graph().clear();
 
@@ -61,11 +57,6 @@ namespace gui
                     }
                 });
             }
-            if (ImGui::TreeNode("Protocols"))
-            {
-                drawProtocols();
-                ImGui::TreePop();
-            }
             ImGui::EndChild();
         }
         ImGui::SameLine();
@@ -79,39 +70,6 @@ namespace gui
         }
     }
 
-    void DataFlowEditor::drawProtocols()
-    {
-        for (const auto &proto_name : protocol_names_)
-        {
-            if (ImGui::TreeNode(proto_name.c_str()))
-            {
-                ImGui::Button("Protocol instance");
-                if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
-                {
-                    ImGui::SetDragDropPayload(kDndTarget, this, sizeof(this));
-                    ImGui::Text(proto_name.c_str());
-                    ImGui::EndDragDropSource();
-                }
-                ImGui::Indent();
-                for (int i = 0; i < 10; i++)
-                {
-                    const auto btn_name = fmt::format("Message {}", i);
-                    ImGui::Button(btn_name.c_str());
-                    if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
-                    {
-                        ImGui::SetDragDropPayload(kDndTarget, this, sizeof(this));
-                        ImGui::Text(btn_name.c_str());
-                        ImGui::EndDragDropSource();
-                    }
-                }
-
-                ImGui::Unindent();
-
-                ImGui::TreePop();
-            }
-        }
-    }
-
     void DataFlowEditor::handleDnD()
     {
         if (ImGui::BeginDragDropTarget())
@@ -122,10 +80,5 @@ namespace gui
             }
             ImGui::EndDragDropTarget();
         }
-    }
-
-    void DataFlowEditor::refreshProtocols()
-    {
-        protocol_names_ = proto_loader_.findAllProtocols();
     }
 } // namespace gui

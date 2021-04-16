@@ -1,4 +1,5 @@
 #pragma once
+#if 0
 #include <boost/noncopyable.hpp>
 #include <Corrade/PluginManager/Manager.h>
 #include <dt-protocol/protocol_plugin.hpp>
@@ -17,3 +18,4 @@ namespace protocol
         Corrade::PluginManager::Manager<ProtocolPlugin> manager_;
     };
 } // namespace protocol
+#endif

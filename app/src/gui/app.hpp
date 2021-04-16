@@ -18,7 +18,7 @@
 #include "modals/device_create.hpp"
 
 #include "windows/data_flow_editor.hpp"
-#include "../protocols/protocol_loader.hpp"
+//#include "../protocols/protocol_loader.hpp"
 
 namespace gui
 {
@@ -51,7 +51,7 @@ namespace gui
         
         DeviceCreate device_create_modal_;
 
-        protocol::ProtocolLoader protocol_loader_;
+        //protocol::ProtocolLoader protocol_loader_;
         std::unique_ptr<DataFlowEditor> test_data_flow_editor_;
     };
 } // namespace gui

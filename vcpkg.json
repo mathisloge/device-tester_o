@@ -4,7 +4,6 @@
     "dependencies": [
         "spdlog",
         "catch2",
-        "comms-ublox",
         "boost-asio",
         "boost-dll",
         "boost-signals2",

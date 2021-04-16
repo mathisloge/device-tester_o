@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.20)
 project(DeviceTester
         VERSION 0.1.0
         DESCRIPTION "device tester application"
@@ -28,8 +28,8 @@ if(BUILD_TESTING)
 endif()
 
 set(BUILD_SHARED_LIBS ON)
-add_subdirectory(nmea)
-add_subdirectory(plugins)
+#add_subdirectory(nmea)
+#add_subdirectory(plugins)
 add_subdirectory(app)
 
 add_subdirectory(docs)

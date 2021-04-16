@@ -1,3 +1,4 @@
+#if 0
 #include <catch.hpp>
 #include <iostream>
 #include <span>
@@ -75,3 +76,4 @@ SCENARIO("protocol dispatcher with simple protocols", "[protocol-dispatcher]")
         }
     }
 }
+#endif

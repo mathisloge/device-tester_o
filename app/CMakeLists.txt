@@ -1,5 +1,7 @@
-cmake_minimum_required(VERSION 3.14)
+project(device-tester)
 
+set(LIB_NAME ${CMAKE_PROJECT_NAME})
+set(APP_NAME ${CMAKE_PROJECT_NAME}_app)
 
 find_package(implot CONFIG REQUIRED)
 add_library(ImGui::ImGui ALIAS imgui::imgui)
@@ -63,16 +65,16 @@ set(GUI_SRC
     src/gui/windows/data_flow_editor.cpp
 )
 
-add_library(gps-tester STATIC
+add_library(${LIB_NAME} STATIC
     ${CONNECTION_SRC}
-    ${PROTOCOL_SRC}
+    #${PROTOCOL_SRC}
     ${DEVICE_SRC}
     ${CONFIG_SRC}
     ${GUI_SRC}
 )
-set_property(TARGET gps-tester PROPERTY CXX_STANDARD 20)
+set_property(TARGET ${LIB_NAME} PROPERTY CXX_STANDARD 20)
 if(MSVC)
-    set_property(TARGET gps-tester APPEND PROPERTY COMPILE_OPTIONS "/bigobj")
+    set_property(TARGET ${LIB_NAME} APPEND PROPERTY COMPILE_OPTIONS "/bigobj")
 endif()
 
 set(COMPILE_DEFS BOOST_ASIO_USE_TS_EXECUTOR_AS_DEFAULT SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_DEBUG)
@@ -80,8 +82,8 @@ if(WIN32)
     # fix to win 10 yet
     list(APPEND COMPILE_DEFS _WIN32_WINNT=0x0A00)
 endif()
-target_compile_definitions(gps-tester PUBLIC ${COMPILE_DEFS})
-target_link_libraries(gps-tester PUBLIC 
+target_compile_definitions(${LIB_NAME} PUBLIC ${COMPILE_DEFS})
+target_link_libraries(${LIB_NAME} PUBLIC 
     Boost::headers
     Boost::graph
     spdlog::spdlog
@@ -96,39 +98,38 @@ target_link_libraries(gps-tester PUBLIC
     Magnum::Magnum
     MagnumIntegration::ImGui
     nlohmann_json nlohmann_json::nlohmann_json
-    plugin::protocol
     dt::DtDataflowCore
     dt::DtDataflowEditor
 )
 
-add_executable(gps-tester-app 
+add_executable(${APP_NAME} 
     src/main.cpp
 )
-set_property(TARGET gps-tester-app PROPERTY CXX_STANDARD 20)
-target_link_libraries(gps-tester-app PRIVATE imgui::imgui gps-tester)
+set_property(TARGET ${APP_NAME} PROPERTY CXX_STANDARD 20)
+target_link_libraries(${APP_NAME} PRIVATE imgui::imgui ${LIB_NAME})
 
 # add hidpi instructions
 if(WIN32)
     if(MSVC)
-        target_sources(gps-tester-app PRIVATE WindowsHiDPI.manifest)
+        target_sources(${APP_NAME} PRIVATE WindowsHiDPI.manifest)
     elseif(MINGW)
-        target_sources(gps-tester-app PRIVATE WindowsHiDPI.rc)
+        target_sources(${APP_NAME} PRIVATE WindowsHiDPI.rc)
     endif()
 endif()
 
-add_custom_command(TARGET gps-tester-app PRE_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory fonts/ $<TARGET_FILE_DIR:gps-tester-app>/fonts)
+add_custom_command(TARGET ${APP_NAME} PRE_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory fonts/ $<TARGET_FILE_DIR:${APP_NAME}>/fonts)
 
 if(BUILD_TESTING)
-    add_executable(gps-tester-tests 
+    add_executable(${LIB_NAME}-tests 
         test/main.cpp
         test/protocols/protocol_dispatcher.cpp
     )
-    set_property(TARGET gps-tester-tests PROPERTY CXX_STANDARD 20)
-    target_link_libraries(gps-tester-tests Catch2::Catch2 gps-tester)
-    target_include_directories(gps-tester-tests PRIVATE src)
+    set_property(TARGET ${LIB_NAME}-tests PROPERTY CXX_STANDARD 20)
+    target_link_libraries(${LIB_NAME}-tests Catch2::Catch2 ${LIB_NAME})
+    target_include_directories(${LIB_NAME}-tests PRIVATE src)
 
     include(Catch)
-    catch_discover_tests(gps-tester-tests)
+    catch_discover_tests(${LIB_NAME}-tests)
 endif()
 
-install(TARGETS gps-tester-app)
+install(TARGETS ${APP_NAME})
