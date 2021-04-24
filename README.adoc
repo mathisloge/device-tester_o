@@ -18,6 +18,8 @@ Plugins for protocols and data flow are currently in alpha stage.
 
 === Dataflow
 
+(core for all plugins: https://github.com/mathisloge/dt-dataflow)
+
 * https://github.com/mathisloge/dt-dataflow-plugin-default
 * https://github.com/mathisloge/dt-dataflow-opencv
 * https://github.com/mathisloge/dt-dataflow-plugin-connection
