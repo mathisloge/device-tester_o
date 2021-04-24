@@ -20,6 +20,8 @@ Plugins for protocols and data flow are currently in alpha stage.
 
 * https://github.com/mathisloge/dt-dataflow-plugin-default
 * https://github.com/mathisloge/dt-dataflow-opencv
+* https://github.com/mathisloge/dt-dataflow-plugin-connection
+* https://github.com/mathisloge/dt-dataflow-plugin-protocols
 
 
 A quickstart template: https://github.com/mathisloge/dt-dataflow-plugin-template
@@ -44,13 +46,13 @@ cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsy
 
 == Acknowledgments
 
-Thanks to https://github.com/mosra[mosra,role=external,window=_blank] for creating such an easy to use graphics middleware https://github.com/mosra/magnum[Magnum @ Github,role=external,window=_blank] - https://magnum.graphics[Website,role=external,window=_blank].
+Thanks to https://github.com/mosra[mosra,role=external,window=_blank] for creating the graphics middleware https://github.com/mosra/magnum[Magnum @ Github,role=external,window=_blank] - https://magnum.graphics[Website,role=external,window=_blank].
 
-Thanks to https://github.com/ocornut[omar,role=external,window=_blank] for the awesome UI Library https://github.com/ocornut/imgui[Dear ImGui,role=external,window=_blank] and https://github.com/ocornut/imgui_club[ImGui Club,role=external,window=_blank].
+Thanks to https://github.com/ocornut[omar,role=external,window=_blank] for the UI Library https://github.com/ocornut/imgui[Dear ImGui,role=external,window=_blank] and https://github.com/ocornut/imgui_club[ImGui Club,role=external,window=_blank].
 
-Thanks to https://github.com/epezent[epezent,role=external,window=_blank] for creating the great graph library https://github.com/epezent/implot[ImPlot,role=external,window=_blank]
+Thanks to https://github.com/epezent[epezent,role=external,window=_blank] for creating the graph library https://github.com/epezent/implot[ImPlot,role=external,window=_blank]
 
-Thanks to https://github.com/Nelarius[Nelarius,role=external,window=_blank] for the great visual node graph implementation https://github.com/Nelarius/imnodes[imnodes,role=external,window=_blank]
+Thanks to https://github.com/Nelarius[Nelarius,role=external,window=_blank] for the visual node graph implementation https://github.com/Nelarius/imnodes[imnodes,role=external,window=_blank]
 
 == Screenshots
 
