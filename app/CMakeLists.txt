@@ -51,7 +51,7 @@ set(GUI_SRC
     src/gui/device_manager.cpp
     src/gui/app.cpp
     src/gui/widgets/raw_text_output.cpp
-    src/gui/widgets/raw_mem_viewer.cpp
+    #src/gui/widgets/raw_mem_viewer.cpp
     src/gui/widgets/plot_throughput.cpp
     src/gui/widgets/inputs.cpp
     src/gui/widgets/connection_settings.cpp

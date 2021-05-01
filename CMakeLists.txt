@@ -28,8 +28,6 @@ if(BUILD_TESTING)
 endif()
 
 set(BUILD_SHARED_LIBS ON)
-#add_subdirectory(nmea)
-#add_subdirectory(plugins)
 add_subdirectory(app)
 
 add_subdirectory(docs)

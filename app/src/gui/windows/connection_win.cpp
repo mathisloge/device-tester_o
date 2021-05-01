@@ -8,7 +8,7 @@ namespace gui
     {
         device_connection.connectData([this](std::span<uint8_t> data) {
             raw_text_.addData(data);
-            raw_mem_viewer_.addData(data);
+            //raw_mem_viewer_.addData(data);
             data_throughput_.addData(data);
         });
     }
@@ -36,7 +36,7 @@ namespace gui
             }
             if (ImGui::BeginTabItem("Hex viewer"))
             {
-                raw_mem_viewer_.draw();
+                //raw_mem_viewer_.draw();
                 ImGui::Separator();
                 drawConnectionRawInput();
                 ImGui::EndTabItem();

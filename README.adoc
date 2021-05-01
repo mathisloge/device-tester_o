@@ -57,20 +57,3 @@ Thanks to https://github.com/epezent[epezent,role=external,window=_blank] for cr
 Thanks to https://github.com/Nelarius[Nelarius,role=external,window=_blank] for the visual node graph implementation https://github.com/Nelarius/imnodes[imnodes,role=external,window=_blank]
 
 == Screenshots
-
-[#img-add-connection] 
-.Add connection with previous connection test
-image::screen_add_connection.png[ConAdd]  
-
-[#img-serial-raw] 
-.Serial connection raw output
-image::screen_serial_raw.png[SerialRawOutput]  
-
-[#img-serial-raw-hex] 
-.Serial connection raw hex output
-image::screen_serial_raw_hex.png[SerialRawHexOutput]  
-
-
-[#img-serial-throughput] 
-.Serial connection throughput
-image::screen_serial_throughput.png[SerialThroughput]  
